@@ -42,19 +42,19 @@ namespace MyApi.Controllers.v1
             return result;
         }
 
-        [Authorize(Roles = "Admin")]
+        [Authorize(Policy = "WorkerPolicy")]
         public override Task<ApiResult<List<CommentSelectDto>>> Get(CancellationToken cancellationToken)
         {
             return base.Get(cancellationToken);
         }
 
-        [Authorize(Roles = "Admin")]
+        [Authorize(Policy = "SuperAdminPolicy")]
         public override Task<ApiResult> Delete(int id, CancellationToken cancellationToken)
         {
             return base.Delete(id, cancellationToken);
         }
 
-        [Authorize(Roles = "Admin")]
+        [Authorize(Policy = "WorkerPolicy")]
         public override Task<ApiResult<CommentSelectDto>> Update(int id, CommentDto dto, CancellationToken cancellationToken)
         {
             return base.Update(id, dto, cancellationToken);

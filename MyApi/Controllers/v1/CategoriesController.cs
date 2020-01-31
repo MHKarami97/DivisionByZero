@@ -34,13 +34,13 @@ namespace MyApi.Controllers.v1
             return base.Get(cancellationToken);
         }
 
-        [Authorize(Roles = "Admin")]
+        [Authorize(Policy = "WorkerPolicy")]
         public override Task<ApiResult<CategoryDto>> Update(int id, CategoryDto dto, CancellationToken cancellationToken)
         {
             return base.Update(id, dto, cancellationToken);
         }
 
-        [Authorize(Roles = "Admin")]
+        [Authorize(Policy = "SuperAdminPolicy")]
         public override Task<ApiResult> Delete(int id, CancellationToken cancellationToken)
         {
             return base.Delete(id, cancellationToken);

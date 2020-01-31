@@ -62,7 +62,7 @@ namespace MyApi.Controllers.v1
             return BadRequest();
         }
 
-        [Authorize(Roles = "Admin")]
+        [Authorize(Policy = "SuperAdminPolicy")]
         public override Task<ApiResult> Delete(int id, CancellationToken cancellationToken)
         {
             return base.Delete(id, cancellationToken);

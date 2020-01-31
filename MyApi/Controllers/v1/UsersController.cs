@@ -15,7 +15,6 @@ using Entities.User;
 using WebFramework.Api;
 using Microsoft.AspNetCore.Identity;
 using Services.Services;
-using WebFramework.Filters;
 
 namespace MyApi.Controllers.v1
 {
@@ -122,7 +121,7 @@ namespace MyApi.Controllers.v1
         }
 
         [AllowAnonymous]
-        [HttpGet("[action]"), HttpPost("[action]")]
+        [HttpGet("[action]")]
         public async Task<bool> Logout()
         {
             if (!(User.Identity is ClaimsIdentity claimsIdentity))
@@ -189,6 +188,7 @@ namespace MyApi.Controllers.v1
         }
 
         [HttpDelete]
+        [Authorize(Policy = "SuperAdminPolicy")]
         public virtual async Task<ApiResult> Delete(int id, CancellationToken cancellationToken)
         {
             var user = await _userRepository.GetByIdAsync(cancellationToken, id);

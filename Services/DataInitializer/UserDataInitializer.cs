@@ -1,8 +1,10 @@
 ﻿using System;
 using System.Linq;
+using Common;
 using Entities.User;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Options;
 
 namespace Services.DataInitializer
 {
@@ -10,42 +12,45 @@ namespace Services.DataInitializer
     {
         private readonly UserManager<User> _userManager;
         private readonly RoleManager<Role> _roleManager;
+        private readonly SiteSettings _settings;
 
-        public UserDataInitializer(UserManager<User> userManager, RoleManager<Role> roleManager)
+        public UserDataInitializer(UserManager<User> userManager, RoleManager<Role> roleManager, IOptions<SiteSettings>  settings)
         {
             _userManager = userManager;
             _roleManager = roleManager;
+            _settings = settings.Value;
         }
 
         public void InitializeData()
         {
-            if (_userManager.Users.AsNoTracking().Any(p => p.UserName == "mhkarami97")) return;
+            var setting = _settings.Identity;
+
+            if (_userManager.Users.AsNoTracking().Any(p => p.UserName == setting.Username)) return;
 
             var user = new User
             {
                 Birthday = DateTime.Now,
-                FullName = "محمد حسین کرمی",
+                FullName = setting.FullName,
                 Gender = GenderType.Male,
-                UserName = "mhkarami97",
-                Email = "mhkarami1997@gmail.com"
+                UserName = setting.Username,
+                Email = setting.Email,
+                PhoneNumber = setting.Phone
             };
 
-            var role = new Role
+            _userManager.CreateAsync(user, setting.Password).GetAwaiter().GetResult();
+
+            var roles = setting.Roles.Split(',');
+
+            foreach (var role in roles)
             {
-                Name = "Admin",
-                Description = "Admin Role"
-            };
+                _roleManager.CreateAsync(new Role
+                {
+                    Name = role,
+                    Description = "Role " + role
+                }).GetAwaiter().GetResult();
+            }
 
-            var roleUser = new Role
-            {
-                Name = "User",
-                Description = "User Role"
-            };
-
-            _userManager.CreateAsync(user, "123456").GetAwaiter().GetResult();
-            _roleManager.CreateAsync(role).GetAwaiter().GetResult();
-            _roleManager.CreateAsync(roleUser).GetAwaiter().GetResult();
-            _userManager.AddToRoleAsync(user, "Admin").GetAwaiter().GetResult();
+            //_userManager.AddToRoleAsync(user, "Admin").GetAwaiter().GetResult();
         }
     }
 }
