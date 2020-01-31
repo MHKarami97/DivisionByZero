@@ -1,11 +1,14 @@
 ﻿using System.Collections.Generic;
+using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using AutoMapper;
+using AutoMapper.QueryableExtensions;
 using Data.Contracts;
 using Entities.Post;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 using MyApi.Models;
 using WebFramework.Api;
 
@@ -41,6 +44,30 @@ namespace MyApi.Controllers.v1
         public override Task<ApiResult> Delete(int id, CancellationToken cancellationToken)
         {
             return base.Delete(id, cancellationToken);
+        }
+
+        [HttpGet]
+        [AllowAnonymous]
+        public virtual async Task<ApiResult<List<CategoryDto>>> GetAllMainCat(CancellationToken cancellationToken)
+        {
+            var list = await Repository.TableNoTracking
+                .Where(a => a.ParentCategoryId.Equals(1))
+                .ProjectTo<CategoryDto>(Mapper.ConfigurationProvider)
+                .ToListAsync(cancellationToken);
+
+            return list;
+        }
+
+        [HttpGet]
+        [AllowAnonymous]
+        public virtual async Task<ApiResult<List<CategoryDto>>> GetAllByCatId(int id, CancellationToken cancellationToken)
+        {
+            var list = await Repository.TableNoTracking
+                .Where(a => a.ParentCategoryId.Equals(id))
+                .ProjectTo<CategoryDto>(Mapper.ConfigurationProvider)
+                .ToListAsync(cancellationToken);
+
+            return list;
         }
     }
 }
