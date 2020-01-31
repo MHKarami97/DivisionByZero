@@ -123,5 +123,19 @@ namespace MyApi.Controllers.v1
 
             return list;
         }
+
+        [HttpGet]
+        [AllowAnonymous]
+        public virtual async Task<ApiResult<List<PostSelectDto>>> Search(string str, CancellationToken cancellationToken)
+        {
+            var list = await Repository.TableNoTracking
+                .Where(a => a.Title.Contains(str))
+                .OrderByDescending(a => a.Time)
+                .ProjectTo<PostSelectDto>(Mapper.ConfigurationProvider)
+                .Take(DefaultTake)
+                .ToListAsync(cancellationToken);
+
+            return list;
+        }
     }
 }
