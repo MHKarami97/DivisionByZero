@@ -18,5 +18,29 @@ namespace MyApi.Controllers.v1
             : base(repository, mapper)
         {
         }
+
+        [AllowAnonymous]
+        public override Task<ApiResult<CategoryDto>> Get(int id, CancellationToken cancellationToken)
+        {
+            return base.Get(id, cancellationToken);
+        }
+
+        [AllowAnonymous]
+        public override Task<ApiResult<List<CategoryDto>>> Get(CancellationToken cancellationToken)
+        {
+            return base.Get(cancellationToken);
+        }
+
+        [Authorize(Roles = "Admin")]
+        public override Task<ApiResult<CategoryDto>> Update(int id, CategoryDto dto, CancellationToken cancellationToken)
+        {
+            return base.Update(id, dto, cancellationToken);
+        }
+
+        [Authorize(Roles = "Admin")]
+        public override Task<ApiResult> Delete(int id, CancellationToken cancellationToken)
+        {
+            return base.Delete(id, cancellationToken);
+        }
     }
 }
