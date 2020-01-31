@@ -79,7 +79,6 @@ namespace MyApi.Controllers.v1
         /// <param name="cancellationToken"></param>
         /// <returns></returns>
         [AllowAnonymous]
-        [HasAnonymousFilter]
         [HttpPost("[action]")]
         public virtual async Task<ActionResult> Token([FromForm]TokenRequest tokenRequest, CancellationToken cancellationToken)
         {
@@ -104,7 +103,6 @@ namespace MyApi.Controllers.v1
         }
 
         [AllowAnonymous]
-        [HasAnonymousFilter]
         [HttpPost("[action]")]
         public async Task<IActionResult> RefreshToken([FromForm]TokenRequest tokenRequest)
         {
@@ -146,15 +144,14 @@ namespace MyApi.Controllers.v1
 
         [HttpPost]
         [AllowAnonymous]
-        [HasAnonymousFilter]
         public virtual async Task<ApiResult<User>> Create(UserDto userDto, CancellationToken cancellationToken)
         {
             _logger.LogError("متد Create فراخوانی شد");
             HttpContext.RiseError(new Exception("متد Create فراخوانی شد"));
 
-            //var exists = await userRepository.TableNoTracking.AnyAsync(p => p.UserName == userDto.UserName);
-            //if (exists)
-            //    return BadRequest("نام کاربری تکراری است");
+            var exists = await _userManager.Users.AnyAsync(p => p.PhoneNumber == userDto.PhoneNumber, cancellationToken: cancellationToken);
+            if (exists)
+                return BadRequest("نام کاربری تکراری است");
 
             var user = new User
             {
