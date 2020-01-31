@@ -17,13 +17,11 @@ namespace MyApi.Controllers.v1
     [ApiVersion("1")]
     public class CommentsController : CrudController<CommentDto, CommentSelectDto, Comment>
     {
-        private readonly IRepository<Comment> _repository;
         private readonly IMapper _mapper;
 
         public CommentsController(IRepository<Comment> repository, IMapper mapper)
             : base(repository, mapper)
         {
-            _repository = repository;
             _mapper = mapper;
         }
 
@@ -36,7 +34,7 @@ namespace MyApi.Controllers.v1
         [AllowAnonymous]
         public async Task<ApiResult<List<CommentSelectDto>>> GetPostComments(int id, CancellationToken cancellationToken)
         {
-            var result = await _repository.TableNoTracking.ProjectTo<CommentSelectDto>(_mapper.ConfigurationProvider)
+            var result = await Repository.TableNoTracking.ProjectTo<CommentSelectDto>(_mapper.ConfigurationProvider)
                 .Where(a => a.PostId.Equals(id))
                 .ToListAsync(cancellationToken);
 

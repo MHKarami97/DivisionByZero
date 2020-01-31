@@ -39,5 +39,17 @@ namespace MyApi.Controllers.v1
 
             return list;
         }
+
+        [Authorize(Roles = "Admin")]
+        public override Task<ApiResult<EmploySelectDto>> Update(int id, EmployDto dto, CancellationToken cancellationToken)
+        {
+            return base.Update(id, dto, cancellationToken);
+        }
+
+        [Authorize(Roles = "Admin")]
+        public override Task<ApiResult> Delete(int id, CancellationToken cancellationToken)
+        {
+            return base.Delete(id, cancellationToken);
+        }
     }
 }
