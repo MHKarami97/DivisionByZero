@@ -83,8 +83,6 @@ namespace MyApi
 
             app.UseAuthorization();
 
-            app.UseHttpCacheHeaders();
-
             app.UseEndpoints(endpoints =>
             {
                 endpoints.MapControllers();

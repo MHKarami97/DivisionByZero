@@ -30,26 +30,22 @@ namespace Services.DataInitializer
                 Email = "mhkarami1997@gmail.com"
             };
 
-            _userManager.CreateAsync(user, "123456").GetAwaiter().GetResult();
+            var role = new Role
+            {
+                Name = "Admin",
+                Description = "Admin Role"
+            };
 
-            // var result = _roleManager.FindByNameAsync("Admin");
-            // var result1 = _roleManager.FindByNameAsync("User");
-            //
-            // if (result.Result == null)
-            //     _roleManager.CreateAsync(new Role
-            //     {
-            //         Name = "Admin",
-            //         Description = "admin role"
-            //     });
-            //
-            // if (result1.Result == null)
-            //     _roleManager.CreateAsync(new Role
-            //     {
-            //         Name = "User",
-            //         Description = "user role"
-            //     });
-            //
-            // _userManager.AddToRoleAsync(user, "Admin");
+            var roleUser = new Role
+            {
+                Name = "User",
+                Description = "User Role"
+            };
+
+            _userManager.CreateAsync(user, "123456").GetAwaiter().GetResult();
+            _roleManager.CreateAsync(role).GetAwaiter().GetResult();
+            _roleManager.CreateAsync(roleUser).GetAwaiter().GetResult();
+            _userManager.AddToRoleAsync(user, "Admin").GetAwaiter().GetResult();
         }
     }
 }
