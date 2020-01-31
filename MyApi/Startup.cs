@@ -49,16 +49,6 @@ namespace MyApi
 
             services.AddCustomApiVersioning();
 
-            services.AddHttpCacheHeaders(
-                (expirationModelOptions) =>
-                {
-                    expirationModelOptions.MaxAge = 600;
-                },
-                (validationModelOptions) =>
-                {
-                    validationModelOptions.MustRevalidate = true;
-                });
-
             services.AddSwagger();
 
             //services.AddElmah(Configuration, _siteSetting);
@@ -75,7 +65,7 @@ namespace MyApi
 
             app.UseCustomExceptionHandler();
 
-            app.UseHsts();
+            app.UseHsts(env);
 
             //app.UseElmah();
 
