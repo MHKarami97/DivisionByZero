@@ -62,6 +62,12 @@ namespace MyApi.Controllers.v1
             return BadRequest();
         }
 
+        [Authorize(Roles = "Admin")]
+        public override Task<ApiResult> Delete(int id, CancellationToken cancellationToken)
+        {
+            return base.Delete(id, cancellationToken);
+        }
+
         [HttpGet]
         [AllowAnonymous]
         public virtual async Task<ApiResult<List<PostSelectDto>>> GetAllByCatId(int id, int to, CancellationToken cancellationToken)
