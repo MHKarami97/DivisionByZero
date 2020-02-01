@@ -1,12 +1,13 @@
 ﻿using System;
 using System.Collections.Generic;
 using Entities.Common;
+using Entities.User;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 
 namespace Entities.Post
 {
-    public class Post : BaseEntity<int>
+    public class Post : BaseEntity
     {
         public string Title { get; set; }
         public string Text { get; set; }
@@ -24,7 +25,8 @@ namespace Entities.Post
         public Category Category { get; set; }
         public User.User Author { get; set; }
 
-        public List<Comment> Comments { get; set; }
+        public ICollection<Comment> Comments { get; set; }
+        public ICollection<Favorite> Favorites { get; set; }
     }
 
     public class PostConfiguration : IEntityTypeConfiguration<Post>
@@ -36,6 +38,7 @@ namespace Entities.Post
             builder.Property(p => p.Image).IsRequired().HasMaxLength(200);
             builder.Property(p => p.Time).IsRequired();
             builder.Property(p => p.Text).IsRequired();
+
             builder.HasOne(p => p.Category).WithMany(c => c.Posts).HasForeignKey(p => p.CategoryId);
             builder.HasOne(p => p.Author).WithMany(c => c.Posts).HasForeignKey(p => p.AuthorId);
         }

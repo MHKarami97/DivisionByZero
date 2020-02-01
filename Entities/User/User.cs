@@ -25,6 +25,7 @@ namespace Entities.User
         public ICollection<Post.Post> Posts { get; set; }
         public ICollection<Comment> Comments { get; set; }
         public ICollection<Employ.Employ> Employs { get; set; }
+        public ICollection<Favorite> Favorites { get; set; }
     }
 
     public class UserConfiguration : IEntityTypeConfiguration<User>

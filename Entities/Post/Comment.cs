@@ -5,7 +5,7 @@ using Microsoft.EntityFrameworkCore.Metadata.Builders;
 
 namespace Entities.Post
 {
-    public class Comment : BaseEntity<int>
+    public class Comment : BaseEntity
     {
         public string Text { get; set; }
         public DateTime Time { get; set; }
@@ -24,8 +24,11 @@ namespace Entities.Post
             builder.Property(p => p.Time).IsRequired();
             builder.Property(p => p.PostId).IsRequired();
             builder.Property(p => p.UserId).IsRequired();
+
             builder.HasOne(p => p.Post).WithMany(c => c.Comments).HasForeignKey(p => p.PostId);
             builder.HasOne(p => p.User).WithMany(c => c.Comments).HasForeignKey(p => p.UserId);
+
+            builder.HasIndex(a => a.PostId).HasName("IX_Comment_PostId");
         }
     }
 }
