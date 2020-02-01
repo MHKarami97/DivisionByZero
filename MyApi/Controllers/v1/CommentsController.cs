@@ -35,11 +35,12 @@ namespace MyApi.Controllers.v1
         [AllowAnonymous]
         public async Task<ApiResult<List<CommentSelectDto>>> GetPostComments(int id, CancellationToken cancellationToken)
         {
-            var result = await Repository.TableNoTracking.ProjectTo<CommentSelectDto>(_mapper.ConfigurationProvider)
-                .Where(a => a.PostId.Equals(id))
+            var list = await Repository.TableNoTracking
+                .Where(a => !a.VersionStatus.Equals(2) && a.PostId.Equals(id))
+                .ProjectTo<CommentSelectDto>(_mapper.ConfigurationProvider)
                 .ToListAsync(cancellationToken);
 
-            return result;
+            return Ok(list);
         }
 
         [Authorize(Policy = "WorkerPolicy")]

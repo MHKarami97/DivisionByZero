@@ -51,11 +51,11 @@ namespace MyApi.Controllers.v1
         public virtual async Task<ApiResult<List<CategoryDto>>> GetAllMainCat(CancellationToken cancellationToken)
         {
             var list = await Repository.TableNoTracking
-                .Where(a => a.ParentCategoryId.Equals(1))
+                .Where(a => !a.VersionStatus.Equals(2) && a.ParentCategoryId.Equals(1))
                 .ProjectTo<CategoryDto>(Mapper.ConfigurationProvider)
                 .ToListAsync(cancellationToken);
 
-            return list;
+            return Ok(list);
         }
 
         [HttpGet]
@@ -63,11 +63,11 @@ namespace MyApi.Controllers.v1
         public virtual async Task<ApiResult<List<CategoryDto>>> GetAllByCatId(int id, CancellationToken cancellationToken)
         {
             var list = await Repository.TableNoTracking
-                .Where(a => a.ParentCategoryId.Equals(id))
+                .Where(a => !a.VersionStatus.Equals(2) && a.ParentCategoryId.Equals(id))
                 .ProjectTo<CategoryDto>(Mapper.ConfigurationProvider)
                 .ToListAsync(cancellationToken);
 
-            return list;
+            return Ok(list);
         }
     }
 }
