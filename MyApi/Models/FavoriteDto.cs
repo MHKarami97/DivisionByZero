@@ -1,5 +1,4 @@
-﻿using Entities.Post;
-using Entities.User;
+﻿using Entities.User;
 using WebFramework.Api;
 
 namespace MyApi.Models
@@ -10,7 +9,7 @@ namespace MyApi.Models
         public int PostId { get; set; }
     }
 
-    public class FavoriteDtoSelectDto : BaseDto<FavoriteDtoSelectDto, Comment>
+    public class FavoriteSelectDto : BaseDto<FavoriteSelectDto, Favorite>
     {
         public int PostId { get; set; }
     }
