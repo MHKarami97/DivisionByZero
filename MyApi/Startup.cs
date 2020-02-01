@@ -67,8 +67,6 @@ namespace MyApi
 
             services.AddMemoryCache();
 
-            services.AddSwagger();
-
             services.AddOptions();
 
             services.Configure<IpRateLimitOptions>(Configuration.GetSection("IpRateLimiting"));

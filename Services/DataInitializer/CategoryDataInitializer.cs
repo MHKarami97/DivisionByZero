@@ -7,7 +7,7 @@ namespace Services.DataInitializer
     public class CategoryDataInitializer : IDataInitializer
     {
         private readonly IRepository<Category> _repository;
-
+        
         public CategoryDataInitializer(IRepository<Category> repository)
         {
             _repository = repository;

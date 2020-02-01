@@ -3,15 +3,17 @@ using System.IO;
 using Autofac.Extensions.DependencyInjection;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using NLog.Web;
+using System.Threading.Tasks;
 
 namespace MyApi
 {
     public class Program
     {
-        public static void Main(string[] args)
+        public static async Task Main(string[] args)
         {
             //Set default proxy
             //WebRequest.DefaultWebProxy = new WebProxy("http://127.0.0.1:8118", true) { UseDefaultCredentials = true };
@@ -20,7 +22,11 @@ namespace MyApi
             try
             {
                 logger.Debug("init main");
-                CreateHostBuilder(args).Build().Run();
+                var webHost = CreateHostBuilder(args).Build();
+
+                using var scope = webHost.Services.CreateScope();
+
+                await webHost.RunAsync();
             }
             catch (Exception ex)
             {
@@ -42,7 +48,7 @@ namespace MyApi
                 .ConfigureLogging(logger => {
                     logger.AddFilter(DbLoggerCategory.Database.Command.Name, LogLevel.Information);
                     logger.ClearProviders();
-                    logger.SetMinimumLevel(Microsoft.Extensions.Logging.LogLevel.Trace);
+                    logger.SetMinimumLevel(LogLevel.Trace);
                 })
                 .UseNLog()
                 .ConfigureWebHostDefaults(webBuilder =>

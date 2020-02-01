@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using Common.Utilities;
@@ -36,7 +37,7 @@ namespace WebFramework.Swagger
                 var method = typeof(Swashbuckle.AspNetCore.Filters.ServiceCollectionExtensions).GetMethod(methodName);
                 if (method != null)
                 {
-                    var generic = method.MakeGenericMethod(mainType);
+                    MethodInfo generic = method.MakeGenericMethod(mainType);
                     generic.Invoke(null, new[] { services });
                 }
             }
@@ -64,7 +65,7 @@ namespace WebFramework.Swagger
                         Url = new Uri("https://mhkarami97.github.io"),
                     }
                 });
-                //options.SwaggerDoc("v2", new OpenApiInfo { Version = "v2", Title = "API V2" });
+                options.SwaggerDoc("v2", new OpenApiInfo { Version = "v2", Title = "API V2" });
 
                 var xmlDocPath = Path.Combine(AppContext.BaseDirectory, "MyApi.xml");
                 //show controller XML comments like summary
@@ -113,8 +114,8 @@ namespace WebFramework.Swagger
                     {
                         Password = new OpenApiOAuthFlow
                         {
-                            TokenUrl = new Uri("https://localhost:44339/api/v1/users/Token"),
-                            //AuthorizationUrl = new Uri("https://localhost:44339/api/v1/users/Token")
+                            TokenUrl = new Uri("https://localhost:44339/api/v1/user/Token"),
+                            //AuthorizationUrl = new Uri("https://localhost:44339/api/v1/user/Token")
                             //Scopes = new Dictionary<string, string>
                             //{
                             //    { "readAccess", "Access read operations" },
@@ -202,7 +203,7 @@ namespace WebFramework.Swagger
                 options.OAuthUseBasicAuthenticationWithAccessCodeGrant();
 
                 options.SwaggerEndpoint("/swagger/v1/swagger.json", "V1 Docs");
-                //options.SwaggerEndpoint("/swagger/v2/swagger.json", "V2 Docs");
+                options.SwaggerEndpoint("/swagger/v2/swagger.json", "V2 Docs");
             });
 
             //ReDoc UI middleware. ReDoc UI is an alternative to swagger-ui
