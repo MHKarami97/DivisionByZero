@@ -73,13 +73,13 @@ namespace MyApi.Controllers.v1
         public virtual async Task<ApiResult<List<PostSelectDto>>> GetAllByCatId(int id, int to, CancellationToken cancellationToken)
         {
             var list = await Repository.TableNoTracking
-                .Where(a => a.CategoryId.Equals(id))
+                .Where(a => !a.VersionStatus.Equals(2) && a.CategoryId.Equals(id))
                 .OrderByDescending(a => a.Time)
                 .ProjectTo<PostSelectDto>(Mapper.ConfigurationProvider)
                 .Take(DefaultTake + to)
                 .ToListAsync(cancellationToken);
 
-            return list;
+            return Ok(list);
         }
 
         [HttpGet]
@@ -91,19 +91,33 @@ namespace MyApi.Controllers.v1
                 .SingleAsync(cancellationToken);
 
             var list = await Repository.TableNoTracking
-                .Where(a => a.CategoryId.Equals(post.CategoryId))
+                .Where(a => !a.VersionStatus.Equals(2) && a.CategoryId.Equals(post.CategoryId))
                 .ProjectTo<PostSelectDto>(Mapper.ConfigurationProvider)
                 .Take(DefaultTake)
                 .ToListAsync(cancellationToken);
 
-            return list;
+            return Ok(list);
         }
 
         [HttpGet]
         [AllowAnonymous]
-        public virtual async Task<ApiResult<List<PostSelectDto>>> GetCustom(int type, int count, CancellationToken cancellationToken)
+        public virtual async Task<ApiResult<List<PostSelectDto>>> GetByUserId(int id, CancellationToken cancellationToken)
         {
             var list = await Repository.TableNoTracking
+                .Where(a => !a.VersionStatus.Equals(2) && a.AuthorId.Equals(id))
+                .ProjectTo<PostSelectDto>(Mapper.ConfigurationProvider)
+                .Take(DefaultTake)
+                .ToListAsync(cancellationToken);
+
+            return Ok(list);
+        }
+
+        [HttpGet]
+        [AllowAnonymous]
+        public virtual async Task<ApiResult<List<PostSelectDto>>> GetCustomType(int type, int count, CancellationToken cancellationToken)
+        {
+            var list = await Repository.TableNoTracking
+                .Where(a => !a.VersionStatus.Equals(2))
                 .OrderByDescending(a => a.Time)
                 .ProjectTo<PostSelectDto>(Mapper.ConfigurationProvider)
                 .Take(count)
@@ -121,7 +135,7 @@ namespace MyApi.Controllers.v1
                     break;
             }
 
-            return list;
+            return Ok(list);
         }
 
         [HttpGet]
@@ -129,13 +143,13 @@ namespace MyApi.Controllers.v1
         public virtual async Task<ApiResult<List<PostSelectDto>>> Search(string str, CancellationToken cancellationToken)
         {
             var list = await Repository.TableNoTracking
-                .Where(a => a.Title.Contains(str))
+                .Where(a => !a.VersionStatus.Equals(2) && a.Title.Contains(str))
                 .OrderByDescending(a => a.Time)
                 .ProjectTo<PostSelectDto>(Mapper.ConfigurationProvider)
                 .Take(DefaultTake)
                 .ToListAsync(cancellationToken);
 
-            return list;
+            return Ok(list);
         }
     }
 }
