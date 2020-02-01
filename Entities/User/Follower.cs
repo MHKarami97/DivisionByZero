@@ -20,9 +20,7 @@ namespace Entities.User
             builder.Property(p => p.UserId).IsRequired();
 
             builder.HasOne(p => p.User).WithMany(c => c.Followers).HasForeignKey(p => p.UserId);
-            builder.HasOne(p => p.User).WithMany(c => c.Followers).HasForeignKey(p => p.FollowerId);
-
-            builder.HasIndex(a => a.UserId).HasName("IX_Follower_UserId");
+            //builder.HasOne(p => p.User).WithMany(c => c.Followers).HasForeignKey(p => p.FollowerId);
         }
     }
 }

@@ -114,7 +114,7 @@ namespace MyApi.Controllers.v1
 
         [HttpGet]
         [AllowAnonymous]
-        public virtual async Task<ApiResult<List<PostSelectDto>>> GetCustomType(int type, int count, CancellationToken cancellationToken)
+        public virtual async Task<ApiResult<List<PostSelectDto>>> GetCustom(int type, int count, CancellationToken cancellationToken)
         {
             var list = await Repository.TableNoTracking
                 .Where(a => !a.VersionStatus.Equals(2))

@@ -27,8 +27,6 @@ namespace Entities.Post
 
             builder.HasOne(p => p.Post).WithMany(c => c.Comments).HasForeignKey(p => p.PostId);
             builder.HasOne(p => p.User).WithMany(c => c.Comments).HasForeignKey(p => p.UserId);
-
-            builder.HasIndex(a => a.PostId).HasName("IX_Comment_PostId");
         }
     }
 }

@@ -36,7 +36,7 @@ namespace WebFramework.Swagger
                 var method = typeof(Swashbuckle.AspNetCore.Filters.ServiceCollectionExtensions).GetMethod(methodName);
                 if (method != null)
                 {
-                    MethodInfo generic = method.MakeGenericMethod(mainType);
+                    var generic = method.MakeGenericMethod(mainType);
                     generic.Invoke(null, new[] { services });
                 }
             }
@@ -64,7 +64,7 @@ namespace WebFramework.Swagger
                         Url = new Uri("https://mhkarami97.github.io"),
                     }
                 });
-                options.SwaggerDoc("v2", new OpenApiInfo { Version = "v2", Title = "API V2" });
+                //options.SwaggerDoc("v2", new OpenApiInfo { Version = "v2", Title = "API V2" });
 
                 var xmlDocPath = Path.Combine(AppContext.BaseDirectory, "MyApi.xml");
                 //show controller XML comments like summary
@@ -202,7 +202,7 @@ namespace WebFramework.Swagger
                 options.OAuthUseBasicAuthenticationWithAccessCodeGrant();
 
                 options.SwaggerEndpoint("/swagger/v1/swagger.json", "V1 Docs");
-                options.SwaggerEndpoint("/swagger/v2/swagger.json", "V2 Docs");
+                //options.SwaggerEndpoint("/swagger/v2/swagger.json", "V2 Docs");
             });
 
             //ReDoc UI middleware. ReDoc UI is an alternative to swagger-ui

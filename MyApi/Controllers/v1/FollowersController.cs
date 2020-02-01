@@ -28,7 +28,7 @@ namespace MyApi.Controllers.v1
 
             var list = await Repository.TableNoTracking
                 .Where(a => !a.VersionStatus.Equals(2) && a.UserId.Equals(userId))
-                .ProjectTo<FavoriteDto>(Mapper.ConfigurationProvider)
+                .ProjectTo<FollowerDto>(Mapper.ConfigurationProvider)
                 .ToListAsync(cancellationToken);
 
             return Ok(list);
@@ -38,7 +38,8 @@ namespace MyApi.Controllers.v1
         {
             var userId = HttpContext.User.Identity.GetUserId<int>();
 
-            var isValid = await Repository.TableNoTracking.AnyAsync(a => a.UserId.Equals(userId), cancellationToken);
+            var isValid = await Repository.TableNoTracking.
+                AnyAsync(a => a.UserId.Equals(userId), cancellationToken);
 
             if (isValid)
                 return await base.Delete(id, cancellationToken);

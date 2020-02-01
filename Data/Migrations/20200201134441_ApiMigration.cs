@@ -236,8 +236,8 @@ namespace Data.Migrations
                 {
                     table.PrimaryKey("PK_Follower", x => x.Id);
                     table.ForeignKey(
-                        name: "FK_Follower_AspNetUser_FollowerId",
-                        column: x => x.FollowerId,
+                        name: "FK_Follower_AspNetUser_UserId",
+                        column: x => x.UserId,
                         principalTable: "AspNetUser",
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Restrict);
@@ -440,11 +440,6 @@ namespace Data.Migrations
                 name: "IX_Favorite_UserId",
                 table: "Favorite",
                 column: "UserId");
-
-            migrationBuilder.CreateIndex(
-                name: "IX_Follower_FollowerId",
-                table: "Follower",
-                column: "FollowerId");
 
             migrationBuilder.CreateIndex(
                 name: "IX_Follower_UserId",

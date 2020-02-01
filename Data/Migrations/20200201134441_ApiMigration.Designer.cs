@@ -10,7 +10,7 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace Data.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    [Migration("20200201130640_ApiMigration")]
+    [Migration("20200201134441_ApiMigration")]
     partial class ApiMigration
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -113,8 +113,7 @@ namespace Data.Migrations
 
                     b.HasKey("Id");
 
-                    b.HasIndex("PostId")
-                        .HasName("IX_Comment_PostId");
+                    b.HasIndex("PostId");
 
                     b.HasIndex("UserId");
 
@@ -237,8 +236,7 @@ namespace Data.Migrations
 
                     b.HasIndex("PostId");
 
-                    b.HasIndex("UserId")
-                        .HasName("IX_Favorite_UserId");
+                    b.HasIndex("UserId");
 
                     b.ToTable("Favorite");
                 });
@@ -264,10 +262,7 @@ namespace Data.Migrations
 
                     b.HasKey("Id");
 
-                    b.HasIndex("FollowerId");
-
-                    b.HasIndex("UserId")
-                        .HasName("IX_Follower_UserId");
+                    b.HasIndex("UserId");
 
                     b.ToTable("Follower");
                 });
@@ -598,7 +593,7 @@ namespace Data.Migrations
                 {
                     b.HasOne("Entities.User.User", "User")
                         .WithMany("Followers")
-                        .HasForeignKey("FollowerId")
+                        .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
                 });
