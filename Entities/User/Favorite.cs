@@ -23,7 +23,7 @@ namespace Entities.User
             builder.HasOne(p => p.User).WithMany(c => c.Favorites).HasForeignKey(p => p.UserId);
             builder.HasOne(p => p.Post).WithMany(c => c.Favorites).HasForeignKey(p => p.PostId);
 
-            builder.HasIndex(a => a.PostId).HasName("IX_Favorite_UserId");
+            builder.HasIndex(a => a.UserId).HasName("IX_Favorite_UserId");
         }
     }
 }

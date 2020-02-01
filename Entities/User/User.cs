@@ -15,7 +15,7 @@ namespace Entities.User
         {
             IsActive = true;
         }
-        
+
         public string FullName { get; set; }
         public DateTime Birthday { get; set; }
         public GenderType Gender { get; set; }
@@ -26,6 +26,7 @@ namespace Entities.User
         public ICollection<Comment> Comments { get; set; }
         public ICollection<Employ.Employ> Employs { get; set; }
         public ICollection<Favorite> Favorites { get; set; }
+        public ICollection<Follower> Followers { get; set; }
     }
 
     public class UserConfiguration : IEntityTypeConfiguration<User>

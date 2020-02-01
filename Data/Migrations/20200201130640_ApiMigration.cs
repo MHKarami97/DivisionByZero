@@ -3,7 +3,7 @@ using Microsoft.EntityFrameworkCore.Migrations;
 
 namespace Data.Migrations
 {
-    public partial class ApuMigration : Migration
+    public partial class ApiMigration : Migration
     {
         protected override void Up(MigrationBuilder migrationBuilder)
         {
@@ -222,6 +222,28 @@ namespace Data.Migrations
                 });
 
             migrationBuilder.CreateTable(
+                name: "Follower",
+                columns: table => new
+                {
+                    Id = table.Column<int>(nullable: false)
+                        .Annotation("SqlServer:Identity", "1, 1"),
+                    Version = table.Column<int>(nullable: false),
+                    VersionStatus = table.Column<int>(nullable: false),
+                    FollowerId = table.Column<int>(nullable: false),
+                    UserId = table.Column<int>(nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_Follower", x => x.Id);
+                    table.ForeignKey(
+                        name: "FK_Follower_AspNetUser_FollowerId",
+                        column: x => x.FollowerId,
+                        principalTable: "AspNetUser",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Restrict);
+                });
+
+            migrationBuilder.CreateTable(
                 name: "UserToken",
                 columns: table => new
                 {
@@ -322,6 +344,34 @@ namespace Data.Migrations
                         onDelete: ReferentialAction.Restrict);
                 });
 
+            migrationBuilder.CreateTable(
+                name: "Favorite",
+                columns: table => new
+                {
+                    Id = table.Column<int>(nullable: false)
+                        .Annotation("SqlServer:Identity", "1, 1"),
+                    Version = table.Column<int>(nullable: false),
+                    VersionStatus = table.Column<int>(nullable: false),
+                    PostId = table.Column<int>(nullable: false),
+                    UserId = table.Column<int>(nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_Favorite", x => x.Id);
+                    table.ForeignKey(
+                        name: "FK_Favorite_Post_PostId",
+                        column: x => x.PostId,
+                        principalTable: "Post",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Restrict);
+                    table.ForeignKey(
+                        name: "FK_Favorite_AspNetUser_UserId",
+                        column: x => x.UserId,
+                        principalTable: "AspNetUser",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Restrict);
+                });
+
             migrationBuilder.CreateIndex(
                 name: "RoleNameIndex",
                 table: "AspNetRole",
@@ -382,6 +432,26 @@ namespace Data.Migrations
                 column: "AuthorId");
 
             migrationBuilder.CreateIndex(
+                name: "IX_Favorite_PostId",
+                table: "Favorite",
+                column: "PostId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_Favorite_UserId",
+                table: "Favorite",
+                column: "UserId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_Follower_FollowerId",
+                table: "Follower",
+                column: "FollowerId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_Follower_UserId",
+                table: "Follower",
+                column: "UserId");
+
+            migrationBuilder.CreateIndex(
                 name: "IX_Post_AuthorId",
                 table: "Post",
                 column: "AuthorId");
@@ -424,6 +494,12 @@ namespace Data.Migrations
 
             migrationBuilder.DropTable(
                 name: "Employ");
+
+            migrationBuilder.DropTable(
+                name: "Favorite");
+
+            migrationBuilder.DropTable(
+                name: "Follower");
 
             migrationBuilder.DropTable(
                 name: "UserToken");
