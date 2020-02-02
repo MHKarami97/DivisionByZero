@@ -165,6 +165,11 @@ namespace MyApi.Controllers.v1
             if (!result.Succeeded)
                 return BadRequest();
 
+            var roleResult = await _userManager.AddToRoleAsync(user, "Member");
+
+            if (!roleResult.Succeeded)
+                return BadRequest();
+
             //await userRepository.AddAsync(user, userDto.Password, cancellationToken);
             return user;
         }
