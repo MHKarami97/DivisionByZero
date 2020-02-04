@@ -5,6 +5,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using AutoMapper;
 using AutoMapper.QueryableExtensions;
+using Common.Utilities;
 using Data.Contracts;
 using Entities.Post;
 using Entities.User;
@@ -66,6 +67,13 @@ namespace MyApi.Controllers.v1
         public override Task<ApiResult> Delete(int id, CancellationToken cancellationToken)
         {
             return base.Delete(id, cancellationToken);
+        }
+
+        public override Task<ApiResult<PostSelectDto>> Create(PostDto dto, CancellationToken cancellationToken)
+        {
+            dto.AuthorId = HttpContext.User.Identity.GetUserId<int>();
+
+            return base.Create(dto, cancellationToken);
         }
 
         [HttpGet]

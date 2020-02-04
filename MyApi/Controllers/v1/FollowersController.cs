@@ -47,6 +47,13 @@ namespace MyApi.Controllers.v1
             return BadRequest();
         }
 
+        public override Task<ApiResult<FollowerDto>> Create(FollowerSelectDto dto, CancellationToken cancellationToken)
+        {
+            dto.UserId = HttpContext.User.Identity.GetUserId<int>();
+
+            return base.Create(dto, cancellationToken);
+        }
+
         [NonAction]
         public override Task<ApiResult<FollowerDto>> Get(int id, CancellationToken cancellationToken)
         {

@@ -12,5 +12,6 @@ namespace MyApi.Models
     public class FavoriteSelectDto : BaseDto<FavoriteSelectDto, Favorite>
     {
         public int PostId { get; set; }
+        public int UserId { get; set; }
     }
 }
