@@ -1,5 +1,5 @@
 ﻿using Common.Exceptions;
-using ElmahCore;
+using Common.Utilities;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
@@ -25,50 +25,52 @@ namespace MyApi.Controllers.v1
         private readonly ILogger<UsersController> _logger;
         private readonly IJwtService _jwtService;
         private readonly UserManager<User> _userManager;
-        private readonly RoleManager<Role> _roleManager;
-        private readonly SignInManager<User> _signInManager;
 
         public UsersController(IUserRepository userRepository, ILogger<UsersController> logger, IJwtService jwtService,
-            UserManager<User> userManager, RoleManager<Role> roleManager, SignInManager<User> signInManager)
+            UserManager<User> userManager)
         {
             _userRepository = userRepository;
             _logger = logger;
             _jwtService = jwtService;
             _userManager = userManager;
-            _roleManager = roleManager;
-            _signInManager = signInManager;
         }
 
         [HttpGet]
-        [Authorize(Roles = "Admin")]
+        [Authorize(Policy = "SuperAdminPolicy")]
         public virtual async Task<ActionResult<List<User>>> Get(CancellationToken cancellationToken)
         {
-            //var userName = HttpContext.User.Identity.GetUserName();
-            //userName = HttpContext.User.Identity.Name;
-            //var userId = HttpContext.User.Identity.GetUserId();
-            //var userIdInt = HttpContext.User.Identity.GetUserId<int>();
-            //var phone = HttpContext.User.Identity.FindFirstValue(ClaimTypes.MobilePhone);
-            //var role = HttpContext.User.Identity.FindFirstValue(ClaimTypes.Role);
-
             var users = await _userRepository.TableNoTracking.ToListAsync(cancellationToken);
+
             return Ok(users);
         }
 
         [HttpGet("{id:int}")]
         public virtual async Task<ApiResult<User>> Get(int id, CancellationToken cancellationToken)
         {
-            var user = await _userManager.FindByIdAsync(id.ToString());
+            var userId = HttpContext.User.Identity.GetUserId<int>();
 
-            //var role = await _roleManager.FindByNameAsync("Admin");
+            var requestedUser = await _userManager.FindByIdAsync(userId.ToString());
 
-            //var user = await _userRepository.GetByIdAsync(cancellationToken, id);
-            if (user == null)
+            var isAdmin = await _userManager.IsInRoleAsync(requestedUser, "Admin");
+
+            if (isAdmin)
+            {
+                var user = await _userManager.FindByIdAsync(id.ToString());
+
+                if (user == null)
+                    return NotFound();
+
+                await _userManager.UpdateSecurityStampAsync(user);
+
+                return user;
+            }
+
+            if (userId != id)
                 return NotFound();
 
-            await _userManager.UpdateSecurityStampAsync(user);
-            //await _userRepository.UpdateSecurityStampAsync(user, cancellationToken);
+            await _userManager.UpdateSecurityStampAsync(requestedUser);
 
-            return user;
+            return requestedUser;
         }
 
         /// <summary>
@@ -84,7 +86,6 @@ namespace MyApi.Controllers.v1
             if (!tokenRequest.Grant_type.Equals("password", StringComparison.OrdinalIgnoreCase))
                 throw new Exception("OAuth flow is not password.");
 
-            //var user = await userRepository.GetByUserAndPass(username, password, cancellationToken);
             var user = await _userManager.FindByNameAsync(tokenRequest.Username);
             if (user == null)
                 throw new BadRequestException("نام کاربری یا رمز عبور اشتباه است");
@@ -92,9 +93,6 @@ namespace MyApi.Controllers.v1
             var isPasswordValid = await _userManager.CheckPasswordAsync(user, tokenRequest.Password);
             if (!isPasswordValid)
                 throw new BadRequestException("نام کاربری یا رمز عبور اشتباه است");
-
-            //if (user == null)
-            //    throw new BadRequestException("نام کاربری یا رمز عبور اشتباه است");
 
             var jwt = await _jwtService.GenerateAsync(user);
 
@@ -129,8 +127,6 @@ namespace MyApi.Controllers.v1
 
             var userIdValue = claimsIdentity.FindFirst(ClaimTypes.UserData)?.Value;
 
-            // The Jwt implementation does not support "revoke OAuth token" (logout) by design.
-            // Delete the user's tokens from the database (revoke its bearer token)
             if (!string.IsNullOrWhiteSpace(userIdValue) && int.TryParse(userIdValue, out var userId))
             {
                 await _jwtService.InvalidateUserTokensAsync(userId);
@@ -146,7 +142,6 @@ namespace MyApi.Controllers.v1
         public virtual async Task<ApiResult<User>> Create(UserDto userDto, CancellationToken cancellationToken)
         {
             _logger.LogError("متد Create فراخوانی شد");
-            HttpContext.RiseError(new Exception("متد Create فراخوانی شد"));
 
             var exists = await _userManager.Users.AnyAsync(p => p.PhoneNumber == userDto.PhoneNumber, cancellationToken: cancellationToken);
             if (exists)
@@ -170,7 +165,6 @@ namespace MyApi.Controllers.v1
             if (!roleResult.Succeeded)
                 return BadRequest();
 
-            //await userRepository.AddAsync(user, userDto.Password, cancellationToken);
             return user;
         }
 
