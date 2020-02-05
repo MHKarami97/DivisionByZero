@@ -10,7 +10,8 @@ namespace Services.DataInitializer.Fake
     public class FakerDataInitializer : IDataInitializer
     {
         private readonly IRepository<Post> _repository;
-        private readonly bool IsGenerate = true;
+        private const bool IsGenerate = true;
+        //SET IDENTITY_INSERT dbo.Clients ON
 
         public FakerDataInitializer(IRepository<Post> repository)
         {
@@ -29,10 +30,23 @@ namespace Services.DataInitializer.Fake
 
         private static IEnumerable<Post> GetSampleTableData()
         {
+            var id = 1000;
+            var id2 = 1000;
+
             var fakeCat = new Faker<Category>()
+                .RuleFor(o => o.Id, f => id)
                 .RuleFor(o => o.Name, f => f.Lorem.Slug(4));
 
+            var fakeComment = new Faker<Comment>()
+                .RuleFor(o => o.Id, f => id2++)
+                .RuleFor(u => u.Text, f => f.Lorem.Lines(1))
+                .RuleFor(u => u.Time, f => f.Date.Past())
+                .RuleFor(u => u.PostId, f => id)
+                .RuleFor(u => u.UserId, f => id);
+
+
             var fakeUser = new Faker<User>()
+                .RuleFor(o => o.Id, f => id)
                 .RuleFor(u => u.FullName, (f, u) => f.Name.FirstName() + " " + f.Name.FirstName())
                 .RuleFor(u => u.Email, (f, u) => f.Internet.Email(u.FullName))
                 .RuleFor(u => u.UserName, (f, u) => f.Internet.UserName(u.Email))
@@ -40,6 +54,7 @@ namespace Services.DataInitializer.Fake
                 .RuleFor(u => u.PasswordHash, f => f.Random.AlphaNumeric(10));
 
             var fakePost = new Faker<Post>()
+                .RuleFor(o => o.Id, f => id)
                 .RuleFor(o => o.Title, f => f.Lorem.Text())
                 .RuleFor(o => o.ShortDescription, f => f.Lorem.Lines(2))
                 .RuleFor(o => o.Image, f => f.Image.LoremFlickrUrl())
@@ -48,10 +63,13 @@ namespace Services.DataInitializer.Fake
                 .RuleFor(o => o.Time, f => f.Date.Past(2))
                 .RuleFor(o => o.TimeToRead, f => f.Date.Between(DateTime.Now.Date, DateTime.Now.AddMinutes(45)))
                 .RuleFor(o => o.View, f => f.Random.Int(0, 200))
+                .RuleFor(o => o.Comments, f => fakeComment.Generate(2))
                 .RuleFor(o => o.Category, f => fakeCat.Generate())
-                .RuleFor(o => o.Author, f => fakeUser.Generate());
+                .RuleFor(o => o.CategoryId, f => id)
+                .RuleFor(o => o.Author, f => fakeUser.Generate())
+                .RuleFor(o => o.AuthorId, f => id++);
 
-            var posts = fakePost.Generate(100);
+            var posts = fakePost.Generate(20);
 
             return posts;
         }
