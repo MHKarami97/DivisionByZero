@@ -1,8 +1,4 @@
-﻿using System;
-using System.IdentityModel.Tokens.Jwt;
-using Microsoft.IdentityModel.Tokens;
-
-namespace Services
+﻿namespace Services
 {
     public class AccessToken
     {

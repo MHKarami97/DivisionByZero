@@ -51,6 +51,8 @@ namespace MyApi
 
             services.AddCustomApiVersioning();
 
+            services.AddCors();
+
             services.AddSwagger();
 
             services.AddAuthorization(options =>
@@ -101,6 +103,8 @@ namespace MyApi
             app.UseRouting();
 
             app.UseSecureHeadersMiddleware(SecureHeadersMiddlewareConfiguration.CustomConfiguration());
+
+            app.UseCors(x => x.AllowAnyOrigin().AllowAnyMethod().AllowAnyHeader());
 
             app.UseAuthentication();
 

@@ -24,7 +24,7 @@ namespace MyApi.Models
     {
         public string Text { get; set; }
         public int PostId { get; set; }
-        public int UserFullName { get; set; }
+        public string UserFullName { get; set; }
         public DateTime Time { get; set; }
     }
 }

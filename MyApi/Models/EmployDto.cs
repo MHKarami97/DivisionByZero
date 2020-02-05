@@ -1,7 +1,6 @@
 ﻿using System;
 using AutoMapper;
 using Entities.Employ;
-using Entities.Post;
 using WebFramework.Api;
 
 namespace MyApi.Models
@@ -26,6 +25,6 @@ namespace MyApi.Models
         public string Title { get; set; }
         public string Text { get; set; }
         public DateTime Time { get; set; }
-        public int UserFullName { get; set; }
+        public string UserFullName { get; set; }
     }
 }
