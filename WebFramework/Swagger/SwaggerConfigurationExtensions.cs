@@ -21,12 +21,6 @@ namespace WebFramework.Swagger
             Assert.NotNull(services, nameof(services));
 
             #region AddSwaggerExamples
-            //Add services to use Example Filters in swagger
-            //If you want to use the Request and Response example filters (and have called options.ExampleFilters() above), then you MUST also call
-            //This method to register all ExamplesProvider classes form the assembly
-            //services.AddSwaggerExamplesFromAssemblyOf<PersonRequestExample>();
-
-            //We call this method for by reflection with the Startup type of entry assembly (MyApi assembly)
             var mainAssembly = Assembly.GetEntryAssembly(); // => MyApi project assembly
             if (mainAssembly != null)
             {
@@ -36,7 +30,7 @@ namespace WebFramework.Swagger
                 var method = typeof(Swashbuckle.AspNetCore.Filters.ServiceCollectionExtensions).GetMethod(methodName);
                 if (method != null)
                 {
-                    MethodInfo generic = method.MakeGenericMethod(mainType);
+                    var generic = method.MakeGenericMethod(mainType);
                     generic.Invoke(null, new[] { services });
                 }
             }
@@ -64,7 +58,6 @@ namespace WebFramework.Swagger
                         Url = new Uri("https://mhkarami97.github.io"),
                     }
                 });
-                options.SwaggerDoc("v2", new OpenApiInfo { Version = "v2", Title = "API V2" });
 
                 var xmlDocPath = Path.Combine(AppContext.BaseDirectory, "MyApi.xml");
                 //show controller XML comments like summary
@@ -202,7 +195,6 @@ namespace WebFramework.Swagger
                 options.OAuthUseBasicAuthenticationWithAccessCodeGrant();
 
                 options.SwaggerEndpoint("/swagger/v1/swagger.json", "V1 Docs");
-                options.SwaggerEndpoint("/swagger/v2/swagger.json", "V2 Docs");
             });
 
             //ReDoc UI middleware. ReDoc UI is an alternative to swagger-ui

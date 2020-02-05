@@ -10,7 +10,7 @@ namespace Services.DataInitializer.Fake
     public class FakerDataInitializer : IDataInitializer
     {
         private readonly IRepository<Post> _repository;
-        private const bool IsGenerate = true;
+        private const bool IsGenerate = false;
         //SET IDENTITY_INSERT dbo.Clients ON
 
         public FakerDataInitializer(IRepository<Post> repository)

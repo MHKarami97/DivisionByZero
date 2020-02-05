@@ -10,7 +10,7 @@ namespace WebFramework.Configuration
             return SecureHeadersMiddlewareBuilder
                 .CreateBuilder()
                 .UseHsts(1200, false)
-                .UseXSSProtection(XssMode.oneReport, "https://site.com")
+                .UseXSSProtection(XssMode.oneReport, "http://95.216.12.8:91")
                 .UseContentDefaultSecurityPolicy()
                 .UsePermittedCrossDomainPolicies(XPermittedCrossDomainOptionValue.masterOnly)
                 .UseReferrerPolicy(ReferrerPolicyOptions.sameOrigin)
