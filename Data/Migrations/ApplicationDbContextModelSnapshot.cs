@@ -144,12 +144,6 @@ namespace Data.Migrations
                         .HasColumnType("nvarchar(500)")
                         .HasMaxLength(500);
 
-                    b.Property<int?>("Status")
-                        .HasColumnType("int");
-
-                    b.Property<int?>("TagId")
-                        .HasColumnType("int");
-
                     b.Property<string>("Text")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
@@ -183,9 +177,35 @@ namespace Data.Migrations
 
                     b.HasIndex("CategoryId");
 
+                    b.ToTable("Post");
+                });
+
+            modelBuilder.Entity("Entities.Post.PostTag", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int")
+                        .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
+
+                    b.Property<int>("PostId")
+                        .HasColumnType("int");
+
+                    b.Property<int>("TagId")
+                        .HasColumnType("int");
+
+                    b.Property<int>("Version")
+                        .HasColumnType("int");
+
+                    b.Property<int>("VersionStatus")
+                        .HasColumnType("int");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("PostId");
+
                     b.HasIndex("TagId");
 
-                    b.ToTable("Post");
+                    b.ToTable("PostTag");
                 });
 
             modelBuilder.Entity("Entities.Post.Tag", b =>
@@ -566,10 +586,21 @@ namespace Data.Migrations
                         .HasForeignKey("CategoryId")
                         .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
+                });
 
-                    b.HasOne("Entities.Post.Tag", null)
-                        .WithMany("Posts")
-                        .HasForeignKey("TagId");
+            modelBuilder.Entity("Entities.Post.PostTag", b =>
+                {
+                    b.HasOne("Entities.Post.Post", "Post")
+                        .WithMany("PostTags")
+                        .HasForeignKey("PostId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.HasOne("Entities.Post.Tag", "Tag")
+                        .WithMany("PostTags")
+                        .HasForeignKey("TagId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
                 });
 
             modelBuilder.Entity("Entities.User.Favorite", b =>

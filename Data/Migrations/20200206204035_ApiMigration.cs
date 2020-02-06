@@ -286,10 +286,8 @@ namespace Data.Migrations
                     View = table.Column<int>(nullable: true),
                     Rank = table.Column<int>(nullable: true),
                     Type = table.Column<int>(nullable: true),
-                    Status = table.Column<int>(nullable: true),
                     CategoryId = table.Column<int>(nullable: false),
-                    AuthorId = table.Column<int>(nullable: false),
-                    TagId = table.Column<int>(nullable: true)
+                    AuthorId = table.Column<int>(nullable: false)
                 },
                 constraints: table =>
                 {
@@ -304,12 +302,6 @@ namespace Data.Migrations
                         name: "FK_Post_Category_CategoryId",
                         column: x => x.CategoryId,
                         principalTable: "Category",
-                        principalColumn: "Id",
-                        onDelete: ReferentialAction.Restrict);
-                    table.ForeignKey(
-                        name: "FK_Post_Tag_TagId",
-                        column: x => x.TagId,
-                        principalTable: "Tag",
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Restrict);
                 });
@@ -368,6 +360,34 @@ namespace Data.Migrations
                         name: "FK_Favorite_AspNetUser_UserId",
                         column: x => x.UserId,
                         principalTable: "AspNetUser",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Restrict);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "PostTag",
+                columns: table => new
+                {
+                    Id = table.Column<int>(nullable: false)
+                        .Annotation("SqlServer:Identity", "1, 1"),
+                    Version = table.Column<int>(nullable: false),
+                    VersionStatus = table.Column<int>(nullable: false),
+                    PostId = table.Column<int>(nullable: false),
+                    TagId = table.Column<int>(nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_PostTag", x => x.Id);
+                    table.ForeignKey(
+                        name: "FK_PostTag_Post_PostId",
+                        column: x => x.PostId,
+                        principalTable: "Post",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Restrict);
+                    table.ForeignKey(
+                        name: "FK_PostTag_Tag_TagId",
+                        column: x => x.TagId,
+                        principalTable: "Tag",
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Restrict);
                 });
@@ -457,8 +477,13 @@ namespace Data.Migrations
                 column: "CategoryId");
 
             migrationBuilder.CreateIndex(
-                name: "IX_Post_TagId",
-                table: "Post",
+                name: "IX_PostTag_PostId",
+                table: "PostTag",
+                column: "PostId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_PostTag_TagId",
+                table: "PostTag",
                 column: "TagId");
 
             migrationBuilder.CreateIndex(
@@ -497,6 +522,9 @@ namespace Data.Migrations
                 name: "Follower");
 
             migrationBuilder.DropTable(
+                name: "PostTag");
+
+            migrationBuilder.DropTable(
                 name: "UserToken");
 
             migrationBuilder.DropTable(
@@ -506,13 +534,13 @@ namespace Data.Migrations
                 name: "Post");
 
             migrationBuilder.DropTable(
+                name: "Tag");
+
+            migrationBuilder.DropTable(
                 name: "AspNetUser");
 
             migrationBuilder.DropTable(
                 name: "Category");
-
-            migrationBuilder.DropTable(
-                name: "Tag");
         }
     }
 }
