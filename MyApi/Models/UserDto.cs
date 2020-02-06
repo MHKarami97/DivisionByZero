@@ -8,6 +8,8 @@ namespace MyApi.Models
 {
     public class UserDto : IValidatableObject
     {
+        public int Id { get; set; }
+
         [Required]
         [StringLength(100)]
         public string UserName { get; set; }
@@ -40,7 +42,7 @@ namespace MyApi.Models
                 yield return new ValidationResult("رمز عبور نمیتواند 123456 باشد", new[] { nameof(Password) });
 
             var isEmail = Regex.IsMatch(Email, @"\A(?:[a-z0-9!#$%&'*+/=?^_`{|}~-]+(?:\.[a-z0-9!#$%&'*+/=?^_`{|}~-]+)*@(?:[a-z0-9](?:[a-z0-9-]*[a-z0-9])?\.)+[a-z0-9](?:[a-z0-9-]*[a-z0-9])?)\Z", RegexOptions.IgnoreCase);
-            var isPhone = Regex.IsMatch(Email, @"(\+98|0|98|0098)?([ ]|-|[()]){0,2}9[0-9]([ ]|-|[()]){0,2}(?:[0-9]([ ]|-|[()]){0,2}){8}", RegexOptions.IgnoreCase);
+            var isPhone = Regex.IsMatch(Email, @"^(\+98|0)?9\d{9}$", RegexOptions.IgnoreCase);
 
             if (!isEmail)
                 yield return new ValidationResult("ایمیل نامعتبر است", new[] { nameof(Email) });

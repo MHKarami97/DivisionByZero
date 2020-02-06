@@ -1,4 +1,6 @@
-﻿using Common.Exceptions;
+﻿using AutoMapper;
+using AutoMapper.QueryableExtensions;
+using Common.Exceptions;
 using Common.Utilities;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -25,27 +27,29 @@ namespace MyApi.Controllers.v1
         private readonly ILogger<UsersController> _logger;
         private readonly IJwtService _jwtService;
         private readonly UserManager<User> _userManager;
+        private readonly IMapper _mapper;
 
-        public UsersController(IUserRepository userRepository, ILogger<UsersController> logger, IJwtService jwtService,
+        public UsersController(IUserRepository userRepository, IMapper mapper, ILogger<UsersController> logger, IJwtService jwtService,
             UserManager<User> userManager)
         {
             _userRepository = userRepository;
             _logger = logger;
             _jwtService = jwtService;
             _userManager = userManager;
+            _mapper = mapper;
         }
 
         [HttpGet]
         [Authorize(Policy = "SuperAdminPolicy")]
-        public virtual async Task<ActionResult<List<User>>> Get(CancellationToken cancellationToken)
+        public virtual async Task<ActionResult<List<UserDto>>> Get(CancellationToken cancellationToken)
         {
-            var users = await _userRepository.TableNoTracking.ToListAsync(cancellationToken);
+            var users = await _userRepository.TableNoTracking.ProjectTo<UserDto>(_mapper.ConfigurationProvider).ToListAsync(cancellationToken);
 
             return Ok(users);
         }
 
         [HttpGet("{id:int}")]
-        public virtual async Task<ApiResult<User>> Get(int id, CancellationToken cancellationToken)
+        public virtual async Task<ApiResult<UserDto>> Get(int id, CancellationToken cancellationToken)
         {
             var userId = HttpContext.User.Identity.GetUserId<int>();
 
@@ -62,7 +66,7 @@ namespace MyApi.Controllers.v1
 
                 await _userManager.UpdateSecurityStampAsync(user);
 
-                return user;
+                return _mapper.Map<UserDto>(user);
             }
 
             if (userId != id)
@@ -70,7 +74,7 @@ namespace MyApi.Controllers.v1
 
             await _userManager.UpdateSecurityStampAsync(requestedUser);
 
-            return requestedUser;
+            return _mapper.Map<UserDto>(requestedUser);
         }
 
         /// <summary>
@@ -139,7 +143,7 @@ namespace MyApi.Controllers.v1
 
         [HttpPost]
         [AllowAnonymous]
-        public virtual async Task<ApiResult<User>> Create(UserDto userDto, CancellationToken cancellationToken)
+        public virtual async Task<ApiResult<UserDto>> Create(UserDto userDto, CancellationToken cancellationToken)
         {
             _logger.LogError("متد Create فراخوانی شد");
 
@@ -165,7 +169,7 @@ namespace MyApi.Controllers.v1
             if (!roleResult.Succeeded)
                 return BadRequest();
 
-            return user;
+            return _mapper.Map<UserDto>(user);
         }
 
         [HttpPut]
