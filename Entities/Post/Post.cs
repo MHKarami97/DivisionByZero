@@ -18,7 +18,6 @@ namespace Entities.Post
         public int? View { get; set; }
         public int? Rank { get; set; }
         public int? Type { get; set; }
-        public int? Status { get; set; }
         public int CategoryId { get; set; }
         public int AuthorId { get; set; }
 
@@ -27,6 +26,7 @@ namespace Entities.Post
 
         public ICollection<Comment> Comments { get; set; }
         public ICollection<Favorite> Favorites { get; set; }
+        public ICollection<PostTag> PostTags { get; set; }
     }
 
     public class PostConfiguration : IEntityTypeConfiguration<Post>

@@ -1,7 +1,7 @@
 ﻿using Entities.Common;
-using System.Collections.Generic;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
+using System.Collections.Generic;
 
 namespace Entities.Post
 {
@@ -9,7 +9,7 @@ namespace Entities.Post
     {
         public string Name { get; set; }
 
-        public ICollection<Post> Posts { get; set; }
+        public ICollection<PostTag> PostTags { get; set; }
     }
 
     public class TagConfiguration : IEntityTypeConfiguration<Tag>
