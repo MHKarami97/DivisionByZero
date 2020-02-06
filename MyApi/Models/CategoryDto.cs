@@ -8,6 +8,12 @@ namespace MyApi.Models
         public string Name { get; set; }
         public int? ParentCategoryId { get; set; }
 
-        public string ParentCategoryName { get; set; } //=> mapped from ParentCategory.Name
+        public string ParentCategoryName { get; set; }
+    }
+
+    public class CategoryCreateDto : BaseDto<CategoryCreateDto, Category>
+    {
+        public string Name { get; set; }
+        public int? ParentCategoryId { get; set; }
     }
 }

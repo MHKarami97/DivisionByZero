@@ -15,7 +15,7 @@ using WebFramework.Api;
 namespace MyApi.Controllers.v1
 {
     [ApiVersion("1")]
-    public class CategoriesController : CrudController<CategoryDto, Category>
+    public class CategoriesController : CrudController<CategoryCreateDto, CategoryDto, Category>
     {
         public CategoriesController(IRepository<Category> repository, IMapper mapper)
             : base(repository, mapper)
@@ -35,7 +35,7 @@ namespace MyApi.Controllers.v1
         }
 
         [Authorize(Policy = "WorkerPolicy")]
-        public override Task<ApiResult<CategoryDto>> Update(int id, CategoryDto dto, CancellationToken cancellationToken)
+        public override Task<ApiResult<CategoryDto>> Update(int id, CategoryCreateDto dto, CancellationToken cancellationToken)
         {
             return base.Update(id, dto, cancellationToken);
         }
@@ -44,6 +44,20 @@ namespace MyApi.Controllers.v1
         public override Task<ApiResult> Delete(int id, CancellationToken cancellationToken)
         {
             return base.Delete(id, cancellationToken);
+        }
+
+        [Authorize(Policy = "WorkerPolicy")]
+        public override async Task<ApiResult<CategoryDto>> Create(CategoryCreateDto dto, CancellationToken cancellationToken)
+        {
+            if (dto.ParentCategoryId == 0)
+                return await base.Create(dto, cancellationToken);
+
+            var isParentExist = await Repository.TableNoTracking.AnyAsync(a => a.Id.Equals(dto.ParentCategoryId), cancellationToken);
+
+            if (!isParentExist)
+                return BadRequest();
+
+            return await base.Create(dto, cancellationToken);
         }
 
         [HttpGet]
