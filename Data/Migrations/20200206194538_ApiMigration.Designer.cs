@@ -10,14 +10,14 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace Data.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    [Migration("20200201134441_ApiMigration")]
+    [Migration("20200206194538_ApiMigration")]
     partial class ApiMigration
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
-                .HasAnnotation("ProductVersion", "3.1.0")
+                .HasAnnotation("ProductVersion", "3.1.1")
                 .HasAnnotation("Relational:MaxIdentifierLength", 128)
                 .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
 
@@ -138,7 +138,7 @@ namespace Data.Migrations
                         .HasColumnType("nvarchar(200)")
                         .HasMaxLength(200);
 
-                    b.Property<int>("Rank")
+                    b.Property<int?>("Rank")
                         .HasColumnType("int");
 
                     b.Property<string>("ShortDescription")
@@ -146,7 +146,7 @@ namespace Data.Migrations
                         .HasColumnType("nvarchar(500)")
                         .HasMaxLength(500);
 
-                    b.Property<int>("Status")
+                    b.Property<int?>("Status")
                         .HasColumnType("int");
 
                     b.Property<int?>("TagId")
@@ -167,7 +167,7 @@ namespace Data.Migrations
                         .HasColumnType("nvarchar(200)")
                         .HasMaxLength(200);
 
-                    b.Property<int>("Type")
+                    b.Property<int?>("Type")
                         .HasColumnType("int");
 
                     b.Property<int>("Version")
@@ -176,7 +176,7 @@ namespace Data.Migrations
                     b.Property<int>("VersionStatus")
                         .HasColumnType("int");
 
-                    b.Property<int>("View")
+                    b.Property<int?>("View")
                         .HasColumnType("int");
 
                     b.HasKey("Id");
