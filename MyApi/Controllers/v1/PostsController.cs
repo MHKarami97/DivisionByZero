@@ -29,7 +29,7 @@ namespace MyApi.Controllers.v1
             _userManager = userManager;
         }
 
-        [AllowAnonymous]
+        [NonAction]
         public override Task<ApiResult<List<PostSelectDto>>> Get(CancellationToken cancellationToken)
         {
             return base.Get(cancellationToken);
@@ -78,12 +78,12 @@ namespace MyApi.Controllers.v1
 
         [HttpGet]
         [AllowAnonymous]
-        public virtual async Task<ApiResult<List<PostSelectDto>>> GetAllByCatId(int id, int to, CancellationToken cancellationToken)
+        public virtual async Task<ApiResult<List<PostShortSelectDto>>> GetAllByCatId(int id, int to, CancellationToken cancellationToken)
         {
             var list = await Repository.TableNoTracking
                 .Where(a => !a.VersionStatus.Equals(2) && a.CategoryId.Equals(id))
                 .OrderByDescending(a => a.Time)
-                .ProjectTo<PostSelectDto>(Mapper.ConfigurationProvider)
+                .ProjectTo<PostShortSelectDto>(Mapper.ConfigurationProvider)
                 .Take(DefaultTake + to)
                 .ToListAsync(cancellationToken);
 
@@ -92,7 +92,7 @@ namespace MyApi.Controllers.v1
 
         [HttpGet]
         [AllowAnonymous]
-        public virtual async Task<ApiResult<List<PostSelectDto>>> GetSimilar(int id, CancellationToken cancellationToken)
+        public virtual async Task<ApiResult<List<PostShortSelectDto>>> GetSimilar(int id, CancellationToken cancellationToken)
         {
             var post = await Repository.TableNoTracking
                 .Where(a => a.Id.Equals(id))
@@ -100,7 +100,7 @@ namespace MyApi.Controllers.v1
 
             var list = await Repository.TableNoTracking
                 .Where(a => !a.VersionStatus.Equals(2) && a.CategoryId.Equals(post.CategoryId))
-                .ProjectTo<PostSelectDto>(Mapper.ConfigurationProvider)
+                .ProjectTo<PostShortSelectDto>(Mapper.ConfigurationProvider)
                 .Take(DefaultTake)
                 .ToListAsync(cancellationToken);
 
@@ -109,11 +109,11 @@ namespace MyApi.Controllers.v1
 
         [HttpGet]
         [AllowAnonymous]
-        public virtual async Task<ApiResult<List<PostSelectDto>>> GetByUserId(int id, CancellationToken cancellationToken)
+        public virtual async Task<ApiResult<List<PostShortSelectDto>>> GetByUserId(int id, CancellationToken cancellationToken)
         {
             var list = await Repository.TableNoTracking
                 .Where(a => !a.VersionStatus.Equals(2) && a.AuthorId.Equals(id))
-                .ProjectTo<PostSelectDto>(Mapper.ConfigurationProvider)
+                .ProjectTo<PostShortSelectDto>(Mapper.ConfigurationProvider)
                 .Take(DefaultTake)
                 .ToListAsync(cancellationToken);
 
@@ -122,12 +122,12 @@ namespace MyApi.Controllers.v1
 
         [HttpGet]
         [AllowAnonymous]
-        public virtual async Task<ApiResult<List<PostSelectDto>>> GetCustom(int type, int count, CancellationToken cancellationToken)
+        public virtual async Task<ApiResult<List<PostShortSelectDto>>> GetCustom(int type, int count, CancellationToken cancellationToken)
         {
             var list = await Repository.TableNoTracking
                 .Where(a => !a.VersionStatus.Equals(2))
                 .OrderByDescending(a => a.Time)
-                .ProjectTo<PostSelectDto>(Mapper.ConfigurationProvider)
+                .ProjectTo<PostShortSelectDto>(Mapper.ConfigurationProvider)
                 .Take(count)
                 .ToListAsync(cancellationToken);
 
@@ -148,12 +148,12 @@ namespace MyApi.Controllers.v1
 
         [HttpGet]
         [AllowAnonymous]
-        public virtual async Task<ApiResult<List<PostSelectDto>>> Search(string str, CancellationToken cancellationToken)
+        public virtual async Task<ApiResult<List<PostShortSelectDto>>> Search(string str, CancellationToken cancellationToken)
         {
             var list = await Repository.TableNoTracking
                 .Where(a => !a.VersionStatus.Equals(2) && a.Title.Contains(str))
                 .OrderByDescending(a => a.Time)
-                .ProjectTo<PostSelectDto>(Mapper.ConfigurationProvider)
+                .ProjectTo<PostShortSelectDto>(Mapper.ConfigurationProvider)
                 .Take(DefaultTake)
                 .ToListAsync(cancellationToken);
 

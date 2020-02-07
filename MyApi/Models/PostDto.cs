@@ -16,6 +16,26 @@ namespace MyApi.Models
         public int AuthorId { get; set; }
     }
 
+    public class PostShortSelectDto : BaseDto<PostShortSelectDto, Post>
+    {
+        public string Title { get; set; }
+        public string CategoryName { get; set; }
+        public string AuthorFullName { get; set; }
+        public DateTime Time { get; set; }
+        public string ShortDescription { get; set; }
+        public string TimeToRead { get; set; }
+        public string Image { get; set; }
+        public int View { get; set; }
+        public int Rank { get; set; }
+
+        public override void CustomMappings(IMappingExpression<Post, PostShortSelectDto> mappingExpression)
+        {
+            mappingExpression.ForMember(
+                dest => dest.TimeToRead,
+                config => config.MapFrom(src => src.TimeToRead.ToString("t")));
+        }
+    }
+
     public class PostSelectDto : BaseDto<PostSelectDto, Post>
     {
         public string Title { get; set; }
