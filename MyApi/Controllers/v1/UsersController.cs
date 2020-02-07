@@ -21,6 +21,7 @@ using Services.Services;
 namespace MyApi.Controllers.v1
 {
     [ApiVersion("1")]
+    [Route("api/v{version:apiVersion}/[controller]/[action]")]
     public class UsersController : BaseController
     {
         private readonly IUserRepository _userRepository;
@@ -41,15 +42,16 @@ namespace MyApi.Controllers.v1
 
         [HttpGet]
         [Authorize(Policy = "SuperAdminPolicy")]
-        public virtual async Task<ActionResult<List<UserDto>>> Get(CancellationToken cancellationToken)
+        public virtual async Task<ActionResult<List<UserReturnDto>>> Get(CancellationToken cancellationToken)
         {
-            var users = await _userRepository.TableNoTracking.ProjectTo<UserDto>(_mapper.ConfigurationProvider).ToListAsync(cancellationToken);
+            var users = await _userRepository.TableNoTracking.ProjectTo<UserReturnDto>(_mapper.ConfigurationProvider)
+                .ToListAsync(cancellationToken);
 
             return Ok(users);
         }
 
         [HttpGet("{id:int}")]
-        public virtual async Task<ApiResult<UserDto>> Get(int id, CancellationToken cancellationToken)
+        public virtual async Task<ApiResult<UserReturnDto>> Get(int id, CancellationToken cancellationToken)
         {
             var userId = HttpContext.User.Identity.GetUserId<int>();
 
@@ -66,7 +68,7 @@ namespace MyApi.Controllers.v1
 
                 await _userManager.UpdateSecurityStampAsync(user);
 
-                return _mapper.Map<UserDto>(user);
+                return _mapper.Map<UserReturnDto>(user);
             }
 
             if (userId != id)
@@ -74,7 +76,33 @@ namespace MyApi.Controllers.v1
 
             await _userManager.UpdateSecurityStampAsync(requestedUser);
 
-            return _mapper.Map<UserDto>(requestedUser);
+            return _mapper.Map<UserReturnDto>(requestedUser);
+        }
+
+        [HttpGet]
+        [Authorize(Policy = "SuperAdminPolicy")]
+        public virtual async Task<ApiResult> IsAdmin(CancellationToken cancellationToken)
+        {
+            var userId = HttpContext.User.Identity.GetUserId<int>();
+
+            var requestedUser = await _userManager.FindByIdAsync(userId.ToString());
+
+            var isAdmin = await _userManager.IsInRoleAsync(requestedUser, "Admin");
+
+            if (isAdmin)
+                return Ok();
+
+            return BadRequest();
+        }
+
+        [HttpGet]
+        public virtual async Task<ApiResult<UserReturnDto>> GetUserInfo(CancellationToken cancellationToken)
+        {
+            var userId = HttpContext.User.Identity.GetUserId<int>();
+
+            var requestedUser = await _userManager.FindByIdAsync(userId.ToString());
+
+            return _mapper.Map<UserReturnDto>(requestedUser);
         }
 
         /// <summary>
@@ -84,7 +112,7 @@ namespace MyApi.Controllers.v1
         /// <param name="cancellationToken"></param>
         /// <returns></returns>
         [AllowAnonymous]
-        [HttpPost("[action]")]
+        [HttpPost]
         public virtual async Task<ActionResult> Token([FromForm]TokenRequest tokenRequest, CancellationToken cancellationToken)
         {
             if (!tokenRequest.Grant_type.Equals("password", StringComparison.OrdinalIgnoreCase))
@@ -104,7 +132,7 @@ namespace MyApi.Controllers.v1
         }
 
         [AllowAnonymous]
-        [HttpPost("[action]")]
+        [HttpPost]
         public async Task<IActionResult> RefreshToken([FromForm]TokenRequest tokenRequest)
         {
             var refreshToken = tokenRequest.Refresh_token;
@@ -122,8 +150,8 @@ namespace MyApi.Controllers.v1
             return new JsonResult(jwt);
         }
 
+        [HttpGet]
         [AllowAnonymous]
-        [HttpGet("[action]")]
         public async Task<bool> Logout()
         {
             if (!(User.Identity is ClaimsIdentity claimsIdentity))
@@ -143,7 +171,7 @@ namespace MyApi.Controllers.v1
 
         [HttpPost]
         [AllowAnonymous]
-        public virtual async Task<ApiResult<UserDto>> Create(UserDto userDto, CancellationToken cancellationToken)
+        public virtual async Task<ApiResult<UserReturnDto>> Create(UserDto userDto, CancellationToken cancellationToken)
         {
             _logger.LogError("متد Create فراخوانی شد");
 
@@ -153,28 +181,39 @@ namespace MyApi.Controllers.v1
 
             var user = new User
             {
-                Birthday = DateTime.Now,
+                Birthday = userDto.Birthday,
                 FullName = userDto.FullName,
                 Gender = userDto.Gender,
                 UserName = userDto.UserName,
-                Email = userDto.Email
+                Email = userDto.Email,
+                PhoneNumber = userDto.PhoneNumber
             };
             var result = await _userManager.CreateAsync(user, userDto.Password);
 
             if (!result.Succeeded)
-                return BadRequest();
+                return BadRequest(result.ToString());
 
             var roleResult = await _userManager.AddToRoleAsync(user, "Member");
 
             if (!roleResult.Succeeded)
                 return BadRequest();
 
-            return _mapper.Map<UserDto>(user);
+            return _mapper.Map<UserReturnDto>(user);
         }
 
         [HttpPut]
         public virtual async Task<ApiResult> Update(int id, User user, CancellationToken cancellationToken)
         {
+            var userId = HttpContext.User.Identity.GetUserId<int>();
+
+            var requestedUser = await _userManager.FindByIdAsync(userId.ToString());
+
+            var isAdmin = await _userManager.IsInRoleAsync(requestedUser, "Admin");
+
+            if (!isAdmin)
+                if (!userId.Equals(id))
+                    return BadRequest();
+
             var updateUser = await _userRepository.GetByIdAsync(cancellationToken, id);
 
             updateUser.UserName = user.UserName;

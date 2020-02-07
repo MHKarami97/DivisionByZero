@@ -38,7 +38,7 @@ namespace WebFramework.Api
             return Ok(list);
         }
 
-        [HttpGet("{id:guid}")]
+        [HttpGet("{id:int}")]
         public virtual async Task<ApiResult<TSelectDto>> Get(TKey id, CancellationToken cancellationToken)
         {
             var dto = await Repository.TableNoTracking
