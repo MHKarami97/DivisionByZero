@@ -28,6 +28,7 @@ namespace MyApi.Controllers.v1
             DbContext = dbContext;
         }
 
+        [AllowAnonymous]
         public override async Task<ApiResult<List<TagDto>>> Get(CancellationToken cancellationToken)
         {
             var list = await Repository.TableNoTracking
@@ -50,20 +51,23 @@ namespace MyApi.Controllers.v1
 
         [HttpPost]
         [Authorize]
-        public async Task<ApiResult<TagDto>> AddTag(List<PostTagDto> dto, CancellationToken cancellationToken)
+        public async Task<ApiResult<TagDto>> AddTag(PostTagDto dto, CancellationToken cancellationToken)
         {
-            if (!dto.Any())
+            if (!dto.TagName.Any())
                 return BadRequest("لیست تگ ها خالی است");
 
-            foreach (var tagDto in dto)
+            if (dto.PostId == 0)
+                return BadRequest("آی دی پست نامعتبر است");
+
+            foreach (var tagDto in dto.TagName)
             {
-                var isTagExist = await Repository.TableNoTracking.SingleOrDefaultAsync(a => a.Name.Equals(tagDto.TagName), cancellationToken);
+                var isTagExist = await Repository.TableNoTracking.SingleOrDefaultAsync(a => a.Name.Equals(tagDto), cancellationToken);
 
                 if (isTagExist == null)
                 {
                     var newTag = new Tag
                     {
-                        Name = tagDto.TagName,
+                        Name = tagDto,
                         VersionStatus = 0,
                         Version = 1
                     };
@@ -72,7 +76,7 @@ namespace MyApi.Controllers.v1
 
                     var postTag = new PostTag
                     {
-                        PostId = tagDto.PostId,
+                        PostId = dto.PostId,
                         TagId = newTag.Id,
                         VersionStatus = 0,
                         Version = 1
@@ -84,7 +88,7 @@ namespace MyApi.Controllers.v1
                 {
                     var postTag = new PostTag
                     {
-                        PostId = tagDto.PostId,
+                        PostId = dto.PostId,
                         TagId = isTagExist.Id,
                         VersionStatus = 0,
                         Version = 1
@@ -100,6 +104,7 @@ namespace MyApi.Controllers.v1
         }
 
         [HttpGet]
+        [AllowAnonymous]
         public async Task<ApiResult<TagDto>> GetPostTag(int id, CancellationToken cancellationToken)
         {
             if (id.Equals(0))
@@ -127,6 +132,12 @@ namespace MyApi.Controllers.v1
             await _repositoryTag.DeleteRangeAsync(postTags, cancellationToken);
 
             return await base.Delete(id, cancellationToken);
+        }
+
+        [Authorize(Policy = "WorkerPolicy")]
+        public override Task<ApiResult<TagDto>> Update(int id, TagDto dto, CancellationToken cancellationToken)
+        {
+            return base.Update(id, dto, cancellationToken);
         }
     }
 }
