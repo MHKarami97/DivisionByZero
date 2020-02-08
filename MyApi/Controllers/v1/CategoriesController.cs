@@ -74,6 +74,33 @@ namespace MyApi.Controllers.v1
 
         [HttpGet]
         [AllowAnonymous]
+        public virtual async Task<ApiResult<List<CategoryWithSubCatDto>>> GetCategoryWithSub(CancellationToken cancellationToken)
+        {
+            var result = new List<CategoryWithSubCatDto>();
+
+            var list = await Repository.TableNoTracking
+                .Where(a => !a.VersionStatus.Equals(2) && a.ParentCategoryId.Equals(1))
+                .ToListAsync(cancellationToken);
+
+            foreach (var category in list)
+            {
+                var sub = await Repository.TableNoTracking
+                    .Where(a => !a.VersionStatus.Equals(2) && a.ParentCategoryId.Equals(category.Id))
+                    .ProjectTo<ShortCategoryDto>(Mapper.ConfigurationProvider)
+                    .ToListAsync(cancellationToken);
+
+                result.Add(new CategoryWithSubCatDto
+                {
+                    Name = category.Name,
+                    Sub = sub
+                });
+            }
+
+            return Ok(result);
+        }
+
+        [HttpGet]
+        [AllowAnonymous]
         public virtual async Task<ApiResult<List<CategoryDto>>> GetAllByCatId(int id, CancellationToken cancellationToken)
         {
             var list = await Repository.TableNoTracking
