@@ -78,8 +78,8 @@ namespace MyApi.Controllers.v1
             return base.Create(dto, cancellationToken);
         }
 
-        [HttpGet]
         [AllowAnonymous]
+        [HttpGet("{id:int}")]
         public virtual async Task<ApiResult<List<PostShortSelectDto>>> GetAllByCatId(int catId, int to, CancellationToken cancellationToken)
         {
             var list = await Repository.TableNoTracking
@@ -92,8 +92,8 @@ namespace MyApi.Controllers.v1
             return Ok(list);
         }
 
-        [HttpGet]
         [AllowAnonymous]
+        [HttpGet("{id:int}")]
         public virtual async Task<ApiResult<List<PostShortSelectDto>>> GetSimilar(int id, CancellationToken cancellationToken)
         {
             var post = await Repository.TableNoTracking
@@ -109,8 +109,8 @@ namespace MyApi.Controllers.v1
             return Ok(list);
         }
 
-        [HttpGet]
         [AllowAnonymous]
+        [HttpGet("{id:int}")]
         public virtual async Task<ApiResult<List<PostShortSelectDto>>> GetByUserId(int id, CancellationToken cancellationToken)
         {
             var list = await Repository.TableNoTracking

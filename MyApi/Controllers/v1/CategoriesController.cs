@@ -50,6 +50,9 @@ namespace MyApi.Controllers.v1
         public override async Task<ApiResult<CategoryDto>> Create(CategoryCreateDto dto, CancellationToken cancellationToken)
         {
             if (dto.ParentCategoryId == null)
+                dto.ParentCategoryId = 0;
+
+            if (dto.ParentCategoryId == 0)
                 return await base.Create(dto, cancellationToken);
 
             var isParentExist = await Repository.TableNoTracking.AnyAsync(a => a.Id.Equals(dto.ParentCategoryId), cancellationToken);
@@ -65,7 +68,7 @@ namespace MyApi.Controllers.v1
         public virtual async Task<ApiResult<List<CategoryDto>>> GetAllMainCat(CancellationToken cancellationToken)
         {
             var list = await Repository.TableNoTracking
-                .Where(a => !a.VersionStatus.Equals(2) && a.ParentCategoryId.Equals(1))
+                .Where(a => !a.VersionStatus.Equals(2) && a.ParentCategoryId.Equals(0))
                 .ProjectTo<CategoryDto>(Mapper.ConfigurationProvider)
                 .ToListAsync(cancellationToken);
 
@@ -79,7 +82,7 @@ namespace MyApi.Controllers.v1
             var result = new List<CategoryWithSubCatDto>();
 
             var list = await Repository.TableNoTracking
-                .Where(a => !a.VersionStatus.Equals(2) && a.ParentCategoryId.Equals(1))
+                .Where(a => !a.VersionStatus.Equals(2) && a.ParentCategoryId.Equals(null))
                 .ToListAsync(cancellationToken);
 
             foreach (var category in list)
@@ -99,8 +102,8 @@ namespace MyApi.Controllers.v1
             return Ok(result);
         }
 
-        [HttpGet]
         [AllowAnonymous]
+        [HttpGet("{id:int}")]
         public virtual async Task<ApiResult<List<CategoryDto>>> GetAllByCatId(int id, CancellationToken cancellationToken)
         {
             var list = await Repository.TableNoTracking

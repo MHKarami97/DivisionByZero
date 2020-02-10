@@ -33,8 +33,8 @@ namespace MyApi.Controllers.v1
             return base.Get(id, cancellationToken);
         }
 
-        [HttpGet]
         [AllowAnonymous]
+        [HttpGet("{id:int}")]
         public async Task<ApiResult<List<CommentSelectDto>>> GetPostComments(int id, CancellationToken cancellationToken)
         {
             var list = await Repository.TableNoTracking
