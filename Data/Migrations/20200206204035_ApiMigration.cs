@@ -314,7 +314,7 @@ namespace Data.Migrations
                         .Annotation("SqlServer:Identity", "1, 1"),
                     Version = table.Column<int>(nullable: false),
                     VersionStatus = table.Column<int>(nullable: false),
-                    Text = table.Column<string>(maxLength: 200, nullable: false),
+                    Text = table.Column<string>(maxLength: 1000, nullable: false),
                     Time = table.Column<DateTime>(nullable: false),
                     PostId = table.Column<int>(nullable: false),
                     UserId = table.Column<int>(nullable: false)

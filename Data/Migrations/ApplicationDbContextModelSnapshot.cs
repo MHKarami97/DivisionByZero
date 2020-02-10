@@ -94,7 +94,7 @@ namespace Data.Migrations
 
                     b.Property<string>("Text")
                         .IsRequired()
-                        .HasColumnType("nvarchar(200)")
+                        .HasColumnType("nvarchar(1000)")
                         .HasMaxLength(200);
 
                     b.Property<DateTime>("Time")

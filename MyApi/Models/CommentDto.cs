@@ -1,19 +1,28 @@
 ﻿using System;
 using AutoMapper;
 using Entities.Post;
-using Newtonsoft.Json;
+using System.ComponentModel.DataAnnotations;
+using System.Text.Json.Serialization;
 using WebFramework.Api;
 
 namespace MyApi.Models
 {
     public class CommentDto : BaseDto<CommentDto, Comment>
     {
-        public string Text { get; set; }
-        public int PostId { get; set; }
-        public int UserId { get; set; }
-
         [JsonIgnore]
-        protected DateTime Time { get; set; }
+        public override int Id { get; set; }
+
+        [Required]
+        [StringLength(1000)]
+        [DataType(DataType.MultilineText)]
+        public string Text { get; set; }
+
+        [Required]
+        public int PostId { get; set; }
+
+        protected internal int UserId { get; set; }
+
+        protected internal DateTime Time { get; set; }
 
         public override void CustomMappings(IMappingExpression<Comment, CommentDto> mappingExpression)
         {

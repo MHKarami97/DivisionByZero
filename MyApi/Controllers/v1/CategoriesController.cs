@@ -49,13 +49,13 @@ namespace MyApi.Controllers.v1
         [Authorize(Policy = "WorkerPolicy")]
         public override async Task<ApiResult<CategoryDto>> Create(CategoryCreateDto dto, CancellationToken cancellationToken)
         {
-            if (dto.ParentCategoryId == 0)
+            if (dto.ParentCategoryId == null)
                 return await base.Create(dto, cancellationToken);
 
             var isParentExist = await Repository.TableNoTracking.AnyAsync(a => a.Id.Equals(dto.ParentCategoryId), cancellationToken);
 
             if (!isParentExist)
-                return BadRequest();
+                return BadRequest("دسته مادر موجود نمی باشد");
 
             return await base.Create(dto, cancellationToken);
         }

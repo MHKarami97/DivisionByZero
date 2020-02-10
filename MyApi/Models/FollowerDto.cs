@@ -1,5 +1,7 @@
 ﻿using Entities.User;
 using WebFramework.Api;
+using System.ComponentModel.DataAnnotations;
+using System.Text.Json.Serialization;
 
 namespace MyApi.Models
 {
@@ -11,7 +13,12 @@ namespace MyApi.Models
 
     public class FollowerSelectDto : BaseDto<FollowerSelectDto, Follower>
     {
+        [JsonIgnore]
+        public override int Id { get; set; }
+
+        [Required]
         public int FollowerId { get; set; }
-        public int UserId { get; set; }
+
+        protected internal int UserId { get; set; }
     }
 }

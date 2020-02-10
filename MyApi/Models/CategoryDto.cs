@@ -1,6 +1,8 @@
 ﻿using Entities.Post;
-using System.Collections.Generic;
 using WebFramework.Api;
+using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations;
+using System.Text.Json.Serialization;
 
 namespace MyApi.Models
 {
@@ -19,7 +21,14 @@ namespace MyApi.Models
 
     public class CategoryCreateDto : BaseDto<CategoryCreateDto, Category>
     {
+        [JsonIgnore]
+        public override int Id { get; set; }
+
+        [Required]
+        [StringLength(100)]
+        [DataType(DataType.Text)]
         public string Name { get; set; }
+
         public int? ParentCategoryId { get; set; }
     }
 

@@ -22,6 +22,7 @@ namespace MyApi.Models
         [DataType(DataType.Password)]
         public string Password { get; set; }
 
+        [Required]
         [DataType(DataType.PhoneNumber)]
         public string PhoneNumber { get; set; }
 
@@ -29,8 +30,10 @@ namespace MyApi.Models
         [StringLength(100)]
         public string FullName { get; set; }
 
+        [Required]
         public DateTime Birthday { get; set; }
 
+        [Required]
         public GenderType Gender { get; set; }
 
         public IEnumerable<ValidationResult> Validate(ValidationContext validationContext)

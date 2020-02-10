@@ -1,19 +1,49 @@
 ﻿using AutoMapper;
 using Entities.Post;
 using System;
+using System.ComponentModel.DataAnnotations;
+using System.Text.Json.Serialization;
 using WebFramework.Api;
 
 namespace MyApi.Models
 {
     public class PostDto : BaseDto<PostDto, Post>
     {
+        [JsonIgnore]
+        public override int Id { get; set; }
+
+        [Required]
+        [StringLength(200)]
         public string Title { get; set; }
+
+        [Required]
+        [DataType(DataType.Html)]
         public string Text { get; set; }
+
+        [Required]
+        [StringLength(500)]
+        [DataType(DataType.Text)]
         public string ShortDescription { get; set; }
+
+        [Required]
         public DateTime TimeToRead { get; set; }
+
+        [Required]
         public string Image { get; set; }
+
+        [Required]
         public int CategoryId { get; set; }
-        public int AuthorId { get; set; }
+
+        protected internal DateTime Time { get; set; }
+
+        protected internal int AuthorId { get; set; }
+
+        public override void CustomMappings(IMappingExpression<Post, PostDto> mappingExpression)
+        {
+            mappingExpression.ForMember(
+                dest => dest.Time,
+                config => config.MapFrom(src => DateTime.Now));
+        }
     }
 
     public class PostShortSelectDto : BaseDto<PostShortSelectDto, Post>

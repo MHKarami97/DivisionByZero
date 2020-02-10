@@ -20,7 +20,7 @@ namespace Entities.Post
     {
         public void Configure(EntityTypeBuilder<Comment> builder)
         {
-            builder.Property(p => p.Text).IsRequired().HasMaxLength(200);
+            builder.Property(p => p.Text).IsRequired().HasMaxLength(1000);
             builder.Property(p => p.Time).IsRequired();
             builder.Property(p => p.PostId).IsRequired();
             builder.Property(p => p.UserId).IsRequired();
