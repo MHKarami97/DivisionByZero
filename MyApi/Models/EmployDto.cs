@@ -21,15 +21,17 @@ namespace MyApi.Models
         [DataType(DataType.Html)]
         public string Text { get; set; }
 
-        protected internal DateTime Time { get; set; }
+        [JsonIgnore]
+        public DateTime Time { get; set; }
 
-        protected internal int UserId { get; set; }
+        [JsonIgnore]
+        public int UserId { get; set; }
 
         public override void CustomMappings(IMappingExpression<Employ, EmployDto> mappingExpression)
         {
-            mappingExpression.ForMember(
-                dest => dest.Time,
-                config => config.MapFrom(src => DateTime.Now));
+            // mappingExpression.ForMember(
+            //     dest => dest.Time,
+            //     config => config.MapFrom(src => DateTime.Now));
         }
     }
 

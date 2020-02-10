@@ -20,15 +20,17 @@ namespace MyApi.Models
         [Required]
         public int PostId { get; set; }
 
-        protected internal int UserId { get; set; }
+        [JsonIgnore]
+        public int UserId { get; set; }
 
-        protected internal DateTime Time { get; set; }
+        [JsonIgnore]
+        public DateTime Time { get; set; }
 
         public override void CustomMappings(IMappingExpression<Comment, CommentDto> mappingExpression)
         {
-            mappingExpression.ForMember(
-                dest => dest.Time,
-                config => config.MapFrom(src => DateTime.Now));
+            // mappingExpression.ForMember(
+            //     dest => dest.Time,
+            //     config => config.MapFrom(src => DateTime.Now));
         }
     }
 

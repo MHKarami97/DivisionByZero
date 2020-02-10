@@ -34,15 +34,17 @@ namespace MyApi.Models
         [Required]
         public int CategoryId { get; set; }
 
-        protected internal DateTime Time { get; set; }
+        [JsonIgnore]
+        public DateTime Time { get; set; }
 
-        protected internal int AuthorId { get; set; }
+        [JsonIgnore]
+        public int AuthorId { get; set; }
 
         public override void CustomMappings(IMappingExpression<Post, PostDto> mappingExpression)
         {
-            mappingExpression.ForMember(
-                dest => dest.Time,
-                config => config.MapFrom(src => DateTime.Now));
+            // mappingExpression.ForMember(
+            //     dest => dest.Time,
+            //     config => config.MapFrom(src => DateTime.Now));
         }
     }
 

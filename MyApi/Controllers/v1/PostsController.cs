@@ -13,6 +13,7 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using System;
 using WebFramework.Api;
 
 namespace MyApi.Controllers.v1
@@ -72,16 +73,17 @@ namespace MyApi.Controllers.v1
         public override Task<ApiResult<PostSelectDto>> Create(PostDto dto, CancellationToken cancellationToken)
         {
             dto.AuthorId = HttpContext.User.Identity.GetUserId<int>();
+            dto.Time = DateTime.Now;
 
             return base.Create(dto, cancellationToken);
         }
 
         [HttpGet]
         [AllowAnonymous]
-        public virtual async Task<ApiResult<List<PostShortSelectDto>>> GetAllByCatId(int id, int to, CancellationToken cancellationToken)
+        public virtual async Task<ApiResult<List<PostShortSelectDto>>> GetAllByCatId(int catId, int to, CancellationToken cancellationToken)
         {
             var list = await Repository.TableNoTracking
-                .Where(a => !a.VersionStatus.Equals(2) && a.CategoryId.Equals(id))
+                .Where(a => !a.VersionStatus.Equals(2) && a.CategoryId.Equals(catId))
                 .OrderByDescending(a => a.Time)
                 .ProjectTo<PostShortSelectDto>(Mapper.ConfigurationProvider)
                 .Take(DefaultTake + to)
@@ -122,7 +124,7 @@ namespace MyApi.Controllers.v1
 
         [HttpGet]
         [AllowAnonymous]
-        public virtual async Task<ApiResult<List<PostShortSelectDto>>> GetCustom(int type, int count, CancellationToken cancellationToken)
+        public virtual async Task<ApiResult<List<PostShortSelectDto>>> GetCustom(CancellationToken cancellationToken, int type = 1, int count = DefaultTake)
         {
             var list = await Repository.TableNoTracking
                 .Where(a => !a.VersionStatus.Equals(2))
@@ -150,6 +152,9 @@ namespace MyApi.Controllers.v1
         [AllowAnonymous]
         public virtual async Task<ApiResult<List<PostShortSelectDto>>> Search(string str, CancellationToken cancellationToken)
         {
+            if(string.IsNullOrEmpty(str))
+                return BadRequest("کلمه مورد جستجو خالی است");
+
             var list = await Repository.TableNoTracking
                 .Where(a => !a.VersionStatus.Equals(2) && a.Title.Contains(str))
                 .OrderByDescending(a => a.Time)

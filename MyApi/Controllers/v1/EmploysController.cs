@@ -11,6 +11,7 @@ using Entities.Employ;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using System;
 using WebFramework.Api;
 
 namespace MyApi.Controllers.v1
@@ -56,6 +57,7 @@ namespace MyApi.Controllers.v1
         public override Task<ApiResult<EmploySelectDto>> Create(EmployDto dto, CancellationToken cancellationToken)
         {
             dto.UserId = HttpContext.User.Identity.GetUserId<int>();
+            dto.Time = DateTime.Now;
 
             return base.Create(dto, cancellationToken);
         }

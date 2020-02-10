@@ -23,6 +23,7 @@ namespace MyApi.Models
         [Required]
         public int PostId { get; set; }
 
-        protected internal int UserId { get; set; }
+        [JsonIgnore]
+        public int UserId { get; set; }
     }
 }
