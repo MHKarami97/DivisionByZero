@@ -82,7 +82,7 @@ namespace MyApi.Controllers.v1
             var result = new List<CategoryWithSubCatDto>();
 
             var list = await Repository.TableNoTracking
-                .Where(a => !a.VersionStatus.Equals(2) && a.ParentCategoryId.Equals(null))
+                .Where(a => !a.VersionStatus.Equals(2) && a.ParentCategoryId.Equals(0))
                 .ToListAsync(cancellationToken);
 
             foreach (var category in list)
