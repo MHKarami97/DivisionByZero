@@ -9,6 +9,7 @@ namespace Entities.Post
     {
         public string Name { get; set; }
         public int? ParentCategoryId { get; set; }
+        public string Image { get; set; }
 
         public Category ParentCategory { get; set; }
 

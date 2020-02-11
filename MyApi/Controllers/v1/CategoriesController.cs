@@ -95,6 +95,7 @@ namespace MyApi.Controllers.v1
                 result.Add(new CategoryWithSubCatDto
                 {
                     Name = category.Name,
+                    Image = category.Image,
                     Sub = sub
                 });
             }

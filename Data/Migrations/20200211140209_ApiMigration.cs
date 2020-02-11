@@ -55,6 +55,23 @@ namespace Data.Migrations
                 });
 
             migrationBuilder.CreateTable(
+                name: "Banner",
+                columns: table => new
+                {
+                    Id = table.Column<int>(nullable: false)
+                        .Annotation("SqlServer:Identity", "1, 1"),
+                    Version = table.Column<int>(nullable: false),
+                    VersionStatus = table.Column<int>(nullable: false),
+                    Image = table.Column<string>(maxLength: 200, nullable: false),
+                    Address = table.Column<string>(nullable: true),
+                    Type = table.Column<int>(nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_Banner", x => x.Id);
+                });
+
+            migrationBuilder.CreateTable(
                 name: "Category",
                 columns: table => new
                 {
@@ -63,7 +80,8 @@ namespace Data.Migrations
                     Version = table.Column<int>(nullable: false),
                     VersionStatus = table.Column<int>(nullable: false),
                     Name = table.Column<string>(maxLength: 100, nullable: false),
-                    ParentCategoryId = table.Column<int>(nullable: true)
+                    ParentCategoryId = table.Column<int>(nullable: true),
+                    Image = table.Column<string>(nullable: true)
                 },
                 constraints: table =>
                 {
@@ -74,6 +92,22 @@ namespace Data.Migrations
                         principalTable: "Category",
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Restrict);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "Help",
+                columns: table => new
+                {
+                    Id = table.Column<int>(nullable: false)
+                        .Annotation("SqlServer:Identity", "1, 1"),
+                    Version = table.Column<int>(nullable: false),
+                    VersionStatus = table.Column<int>(nullable: false),
+                    Name = table.Column<string>(maxLength: 200, nullable: false),
+                    Description = table.Column<string>(nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_Help", x => x.Id);
                 });
 
             migrationBuilder.CreateTable(
@@ -510,6 +544,9 @@ namespace Data.Migrations
                 name: "AspNetUserToken");
 
             migrationBuilder.DropTable(
+                name: "Banner");
+
+            migrationBuilder.DropTable(
                 name: "Comment");
 
             migrationBuilder.DropTable(
@@ -520,6 +557,9 @@ namespace Data.Migrations
 
             migrationBuilder.DropTable(
                 name: "Follower");
+
+            migrationBuilder.DropTable(
+                name: "Help");
 
             migrationBuilder.DropTable(
                 name: "PostTag");
