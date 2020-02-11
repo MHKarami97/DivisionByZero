@@ -31,16 +31,30 @@ namespace MyApi.Controllers.v1
         [AllowAnonymous]
         public override async Task<ApiResult<List<TagDto>>> Get(CancellationToken cancellationToken)
         {
-            var list = await Repository.TableNoTracking
+            var list = await _repositoryTag.TableNoTracking
                 .Where(a => !a.VersionStatus.Equals(2))
-                .GroupBy(a => a.Name)
+                .GroupBy(a => a.TagId)
                 .Select(g => new { g.Key, Count = g.Count() })
                 .OrderByDescending(a => a.Count)
-                .ProjectTo<TagDto>(Mapper.ConfigurationProvider)
                 .Take(20)
                 .ToListAsync(cancellationToken);
 
-            return Ok(list);
+            var result = new List<TagDto>();
+
+            foreach (var value in list)
+            {
+                var res = await Repository.TableNoTracking
+                    .Where(a => !a.VersionStatus.Equals(2) && a.Id.Equals(value.Key))
+                    .ProjectTo<TagDto>(Mapper.ConfigurationProvider)
+                    .SingleOrDefaultAsync(cancellationToken);
+
+                if (res == null)
+                    continue;
+
+                result.Add(res);
+            }
+
+            return Ok(result);
         }
 
         [NonAction]
