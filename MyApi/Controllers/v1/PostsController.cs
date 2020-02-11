@@ -23,11 +23,13 @@ namespace MyApi.Controllers.v1
     {
         private const int DefaultTake = 7;
         private readonly UserManager<User> _userManager;
+        private readonly IRepository<PostTag> _repositoryTag;
 
-        public PostsController(IRepository<Post> repository, IMapper mapper, UserManager<User> userManager)
+        public PostsController(IRepository<Post> repository, IMapper mapper, UserManager<User> userManager, IRepository<PostTag> repositoryTag)
             : base(repository, mapper)
         {
             _userManager = userManager;
+            _repositoryTag = repositoryTag;
         }
 
         [NonAction]
@@ -37,9 +39,20 @@ namespace MyApi.Controllers.v1
         }
 
         [AllowAnonymous]
-        public override Task<ApiResult<PostSelectDto>> Get(int id, CancellationToken cancellationToken)
+        public override async Task<ApiResult<PostSelectDto>> Get(int id, CancellationToken cancellationToken)
         {
-            return base.Get(id, cancellationToken);
+            var result = await base.Get(id, cancellationToken);
+
+            var tags = await _repositoryTag.TableNoTracking
+                .Where(a => !a.VersionStatus.Equals(2) && a.PostId.Equals(result.Data.Id))
+                .Include(a => a.Tag)
+                .Select(a => a.Tag)
+                .ProjectTo<TagDto>(Mapper.ConfigurationProvider)
+                .ToListAsync(cancellationToken);
+
+            result.Data.Tags = tags;
+
+            return result;
         }
 
         public override async Task<ApiResult<PostSelectDto>> Update(int id, PostDto dto, CancellationToken cancellationToken)
@@ -152,7 +165,7 @@ namespace MyApi.Controllers.v1
         [AllowAnonymous]
         public virtual async Task<ApiResult<List<PostShortSelectDto>>> Search(string str, CancellationToken cancellationToken)
         {
-            if(string.IsNullOrEmpty(str))
+            if (string.IsNullOrEmpty(str))
                 return BadRequest("کلمه مورد جستجو خالی است");
 
             var list = await Repository.TableNoTracking

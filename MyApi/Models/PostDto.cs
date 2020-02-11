@@ -1,6 +1,7 @@
 ﻿using AutoMapper;
 using Entities.Post;
 using System;
+using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.Text.Json.Serialization;
 using WebFramework.Api;
@@ -80,6 +81,9 @@ namespace MyApi.Models
         public string Image { get; set; }
         public int View { get; set; }
         public int Rank { get; set; }
+
+        [IgnoreMap]
+        public List<TagDto> Tags { get; set; }
 
         public override void CustomMappings(IMappingExpression<Post, PostSelectDto> mappingExpression)
         {
