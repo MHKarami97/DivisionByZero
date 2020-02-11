@@ -5,7 +5,7 @@ using Microsoft.EntityFrameworkCore.Metadata.Builders;
 
 namespace Entities.Employ
 {
-    public class Employ : BaseEntity<int>
+    public class Employ : BaseEntity
     {
         public string Title { get; set; }
         public string Text { get; set; }
