@@ -13,7 +13,7 @@ namespace Entities.Post
         public string Text { get; set; }
         public DateTime Time { get; set; }
         public string ShortDescription { get; set; }
-        public DateTime TimeToRead { get; set; }
+        public int TimeToRead { get; set; }
         public string Image { get; set; }
         public int? View { get; set; }
         public int? Rank { get; set; }

@@ -61,7 +61,7 @@ namespace Services.DataInitializer.Fake
                 .RuleFor(o => o.Text, f => f.Lorem.Paragraphs())
                 .RuleFor(o => o.Rank, f => f.Random.Int(0, 5))
                 .RuleFor(o => o.Time, f => f.Date.Past(2))
-                .RuleFor(o => o.TimeToRead, f => f.Date.Between(DateTime.Now.Date, DateTime.Now.AddMinutes(45)))
+                .RuleFor(o => o.TimeToRead, f => f.Random.Int(1,45))
                 .RuleFor(o => o.View, f => f.Random.Int(0, 200))
                 .RuleFor(o => o.Comments, f => fakeComment.Generate(2))
                 .RuleFor(o => o.Category, f => fakeCat.Generate())

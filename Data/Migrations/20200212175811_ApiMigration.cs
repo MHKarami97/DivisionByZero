@@ -242,6 +242,7 @@ namespace Data.Migrations
                     Title = table.Column<string>(maxLength: 200, nullable: false),
                     Text = table.Column<string>(nullable: false),
                     Time = table.Column<DateTime>(nullable: false),
+                    Type = table.Column<int>(nullable: false),
                     AuthorId = table.Column<int>(nullable: false)
                 },
                 constraints: table =>
@@ -315,7 +316,7 @@ namespace Data.Migrations
                     Text = table.Column<string>(nullable: false),
                     Time = table.Column<DateTime>(nullable: false),
                     ShortDescription = table.Column<string>(maxLength: 500, nullable: false),
-                    TimeToRead = table.Column<DateTime>(nullable: false),
+                    TimeToRead = table.Column<int>(nullable: false),
                     Image = table.Column<string>(maxLength: 200, nullable: false),
                     View = table.Column<int>(nullable: true),
                     Rank = table.Column<int>(nullable: true),

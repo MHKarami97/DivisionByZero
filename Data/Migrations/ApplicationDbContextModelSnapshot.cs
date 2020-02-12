@@ -41,6 +41,9 @@ namespace Data.Migrations
                         .HasColumnType("nvarchar(200)")
                         .HasMaxLength(200);
 
+                    b.Property<int>("Type")
+                        .HasColumnType("int");
+
                     b.Property<int>("Version")
                         .HasColumnType("int");
 
@@ -210,8 +213,8 @@ namespace Data.Migrations
                     b.Property<DateTime>("Time")
                         .HasColumnType("datetime2");
 
-                    b.Property<DateTime>("TimeToRead")
-                        .HasColumnType("datetime2");
+                    b.Property<int>("TimeToRead")
+                        .HasColumnType("int");
 
                     b.Property<string>("Title")
                         .IsRequired()

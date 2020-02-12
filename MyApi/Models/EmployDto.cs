@@ -21,6 +21,9 @@ namespace MyApi.Models
         [DataType(DataType.Html)]
         public string Text { get; set; }
 
+        [Required]
+        public int Type { get; set; }
+
         [JsonIgnore]
         public DateTime Time { get; set; }
 
@@ -40,6 +43,7 @@ namespace MyApi.Models
         public string Title { get; set; }
         public string Text { get; set; }
         public DateTime Time { get; set; }
+        public int Type { get; set; }
         public string UserFullName { get; set; }
     }
 }
