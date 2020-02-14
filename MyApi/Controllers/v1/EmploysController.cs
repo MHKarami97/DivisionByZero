@@ -61,5 +61,17 @@ namespace MyApi.Controllers.v1
 
             return base.Create(dto, cancellationToken);
         }
+
+        [AllowAnonymous]
+        [HttpGet("{id:int}")]
+        public virtual async Task<ApiResult<List<EmploySelectDto>>> GetByUserId(int id, CancellationToken cancellationToken)
+        {
+            var list = await Repository.TableNoTracking
+                .Where(a => !a.VersionStatus.Equals(2) && a.AuthorId.Equals(id))
+                .ProjectTo<EmploySelectDto>(Mapper.ConfigurationProvider)
+                .ToListAsync(cancellationToken);
+
+            return Ok(list);
+        }
     }
 }
