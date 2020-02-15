@@ -54,12 +54,19 @@ namespace MyApi.Models
         public string Title { get; set; }
         public string CategoryName { get; set; }
         public string AuthorFullName { get; set; }
-        public DateTime Time { get; set; }
+        public string Time { get; set; }
         public string ShortDescription { get; set; }
         public int TimeToRead { get; set; }
         public string Image { get; set; }
         public int View { get; set; }
         public int Rank { get; set; }
+
+        public override void CustomMappings(IMappingExpression<Post, PostShortSelectDto> mappingExpression)
+        {
+            mappingExpression.ForMember(
+                dest => dest.Time,
+                config => config.MapFrom(src => src.Time.ToString("d")));
+        }
     }
 
     public class PostSelectDto : BaseDto<PostSelectDto, Post>
@@ -68,7 +75,7 @@ namespace MyApi.Models
         public string CategoryName { get; set; }
         public string AuthorFullName { get; set; }
         public string Text { get; set; }
-        public DateTime Time { get; set; }
+        public string Time { get; set; }
         public string ShortDescription { get; set; }
         public int TimeToRead { get; set; }
         public string Image { get; set; }
@@ -77,5 +84,12 @@ namespace MyApi.Models
 
         [IgnoreMap]
         public List<TagDto> Tags { get; set; }
+
+        public override void CustomMappings(IMappingExpression<Post, PostSelectDto> mappingExpression)
+        {
+            mappingExpression.ForMember(
+                dest => dest.Time,
+                config => config.MapFrom(src => src.Time.ToString("d")));
+        }
     }
 }

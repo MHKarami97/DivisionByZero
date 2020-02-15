@@ -42,8 +42,15 @@ namespace MyApi.Models
     {
         public string Title { get; set; }
         public string Text { get; set; }
-        public DateTime Time { get; set; }
+        public string Time { get; set; }
         public int Type { get; set; }
         public string UserFullName { get; set; }
+
+        public override void CustomMappings(IMappingExpression<Employ, EmploySelectDto> mappingExpression)
+        {
+            mappingExpression.ForMember(
+                dest => dest.Time,
+                config => config.MapFrom(src => src.Time.ToString("d")));
+        }
     }
 }

@@ -7,6 +7,7 @@ using Data.Repositories;
 using Data.Contracts;
 using Entities.Common;
 using Microsoft.AspNetCore.Http;
+using Services.Security;
 
 namespace WebFramework.Configuration
 {
@@ -37,6 +38,10 @@ namespace WebFramework.Configuration
             containerBuilder.RegisterType<RateLimitConfiguration>()
                 .As<IRateLimitConfiguration>()
                 .SingleInstance();
+
+            containerBuilder.RegisterType<Security>().As<ISecurity>();
+
+            containerBuilder.RegisterType<Date>().As<IDate>();
 
             var commonAssembly = typeof(SiteSettings).Assembly;
             var entitiesAssembly = typeof(IEntity).Assembly;
