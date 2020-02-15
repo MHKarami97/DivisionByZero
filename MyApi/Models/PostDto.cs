@@ -54,6 +54,7 @@ namespace MyApi.Models
         public string Title { get; set; }
         public string CategoryName { get; set; }
         public string AuthorFullName { get; set; }
+        public int AuthorId { get; set; }
         public string Time { get; set; }
         public string ShortDescription { get; set; }
         public int TimeToRead { get; set; }
@@ -74,6 +75,7 @@ namespace MyApi.Models
         public string Title { get; set; }
         public string CategoryName { get; set; }
         public string AuthorFullName { get; set; }
+        public int AuthorId { get; set; }
         public string Text { get; set; }
         public string Time { get; set; }
         public string ShortDescription { get; set; }
