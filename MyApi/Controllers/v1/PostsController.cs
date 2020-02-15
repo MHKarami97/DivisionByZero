@@ -93,10 +93,10 @@ namespace MyApi.Controllers.v1
 
         [AllowAnonymous]
         [HttpGet("{id:int}")]
-        public virtual async Task<ApiResult<List<PostShortSelectDto>>> GetAllByCatId(int catId, int to, CancellationToken cancellationToken)
+        public virtual async Task<ApiResult<List<PostShortSelectDto>>> GetAllByCatId(CancellationToken cancellationToken, int id, int to = 0)
         {
             var list = await Repository.TableNoTracking
-                .Where(a => !a.VersionStatus.Equals(2) && a.CategoryId.Equals(catId))
+                .Where(a => !a.VersionStatus.Equals(2) && a.CategoryId.Equals(id))
                 .OrderByDescending(a => a.Time)
                 .ProjectTo<PostShortSelectDto>(Mapper.ConfigurationProvider)
                 .Take(DefaultTake + to)
