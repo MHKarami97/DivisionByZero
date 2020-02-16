@@ -85,6 +85,9 @@ namespace MyApi.Models
         public int Rank { get; set; }
 
         [IgnoreMap]
+        public bool IsFollowed { get; set; }
+
+        [IgnoreMap]
         public List<TagDto> Tags { get; set; }
 
         public override void CustomMappings(IMappingExpression<Post, PostSelectDto> mappingExpression)
@@ -92,6 +95,10 @@ namespace MyApi.Models
             mappingExpression.ForMember(
                 dest => dest.Time,
                 config => config.MapFrom(src => src.Time.ToString("d")));
+
+            mappingExpression.ForMember(
+                dest => dest.IsFollowed,
+                config => config.MapFrom(src => false));
         }
     }
 }

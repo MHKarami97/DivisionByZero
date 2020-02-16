@@ -24,12 +24,14 @@ namespace MyApi.Controllers.v1
         private const int DefaultTake = 7;
         private readonly UserManager<User> _userManager;
         private readonly IRepository<PostTag> _repositoryTag;
+        private readonly IRepository<Follower> _repositoryFollower;
 
-        public PostsController(IRepository<Post> repository, IMapper mapper, UserManager<User> userManager, IRepository<PostTag> repositoryTag)
+        public PostsController(IRepository<Post> repository, IMapper mapper, UserManager<User> userManager, IRepository<PostTag> repositoryTag, IRepository<Follower> repositoryFollower)
             : base(repository, mapper)
         {
             _userManager = userManager;
             _repositoryTag = repositoryTag;
+            _repositoryFollower = repositoryFollower;
         }
 
         [NonAction]
@@ -43,12 +45,25 @@ namespace MyApi.Controllers.v1
         {
             var result = await base.Get(id, cancellationToken);
 
+            result.Data.IsFollowed = false;
+
+            if (UserIsAutheticated)
+            {
+                var userId = HttpContext.User.Identity.GetUserId<int>();
+
+                var isFollowed = await _repositoryFollower.TableNoTracking
+                    .AnyAsync(a => a.FollowerId.Equals(result.Data.AuthorId) && a.UserId.Equals(userId), cancellationToken: cancellationToken);
+
+                if (isFollowed)
+                    result.Data.IsFollowed = true;
+            }
+
             var tags = await _repositoryTag.TableNoTracking
-                .Where(a => !a.VersionStatus.Equals(2) && a.PostId.Equals(result.Data.Id))
-                .Include(a => a.Tag)
-                .Select(a => a.Tag)
-                .ProjectTo<TagDto>(Mapper.ConfigurationProvider)
-                .ToListAsync(cancellationToken);
+            .Where(a => !a.VersionStatus.Equals(2) && a.PostId.Equals(result.Data.Id))
+            .Include(a => a.Tag)
+            .Select(a => a.Tag)
+            .ProjectTo<TagDto>(Mapper.ConfigurationProvider)
+            .ToListAsync(cancellationToken);
 
             result.Data.Tags = tags;
 
