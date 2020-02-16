@@ -29,14 +29,16 @@ namespace MyApi.Controllers.v1
         private readonly IJwtService _jwtService;
         private readonly UserManager<User> _userManager;
         private readonly IMapper _mapper;
+        private readonly IRepository<Follower> _repositoryFollower;
 
         public UsersController(IUserRepository userRepository, IMapper mapper, ILogger<UsersController> logger, IJwtService jwtService,
-            UserManager<User> userManager)
+            UserManager<User> userManager, IRepository<Follower> repositoryFollower)
         {
             _userRepository = userRepository;
             _logger = logger;
             _jwtService = jwtService;
             _userManager = userManager;
+            _repositoryFollower = repositoryFollower;
             _mapper = mapper;
         }
 
@@ -77,6 +79,32 @@ namespace MyApi.Controllers.v1
             await _userManager.UpdateSecurityStampAsync(requestedUser);
 
             return _mapper.Map<UserReturnDto>(requestedUser);
+        }
+
+        [HttpGet]
+        public virtual async Task<ApiResult<UserShortReturnDto>> GetByUsername(string username, CancellationToken cancellationToken)
+        {
+            var user = await _userManager.FindByNameAsync(username);
+
+            if (user == null)
+                return NotFound();
+
+            var mapped = _mapper.Map<UserShortReturnDto>(user);
+
+            mapped.IsFollowed = false;
+
+            if (!UserIsAutheticated)
+                return mapped;
+
+            var userId = HttpContext.User.Identity.GetUserId<int>();
+
+            var isFollowed = await _repositoryFollower.TableNoTracking
+                .AnyAsync(a => a.FollowerId.Equals(user.Id) && a.UserId.Equals(userId), cancellationToken);
+
+            if (isFollowed)
+                mapped.IsFollowed = true;
+
+            return mapped;
         }
 
         [HttpGet]

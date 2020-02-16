@@ -1,8 +1,10 @@
-﻿using System;
+﻿using AutoMapper;
+using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.Text.RegularExpressions;
 using Entities.User;
+using ValidationContext = System.ComponentModel.DataAnnotations.ValidationContext;
 
 namespace MyApi.Models
 {
@@ -69,6 +71,26 @@ namespace MyApi.Models
         public string Birthday { get; set; }
 
         public GenderType Gender { get; set; }
+
+        public IEnumerable<ValidationResult> Validate(ValidationContext validationContext)
+        {
+            if (UserName.Equals("test", StringComparison.OrdinalIgnoreCase))
+                yield return new ValidationResult("نام کاربری نمیتواند Test باشد", new[] { nameof(UserName) });
+        }
+    }
+
+    public class UserShortReturnDto : IValidatableObject
+    {
+        public string UserName { get; set; }
+
+        public string FullName { get; set; }
+
+        public string Birthday { get; set; }
+
+        public GenderType Gender { get; set; }
+
+        [IgnoreMap]
+        public bool IsFollowed { get; set; }
 
         public IEnumerable<ValidationResult> Validate(ValidationContext validationContext)
         {

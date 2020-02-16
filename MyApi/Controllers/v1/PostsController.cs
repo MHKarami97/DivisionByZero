@@ -52,7 +52,7 @@ namespace MyApi.Controllers.v1
                 var userId = HttpContext.User.Identity.GetUserId<int>();
 
                 var isFollowed = await _repositoryFollower.TableNoTracking
-                    .AnyAsync(a => a.FollowerId.Equals(result.Data.AuthorId) && a.UserId.Equals(userId), cancellationToken: cancellationToken);
+                    .AnyAsync(a => a.FollowerId.Equals(result.Data.AuthorId) && a.UserId.Equals(userId), cancellationToken);
 
                 if (isFollowed)
                     result.Data.IsFollowed = true;
