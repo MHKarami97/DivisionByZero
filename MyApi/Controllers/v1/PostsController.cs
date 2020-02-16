@@ -115,6 +115,22 @@ namespace MyApi.Controllers.v1
             return base.Create(dto, cancellationToken);
         }
 
+        [Authorize]
+        [HttpGet("{id:int}")]
+        public async Task<ActionResult> Like(int id, CancellationToken cancellationToken)
+        {
+            var result = await Repository.Table
+                .Where(a => !a.VersionStatus.Equals(2) && a.Id.Equals(id))
+                .OrderByDescending(a => a.Version)
+                .FirstOrDefaultAsync(cancellationToken);
+
+            result.Rank += 1;
+
+            await Repository.UpdateAsync(result, cancellationToken);
+
+            return Ok("با موفقیت انجام شد");
+        }
+
         [AllowAnonymous]
         [HttpGet("{id:int}")]
         public virtual async Task<ApiResult<List<PostShortSelectDto>>> GetAllByCatId(CancellationToken cancellationToken, int id, int to = 0)
