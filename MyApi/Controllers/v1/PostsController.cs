@@ -52,6 +52,15 @@ namespace MyApi.Controllers.v1
 
             result.Data.Tags = tags;
 
+            var dto = await Repository.Table
+                .Where(a => !a.VersionStatus.Equals(2) && a.Id.Equals(id))
+                .OrderByDescending(a => a.Version)
+                .FirstOrDefaultAsync(cancellationToken);
+
+            dto.View += 1;
+
+            await Repository.UpdateAsync(dto, cancellationToken);
+
             return result;
         }
 

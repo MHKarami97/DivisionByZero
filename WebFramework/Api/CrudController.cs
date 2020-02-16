@@ -42,10 +42,10 @@ namespace WebFramework.Api
         public virtual async Task<ApiResult<TSelectDto>> Get(TKey id, CancellationToken cancellationToken)
         {
             var dto = await Repository.TableNoTracking
-                .Where(a => !a.VersionStatus.Equals(2))
+                .Where(a => !a.VersionStatus.Equals(2) && a.Id.Equals(id))
                 .OrderByDescending(a => a.Version)
                 .ProjectTo<TSelectDto>(Mapper.ConfigurationProvider)
-                .FirstOrDefaultAsync(p => p.Id.Equals(id), cancellationToken);
+                .FirstOrDefaultAsync(cancellationToken);
 
             if (dto == null)
                 return NotFound();
@@ -63,7 +63,10 @@ namespace WebFramework.Api
 
             await Repository.AddAsync(model, cancellationToken);
 
-            var resultDto = await Repository.TableNoTracking.ProjectTo<TSelectDto>(Mapper.ConfigurationProvider).SingleOrDefaultAsync(p => p.Id.Equals(model.Id), cancellationToken);
+            var resultDto = await Repository.TableNoTracking
+                .Where(a => !a.VersionStatus.Equals(2) && a.Id.Equals(model.Id))
+                .ProjectTo<TSelectDto>(Mapper.ConfigurationProvider)
+                .SingleOrDefaultAsync(cancellationToken);
 
             return resultDto;
         }
@@ -83,7 +86,10 @@ namespace WebFramework.Api
 
             await Repository.AddAsync(newModel, cancellationToken);
 
-            var resultDto = await Repository.TableNoTracking.ProjectTo<TSelectDto>(Mapper.ConfigurationProvider).SingleOrDefaultAsync(p => p.Id.Equals(newModel.Id), cancellationToken);
+            var resultDto = await Repository.TableNoTracking
+                .Where(a => !a.VersionStatus.Equals(2) && a.Id.Equals(newModel.Id))
+                .ProjectTo<TSelectDto>(Mapper.ConfigurationProvider)
+                .SingleOrDefaultAsync(cancellationToken);
 
             return resultDto;
         }
