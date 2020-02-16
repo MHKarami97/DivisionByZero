@@ -7,7 +7,7 @@ namespace MyApi.Models
 {
     public class FollowerDto : BaseDto<FollowerDto, Follower>
     {
-        public string FollowerFullName { get; set; }
+        public string UserFullName { get; set; }
         public int FollowerId { get; set; }
     }
 

@@ -65,7 +65,7 @@ namespace MyApi.Controllers.v1
 
         [HttpPost]
         [Authorize]
-        public async Task<ApiResult<TagDto>> AddTag(PostTagDto dto, CancellationToken cancellationToken)
+        public async Task<ActionResult> AddTag(PostTagDto dto, CancellationToken cancellationToken)
         {
             if (!dto.TagName.Any())
                 return BadRequest("لیست تگ ها خالی است");
