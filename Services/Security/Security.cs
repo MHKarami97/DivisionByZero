@@ -33,7 +33,7 @@ namespace Services.Security
             input = Path.GetFileName(input).Replace(' ', '-');
 
             return Path.GetFileNameWithoutExtension(input)
-                   + "_"
+                   + "-"
                    + Guid.NewGuid()
                    + Path.GetExtension(input);
         }
@@ -50,6 +50,11 @@ namespace Services.Security
                 return 3;
 
             return 0;
+        }
+
+        public bool TimeCheck(DateTimeOffset time)
+        {
+            return DateTimeOffset.Now >= time.AddMinutes(10);
         }
     }
 }

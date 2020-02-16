@@ -11,6 +11,7 @@ using Entities.Post;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using Services.Security;
 using System;
 using WebFramework.Api;
 
@@ -20,11 +21,13 @@ namespace MyApi.Controllers.v1
     public class CommentsController : CrudController<CommentDto, CommentSelectDto, Comment>
     {
         private readonly IMapper _mapper;
+        private readonly ISecurity _security;
 
-        public CommentsController(IRepository<Comment> repository, IMapper mapper)
+        public CommentsController(IRepository<Comment> repository, IMapper mapper, ISecurity security)
             : base(repository, mapper)
         {
             _mapper = mapper;
+            _security = security;
         }
 
         [AllowAnonymous]
@@ -63,12 +66,21 @@ namespace MyApi.Controllers.v1
             return base.Update(id, dto, cancellationToken);
         }
 
-        public override Task<ApiResult<CommentSelectDto>> Create(CommentDto dto, CancellationToken cancellationToken)
+        public override async Task<ApiResult<CommentSelectDto>> Create(CommentDto dto, CancellationToken cancellationToken)
         {
             dto.UserId = HttpContext.User.Identity.GetUserId<int>();
-            dto.Time = DateTime.Now;
+            dto.Time = DateTimeOffset.Now;
 
-            return base.Create(dto, cancellationToken);
+            var lastComment = await Repository.TableNoTracking
+                .Where(a => !a.VersionStatus.Equals(2) && a.PostId.Equals(dto.PostId) && a.UserId.Equals(dto.UserId))
+                .OrderByDescending(a => a.Time)
+                .Select(a => a.Time)
+                .FirstAsync(cancellationToken);
+
+            if (!_security.TimeCheck(lastComment))
+                return BadRequest("لطفا کمی صبر کنید و بعد نظر بدهید");
+
+            return await base.Create(dto, cancellationToken);
         }
     }
 }

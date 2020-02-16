@@ -10,7 +10,7 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace Data.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    [Migration("20200212175811_ApiMigration")]
+    [Migration("20200216165505_ApiMigration")]
     partial class ApiMigration
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -35,8 +35,8 @@ namespace Data.Migrations
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<DateTime>("Time")
-                        .HasColumnType("datetime2");
+                    b.Property<DateTimeOffset>("Time")
+                        .HasColumnType("datetimeoffset");
 
                     b.Property<string>("Title")
                         .IsRequired()
@@ -161,8 +161,8 @@ namespace Data.Migrations
                         .HasColumnType("nvarchar(1000)")
                         .HasMaxLength(1000);
 
-                    b.Property<DateTime>("Time")
-                        .HasColumnType("datetime2");
+                    b.Property<DateTimeOffset>("Time")
+                        .HasColumnType("datetimeoffset");
 
                     b.Property<int>("UserId")
                         .HasColumnType("int");
@@ -200,9 +200,6 @@ namespace Data.Migrations
                         .HasColumnType("nvarchar(200)")
                         .HasMaxLength(200);
 
-                    b.Property<int?>("Rank")
-                        .HasColumnType("int");
-
                     b.Property<string>("ShortDescription")
                         .IsRequired()
                         .HasColumnType("nvarchar(500)")
@@ -212,8 +209,8 @@ namespace Data.Migrations
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<DateTime>("Time")
-                        .HasColumnType("datetime2");
+                    b.Property<DateTimeOffset>("Time")
+                        .HasColumnType("datetimeoffset");
 
                     b.Property<int>("TimeToRead")
                         .HasColumnType("int");
@@ -230,9 +227,6 @@ namespace Data.Migrations
                         .HasColumnType("int");
 
                     b.Property<int>("VersionStatus")
-                        .HasColumnType("int");
-
-                    b.Property<int?>("View")
                         .HasColumnType("int");
 
                     b.HasKey("Id");
@@ -347,6 +341,38 @@ namespace Data.Migrations
                     b.HasIndex("UserId");
 
                     b.ToTable("Follower");
+                });
+
+            modelBuilder.Entity("Entities.User.Like", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int")
+                        .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
+
+                    b.Property<int>("PostId")
+                        .HasColumnType("int");
+
+                    b.Property<DateTimeOffset>("Time")
+                        .HasColumnType("datetimeoffset");
+
+                    b.Property<int?>("UserId")
+                        .IsRequired()
+                        .HasColumnType("int");
+
+                    b.Property<int>("Version")
+                        .HasColumnType("int");
+
+                    b.Property<int>("VersionStatus")
+                        .HasColumnType("int");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("PostId");
+
+                    b.HasIndex("UserId");
+
+                    b.ToTable("Like");
                 });
 
             modelBuilder.Entity("Entities.User.Role", b =>
@@ -503,6 +529,41 @@ namespace Data.Migrations
                     b.HasIndex("UserId");
 
                     b.ToTable("UserToken");
+                });
+
+            modelBuilder.Entity("Entities.User.View", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int")
+                        .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
+
+                    b.Property<string>("Ip")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<int>("PostId")
+                        .HasColumnType("int");
+
+                    b.Property<DateTimeOffset>("Time")
+                        .HasColumnType("datetimeoffset");
+
+                    b.Property<int?>("UserId")
+                        .IsRequired()
+                        .HasColumnType("int");
+
+                    b.Property<int>("Version")
+                        .HasColumnType("int");
+
+                    b.Property<int>("VersionStatus")
+                        .HasColumnType("int");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("PostId");
+
+                    b.HasIndex("UserId");
+
+                    b.ToTable("View");
                 });
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRoleClaim<int>", b =>
@@ -691,10 +752,40 @@ namespace Data.Migrations
                         .IsRequired();
                 });
 
+            modelBuilder.Entity("Entities.User.Like", b =>
+                {
+                    b.HasOne("Entities.Post.Post", "Post")
+                        .WithMany("Likes")
+                        .HasForeignKey("PostId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.HasOne("Entities.User.User", "User")
+                        .WithMany("Likes")
+                        .HasForeignKey("UserId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+                });
+
             modelBuilder.Entity("Entities.User.UserToken", b =>
                 {
                     b.HasOne("Entities.User.User", "User")
                         .WithMany()
+                        .HasForeignKey("UserId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+                });
+
+            modelBuilder.Entity("Entities.User.View", b =>
+                {
+                    b.HasOne("Entities.Post.Post", "Post")
+                        .WithMany("Views")
+                        .HasForeignKey("PostId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.HasOne("Entities.User.User", "User")
+                        .WithMany("Views")
                         .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();

@@ -25,7 +25,7 @@ namespace MyApi.Models
         public int Type { get; set; }
 
         [JsonIgnore]
-        public DateTime Time { get; set; }
+        public DateTimeOffset Time { get; set; }
 
         [JsonIgnore]
         public int AuthorId { get; set; }

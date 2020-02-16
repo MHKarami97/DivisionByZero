@@ -23,15 +23,23 @@ namespace MyApi.Controllers.v1
     {
         private const int DefaultTake = 7;
         private readonly UserManager<User> _userManager;
+        private readonly IRepository<Like> _repositoryLike;
         private readonly IRepository<PostTag> _repositoryTag;
         private readonly IRepository<Follower> _repositoryFollower;
+        private readonly IRepository<Comment> _repositoryComment;
+        private readonly IRepository<View> _repositoryView;
+        private readonly ViewsController _viewsController;
 
-        public PostsController(IRepository<Post> repository, IMapper mapper, UserManager<User> userManager, IRepository<PostTag> repositoryTag, IRepository<Follower> repositoryFollower)
+        public PostsController(IRepository<Post> repository, IMapper mapper, UserManager<User> userManager, IRepository<PostTag> repositoryTag, IRepository<Follower> repositoryFollower, IRepository<Like> repositoryLike, IRepository<Comment> repositoryComment, IRepository<View> repositoryView, ViewsController viewsController)
             : base(repository, mapper)
         {
             _userManager = userManager;
             _repositoryTag = repositoryTag;
             _repositoryFollower = repositoryFollower;
+            _repositoryLike = repositoryLike;
+            _repositoryComment = repositoryComment;
+            _repositoryView = repositoryView;
+            _viewsController = viewsController;
         }
 
         [NonAction]
@@ -46,16 +54,26 @@ namespace MyApi.Controllers.v1
             var result = await base.Get(id, cancellationToken);
 
             result.Data.IsFollowed = false;
+            result.Data.IsLiked = false;
+            var isAuthorize = false;
 
             if (UserIsAutheticated)
             {
                 var userId = HttpContext.User.Identity.GetUserId<int>();
 
                 var isFollowed = await _repositoryFollower.TableNoTracking
-                    .AnyAsync(a => a.FollowerId.Equals(result.Data.AuthorId) && a.UserId.Equals(userId), cancellationToken);
+                    .AnyAsync(a => a.VersionStatus.Equals(2) && a.FollowerId.Equals(result.Data.AuthorId) && a.UserId.Equals(userId), cancellationToken);
+
+                var isLiked = await _repositoryLike.TableNoTracking
+                    .AnyAsync(a => a.VersionStatus.Equals(2) && a.PostId.Equals(result.Data.Id) && a.UserId.Equals(userId), cancellationToken);
+
+                if (isLiked)
+                    result.Data.IsLiked = true;
 
                 if (isFollowed)
                     result.Data.IsFollowed = true;
+
+                isAuthorize = true;
             }
 
             var tags = await _repositoryTag.TableNoTracking
@@ -65,16 +83,21 @@ namespace MyApi.Controllers.v1
             .ProjectTo<TagDto>(Mapper.ConfigurationProvider)
             .ToListAsync(cancellationToken);
 
+            var likes = await _repositoryLike.TableNoTracking
+                .CountAsync(a => !a.VersionStatus.Equals(2) && a.PostId.Equals(result.Data.Id), cancellationToken);
+
+            var comments = await _repositoryComment.TableNoTracking
+                .CountAsync(a => !a.VersionStatus.Equals(2) && a.PostId.Equals(result.Data.Id), cancellationToken);
+
+            var views = await _repositoryView.TableNoTracking
+                .CountAsync(a => !a.VersionStatus.Equals(2) && a.PostId.Equals(result.Data.Id), cancellationToken);
+
             result.Data.Tags = tags;
+            result.Data.View = views;
+            result.Data.Likes = likes;
+            result.Data.Comment = comments;
 
-            var dto = await Repository.Table
-                .Where(a => !a.VersionStatus.Equals(2) && a.Id.Equals(id))
-                .OrderByDescending(a => a.Version)
-                .FirstOrDefaultAsync(cancellationToken);
-
-            dto.View += 1;
-
-            await Repository.UpdateAsync(dto, cancellationToken);
+            await _viewsController.IncreaseView(id, isAuthorize, cancellationToken);
 
             return result;
         }
@@ -110,25 +133,9 @@ namespace MyApi.Controllers.v1
         public override Task<ApiResult<PostSelectDto>> Create(PostDto dto, CancellationToken cancellationToken)
         {
             dto.AuthorId = HttpContext.User.Identity.GetUserId<int>();
-            dto.Time = DateTime.Now;
+            dto.Time = DateTimeOffset.Now;
 
             return base.Create(dto, cancellationToken);
-        }
-
-        [Authorize]
-        [HttpGet("{id:int}")]
-        public async Task<ActionResult> Like(int id, CancellationToken cancellationToken)
-        {
-            var result = await Repository.Table
-                .Where(a => !a.VersionStatus.Equals(2) && a.Id.Equals(id))
-                .OrderByDescending(a => a.Version)
-                .FirstOrDefaultAsync(cancellationToken);
-
-            result.Rank += 1;
-
-            await Repository.UpdateAsync(result, cancellationToken);
-
-            return Ok("با موفقیت انجام شد");
         }
 
         [AllowAnonymous]
@@ -179,26 +186,61 @@ namespace MyApi.Controllers.v1
         [AllowAnonymous]
         public virtual async Task<ApiResult<List<PostShortSelectDto>>> GetCustom(CancellationToken cancellationToken, int type = 1, int count = DefaultTake)
         {
-            var list = await Repository.TableNoTracking
-                .Where(a => !a.VersionStatus.Equals(2))
-                .OrderByDescending(a => a.Time)
-                .ProjectTo<PostShortSelectDto>(Mapper.ConfigurationProvider)
-                .Take(count)
-                .ToListAsync(cancellationToken);
+            if (count > 30)
+                return BadRequest("تعداد درخواست زیاد است");
 
             switch (type)
             {
                 case 1:
-                    break;
-                case 2:
-                    list = list.OrderByDescending(a => a.Rank).ToList();
-                    break;
-                case 3:
-                    list = list.OrderByDescending(a => a.View).ToList();
-                    break;
-            }
+                    var list = await Repository.TableNoTracking
+                        .Where(a => !a.VersionStatus.Equals(2))
+                        .OrderByDescending(a => a.Time)
+                        .ProjectTo<PostShortSelectDto>(Mapper.ConfigurationProvider)
+                        .Take(count)
+                        .ToListAsync(cancellationToken);
 
-            return Ok(list);
+                    return Ok(list);
+                case 2:
+                    var result = await _repositoryLike.TableNoTracking
+                        .GroupBy(a => a.PostId)
+                        .Select(g => new { g.Key, Count = g.Count() })
+                        .OrderByDescending(a => a.Count)
+                        .Take(count)
+                        .ToListAsync(cancellationToken);
+
+                    var ids = result.Select(item => item.Key).ToList();
+
+                    list = await Repository.TableNoTracking
+                       .Where(a => !a.VersionStatus.Equals(2))
+                       .Where(a => ids.Contains(a.Id))
+                       .OrderByDescending(a => a.Time)
+                       .ProjectTo<PostShortSelectDto>(Mapper.ConfigurationProvider)
+                       .Take(count)
+                       .ToListAsync(cancellationToken);
+
+                    return Ok(list);
+                case 3:
+                    result = await _repositoryView.TableNoTracking
+                       .GroupBy(a => a.PostId)
+                       .Select(g => new { g.Key, Count = g.Count() })
+                       .OrderByDescending(a => a.Count)
+                       .Take(count)
+                       .ToListAsync(cancellationToken);
+
+                    ids = result.Select(item => item.Key).ToList();
+
+                    list = await Repository.TableNoTracking
+                        .Where(a => !a.VersionStatus.Equals(2))
+                        .Where(a => ids.Contains(a.Id))
+                        .OrderByDescending(a => a.Time)
+                        .ProjectTo<PostShortSelectDto>(Mapper.ConfigurationProvider)
+                        .Take(count)
+                        .ToListAsync(cancellationToken);
+
+                    return Ok(list);
+                default:
+                    return BadRequest("نوع مطلب درخواستی نامعتبر است");
+            }
         }
 
         [HttpGet]

@@ -38,7 +38,7 @@ namespace MyApi.Controllers.v1
                     return BadRequest("حداکثر حجم فایل نامعتبر است");
             }
 
-            var uploads = Path.Combine(_environment.ContentRootPath, "uploads");
+            var uploads = Path.Combine(_environment.ContentRootPath, "wwwroot", "uploads");
 
             var address = _security.GetUniqueFileName(file.FileName);
 
@@ -46,7 +46,7 @@ namespace MyApi.Controllers.v1
 
             file.CopyTo(new FileStream(fullPath, FileMode.Create));
 
-            return Ok(address);
+            return Ok("uploads/" + address);
         }
     }
 }

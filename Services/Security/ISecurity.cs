@@ -1,4 +1,5 @@
 ﻿using Microsoft.AspNetCore.Http;
+using System;
 
 namespace Services.Security
 {
@@ -11,5 +12,7 @@ namespace Services.Security
         string GetUniqueFileName(string input);
 
         int ImageCheck(IFormFile file);
+
+        bool TimeCheck(DateTimeOffset time);
     }
 }

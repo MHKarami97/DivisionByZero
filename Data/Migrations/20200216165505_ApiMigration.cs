@@ -241,7 +241,7 @@ namespace Data.Migrations
                     VersionStatus = table.Column<int>(nullable: false),
                     Title = table.Column<string>(maxLength: 200, nullable: false),
                     Text = table.Column<string>(nullable: false),
-                    Time = table.Column<DateTime>(nullable: false),
+                    Time = table.Column<DateTimeOffset>(nullable: false),
                     Type = table.Column<int>(nullable: false),
                     AuthorId = table.Column<int>(nullable: false)
                 },
@@ -314,12 +314,10 @@ namespace Data.Migrations
                     VersionStatus = table.Column<int>(nullable: false),
                     Title = table.Column<string>(maxLength: 200, nullable: false),
                     Text = table.Column<string>(nullable: false),
-                    Time = table.Column<DateTime>(nullable: false),
+                    Time = table.Column<DateTimeOffset>(nullable: false),
                     ShortDescription = table.Column<string>(maxLength: 500, nullable: false),
                     TimeToRead = table.Column<int>(nullable: false),
                     Image = table.Column<string>(maxLength: 200, nullable: false),
-                    View = table.Column<int>(nullable: true),
-                    Rank = table.Column<int>(nullable: true),
                     Type = table.Column<int>(nullable: true),
                     CategoryId = table.Column<int>(nullable: false),
                     AuthorId = table.Column<int>(nullable: false)
@@ -350,7 +348,7 @@ namespace Data.Migrations
                     Version = table.Column<int>(nullable: false),
                     VersionStatus = table.Column<int>(nullable: false),
                     Text = table.Column<string>(maxLength: 1000, nullable: false),
-                    Time = table.Column<DateTime>(nullable: false),
+                    Time = table.Column<DateTimeOffset>(nullable: false),
                     PostId = table.Column<int>(nullable: false),
                     UserId = table.Column<int>(nullable: false)
                 },
@@ -400,6 +398,35 @@ namespace Data.Migrations
                 });
 
             migrationBuilder.CreateTable(
+                name: "Like",
+                columns: table => new
+                {
+                    Id = table.Column<int>(nullable: false)
+                        .Annotation("SqlServer:Identity", "1, 1"),
+                    Version = table.Column<int>(nullable: false),
+                    VersionStatus = table.Column<int>(nullable: false),
+                    PostId = table.Column<int>(nullable: false),
+                    UserId = table.Column<int>(nullable: false),
+                    Time = table.Column<DateTimeOffset>(nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_Like", x => x.Id);
+                    table.ForeignKey(
+                        name: "FK_Like_Post_PostId",
+                        column: x => x.PostId,
+                        principalTable: "Post",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Restrict);
+                    table.ForeignKey(
+                        name: "FK_Like_AspNetUser_UserId",
+                        column: x => x.UserId,
+                        principalTable: "AspNetUser",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Restrict);
+                });
+
+            migrationBuilder.CreateTable(
                 name: "PostTag",
                 columns: table => new
                 {
@@ -423,6 +450,36 @@ namespace Data.Migrations
                         name: "FK_PostTag_Tag_TagId",
                         column: x => x.TagId,
                         principalTable: "Tag",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Restrict);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "View",
+                columns: table => new
+                {
+                    Id = table.Column<int>(nullable: false)
+                        .Annotation("SqlServer:Identity", "1, 1"),
+                    Version = table.Column<int>(nullable: false),
+                    VersionStatus = table.Column<int>(nullable: false),
+                    PostId = table.Column<int>(nullable: false),
+                    UserId = table.Column<int>(nullable: false),
+                    Ip = table.Column<string>(nullable: true),
+                    Time = table.Column<DateTimeOffset>(nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_View", x => x.Id);
+                    table.ForeignKey(
+                        name: "FK_View_Post_PostId",
+                        column: x => x.PostId,
+                        principalTable: "Post",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Restrict);
+                    table.ForeignKey(
+                        name: "FK_View_AspNetUser_UserId",
+                        column: x => x.UserId,
+                        principalTable: "AspNetUser",
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Restrict);
                 });
@@ -502,6 +559,16 @@ namespace Data.Migrations
                 column: "UserId");
 
             migrationBuilder.CreateIndex(
+                name: "IX_Like_PostId",
+                table: "Like",
+                column: "PostId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_Like_UserId",
+                table: "Like",
+                column: "UserId");
+
+            migrationBuilder.CreateIndex(
                 name: "IX_Post_AuthorId",
                 table: "Post",
                 column: "AuthorId");
@@ -524,6 +591,16 @@ namespace Data.Migrations
             migrationBuilder.CreateIndex(
                 name: "IX_UserToken_UserId",
                 table: "UserToken",
+                column: "UserId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_View_PostId",
+                table: "View",
+                column: "PostId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_View_UserId",
+                table: "View",
                 column: "UserId");
         }
 
@@ -563,19 +640,25 @@ namespace Data.Migrations
                 name: "Help");
 
             migrationBuilder.DropTable(
+                name: "Like");
+
+            migrationBuilder.DropTable(
                 name: "PostTag");
 
             migrationBuilder.DropTable(
                 name: "UserToken");
 
             migrationBuilder.DropTable(
+                name: "View");
+
+            migrationBuilder.DropTable(
                 name: "AspNetRole");
 
             migrationBuilder.DropTable(
-                name: "Post");
+                name: "Tag");
 
             migrationBuilder.DropTable(
-                name: "Tag");
+                name: "Post");
 
             migrationBuilder.DropTable(
                 name: "AspNetUser");

@@ -50,7 +50,8 @@ namespace WebFramework.Configuration
                 //options.Filters.Add(new AutoValidateAntiforgeryTokenAttribute());
 
                 //options.UseYeKeModelBinder();
-            }).AddNewtonsoftJson(/*option =>
+            }).AddControllersAsServices()
+                .AddNewtonsoftJson(/*option =>
             {
                 option.SerializerSettings.Formatting = Newtonsoft.Json.Formatting.Indented;
                 option.SerializerSettings.NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore;

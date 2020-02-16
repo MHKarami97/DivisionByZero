@@ -11,12 +11,10 @@ namespace Entities.Post
     {
         public string Title { get; set; }
         public string Text { get; set; }
-        public DateTime Time { get; set; }
+        public DateTimeOffset Time { get; set; }
         public string ShortDescription { get; set; }
         public int TimeToRead { get; set; }
         public string Image { get; set; }
-        public int? View { get; set; }
-        public int? Rank { get; set; }
         public int? Type { get; set; }
         public int CategoryId { get; set; }
         public int AuthorId { get; set; }
@@ -26,7 +24,9 @@ namespace Entities.Post
 
         public ICollection<Comment> Comments { get; set; }
         public ICollection<Favorite> Favorites { get; set; }
+        public ICollection<Like> Likes { get; set; }
         public ICollection<PostTag> PostTags { get; set; }
+        public ICollection<View> Views { get; set; }
     }
 
     public class PostConfiguration : IEntityTypeConfiguration<Post>

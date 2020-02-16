@@ -9,7 +9,7 @@ namespace Entities.Employ
     {
         public string Title { get; set; }
         public string Text { get; set; }
-        public DateTime Time { get; set; }
+        public DateTimeOffset Time { get; set; }
         public int Type { get; set; }
         public int AuthorId { get; set; }
 

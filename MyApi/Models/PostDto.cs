@@ -30,13 +30,14 @@ namespace MyApi.Models
         public int TimeToRead { get; set; }
 
         [Required]
+        [DataType(DataType.ImageUrl)]
         public string Image { get; set; }
 
         [Required]
         public int CategoryId { get; set; }
 
         [JsonIgnore]
-        public DateTime Time { get; set; }
+        public DateTimeOffset Time { get; set; }
 
         [JsonIgnore]
         public int AuthorId { get; set; }
@@ -59,8 +60,6 @@ namespace MyApi.Models
         public string ShortDescription { get; set; }
         public int TimeToRead { get; set; }
         public string Image { get; set; }
-        public int View { get; set; }
-        public int Rank { get; set; }
 
         public override void CustomMappings(IMappingExpression<Post, PostShortSelectDto> mappingExpression)
         {
@@ -81,11 +80,21 @@ namespace MyApi.Models
         public string ShortDescription { get; set; }
         public int TimeToRead { get; set; }
         public string Image { get; set; }
+
+        [IgnoreMap]
         public int View { get; set; }
-        public int Rank { get; set; }
+
+        [IgnoreMap]
+        public int Likes { get; set; }
+
+        [IgnoreMap]
+        public int Comment { get; set; }
 
         [IgnoreMap]
         public bool IsFollowed { get; set; }
+
+        [IgnoreMap]
+        public bool IsLiked { get; set; }
 
         [IgnoreMap]
         public List<TagDto> Tags { get; set; }

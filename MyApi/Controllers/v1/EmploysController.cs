@@ -57,7 +57,7 @@ namespace MyApi.Controllers.v1
         public override Task<ApiResult<EmploySelectDto>> Create(EmployDto dto, CancellationToken cancellationToken)
         {
             dto.AuthorId = HttpContext.User.Identity.GetUserId<int>();
-            dto.Time = DateTime.Now;
+            dto.Time = DateTimeOffset.Now;
 
             return base.Create(dto, cancellationToken);
         }

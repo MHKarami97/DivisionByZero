@@ -8,7 +8,7 @@ namespace Entities.Post
     public class Comment : BaseEntity
     {
         public string Text { get; set; }
-        public DateTime Time { get; set; }
+        public DateTimeOffset Time { get; set; }
         public int PostId { get; set; }
         public int UserId { get; set; }
 
