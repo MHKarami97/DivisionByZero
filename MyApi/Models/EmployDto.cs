@@ -28,7 +28,7 @@ namespace MyApi.Models
         public DateTimeOffset Time { get; set; }
 
         [JsonIgnore]
-        public int AuthorId { get; set; }
+        public int UserId { get; set; }
 
         public override void CustomMappings(IMappingExpression<Employ, EmployDto> mappingExpression)
         {

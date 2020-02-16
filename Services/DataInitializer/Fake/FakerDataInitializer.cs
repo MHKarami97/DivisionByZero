@@ -64,8 +64,8 @@ namespace Services.DataInitializer.Fake
                 .RuleFor(o => o.Comments, f => fakeComment.Generate(2))
                 .RuleFor(o => o.Category, f => fakeCat.Generate())
                 .RuleFor(o => o.CategoryId, f => id)
-                .RuleFor(o => o.Author, f => fakeUser.Generate())
-                .RuleFor(o => o.AuthorId, f => id++);
+                .RuleFor(o => o.User, f => fakeUser.Generate())
+                .RuleFor(o => o.UserId, f => id++);
 
             var posts = fakePost.Generate(20);
 

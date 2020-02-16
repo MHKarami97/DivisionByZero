@@ -17,10 +17,10 @@ namespace Entities.Post
         public string Image { get; set; }
         public int? Type { get; set; }
         public int CategoryId { get; set; }
-        public int AuthorId { get; set; }
+        public int UserId { get; set; }
 
         public Category Category { get; set; }
-        public User.User Author { get; set; }
+        public User.User User { get; set; }
 
         public ICollection<Comment> Comments { get; set; }
         public ICollection<Favorite> Favorites { get; set; }
@@ -39,8 +39,18 @@ namespace Entities.Post
             builder.Property(p => p.Time).IsRequired();
             builder.Property(p => p.Text).IsRequired();
 
-            builder.HasOne(p => p.Category).WithMany(c => c.Posts).HasForeignKey(p => p.CategoryId);
-            builder.HasOne(p => p.Author).WithMany(c => c.Posts).HasForeignKey(p => p.AuthorId);
+            builder.HasOne(p => p.Category)
+                .WithMany(c => c.Posts)
+                .HasForeignKey(p => p.CategoryId)
+                .OnDelete(DeleteBehavior.NoAction);
+
+            builder.HasOne(p => p.User)
+                .WithMany(c => c.Posts)
+                .HasForeignKey(p => p.UserId)
+                .OnDelete(DeleteBehavior.NoAction);
+
+            builder.HasIndex(a => a.CategoryId).HasName("IX_Post_CategoryId");
+            builder.HasIndex(a => a.UserId).HasName("IX_Post_UserId");
         }
     }
 }

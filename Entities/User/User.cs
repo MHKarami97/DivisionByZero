@@ -27,6 +27,7 @@ namespace Entities.User
         public ICollection<Employ.Employ> Employs { get; set; }
         public ICollection<Favorite> Favorites { get; set; }
         public ICollection<Follower> Followers { get; set; }
+        public ICollection<Contact.Contact> Contacts { get; set; }
         public ICollection<Like> Likes { get; set; }
         public ICollection<View> Views { get; set; }
     }

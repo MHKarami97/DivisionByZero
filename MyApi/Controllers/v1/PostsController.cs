@@ -62,7 +62,7 @@ namespace MyApi.Controllers.v1
                 var userId = HttpContext.User.Identity.GetUserId<int>();
 
                 var isFollowed = await _repositoryFollower.TableNoTracking
-                    .AnyAsync(a => a.VersionStatus.Equals(2) && a.FollowerId.Equals(result.Data.AuthorId) && a.UserId.Equals(userId), cancellationToken);
+                    .AnyAsync(a => a.VersionStatus.Equals(2) && a.FollowerId.Equals(result.Data.UserId) && a.UserId.Equals(userId), cancellationToken);
 
                 var isLiked = await _repositoryLike.TableNoTracking
                     .AnyAsync(a => a.VersionStatus.Equals(2) && a.PostId.Equals(result.Data.Id) && a.UserId.Equals(userId), cancellationToken);
@@ -115,7 +115,7 @@ namespace MyApi.Controllers.v1
             {
                 var item = await Repository.TableNoTracking.SingleAsync(a => a.Id.Equals(id), cancellationToken);
 
-                if (!item.AuthorId.Equals(user.Id))
+                if (!item.UserId.Equals(user.Id))
                     return BadRequest();
 
                 return await base.Update(id, dto, cancellationToken);
@@ -132,7 +132,7 @@ namespace MyApi.Controllers.v1
 
         public override Task<ApiResult<PostSelectDto>> Create(PostDto dto, CancellationToken cancellationToken)
         {
-            dto.AuthorId = HttpContext.User.Identity.GetUserId<int>();
+            dto.UserId = HttpContext.User.Identity.GetUserId<int>();
             dto.Time = DateTimeOffset.Now;
 
             return base.Create(dto, cancellationToken);
@@ -174,7 +174,7 @@ namespace MyApi.Controllers.v1
         public virtual async Task<ApiResult<List<PostShortSelectDto>>> GetByUserId(int id, CancellationToken cancellationToken)
         {
             var list = await Repository.TableNoTracking
-                .Where(a => !a.VersionStatus.Equals(2) && a.AuthorId.Equals(id))
+                .Where(a => !a.VersionStatus.Equals(2) && a.UserId.Equals(id))
                 .ProjectTo<PostShortSelectDto>(Mapper.ConfigurationProvider)
                 .Take(DefaultTake)
                 .ToListAsync(cancellationToken);

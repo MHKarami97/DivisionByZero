@@ -23,7 +23,13 @@ namespace Entities.Post
         public void Configure(EntityTypeBuilder<Category> builder)
         {
             builder.Property(p => p.Name).IsRequired().HasMaxLength(100);
-            builder.HasOne(p => p.ParentCategory).WithMany(c => c.ChildCategories).HasForeignKey(p => p.ParentCategoryId);
+
+            builder.HasOne(p => p.ParentCategory)
+                .WithMany(c => c.ChildCategories)
+                .HasForeignKey(p => p.ParentCategoryId)
+                .OnDelete(DeleteBehavior.NoAction);
+
+            builder.HasIndex(a => a.ParentCategoryId).HasName("IX_Category_ParentCategoryId");
         }
     }
 }

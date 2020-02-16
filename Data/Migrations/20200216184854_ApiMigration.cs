@@ -90,8 +90,7 @@ namespace Data.Migrations
                         name: "FK_Category_Category_ParentCategoryId",
                         column: x => x.ParentCategoryId,
                         principalTable: "Category",
-                        principalColumn: "Id",
-                        onDelete: ReferentialAction.Restrict);
+                        principalColumn: "Id");
                 });
 
             migrationBuilder.CreateTable(
@@ -232,6 +231,36 @@ namespace Data.Migrations
                 });
 
             migrationBuilder.CreateTable(
+                name: "Contact",
+                columns: table => new
+                {
+                    Id = table.Column<int>(nullable: false)
+                        .Annotation("SqlServer:Identity", "1, 1"),
+                    Version = table.Column<int>(nullable: false),
+                    VersionStatus = table.Column<int>(nullable: false),
+                    Text = table.Column<string>(nullable: false),
+                    Time = table.Column<DateTimeOffset>(nullable: false),
+                    Email = table.Column<string>(nullable: false),
+                    Type = table.Column<int>(nullable: true),
+                    UserId = table.Column<int>(nullable: true),
+                    ParentContactId = table.Column<int>(nullable: true)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_Contact", x => x.Id);
+                    table.ForeignKey(
+                        name: "FK_Contact_Contact_ParentContactId",
+                        column: x => x.ParentContactId,
+                        principalTable: "Contact",
+                        principalColumn: "Id");
+                    table.ForeignKey(
+                        name: "FK_Contact_AspNetUser_UserId",
+                        column: x => x.UserId,
+                        principalTable: "AspNetUser",
+                        principalColumn: "Id");
+                });
+
+            migrationBuilder.CreateTable(
                 name: "Employ",
                 columns: table => new
                 {
@@ -243,17 +272,16 @@ namespace Data.Migrations
                     Text = table.Column<string>(nullable: false),
                     Time = table.Column<DateTimeOffset>(nullable: false),
                     Type = table.Column<int>(nullable: false),
-                    AuthorId = table.Column<int>(nullable: false)
+                    UserId = table.Column<int>(nullable: false)
                 },
                 constraints: table =>
                 {
                     table.PrimaryKey("PK_Employ", x => x.Id);
                     table.ForeignKey(
-                        name: "FK_Employ_AspNetUser_AuthorId",
-                        column: x => x.AuthorId,
+                        name: "FK_Employ_AspNetUser_UserId",
+                        column: x => x.UserId,
                         principalTable: "AspNetUser",
-                        principalColumn: "Id",
-                        onDelete: ReferentialAction.Restrict);
+                        principalColumn: "Id");
                 });
 
             migrationBuilder.CreateTable(
@@ -274,8 +302,7 @@ namespace Data.Migrations
                         name: "FK_Follower_AspNetUser_UserId",
                         column: x => x.UserId,
                         principalTable: "AspNetUser",
-                        principalColumn: "Id",
-                        onDelete: ReferentialAction.Restrict);
+                        principalColumn: "Id");
                 });
 
             migrationBuilder.CreateTable(
@@ -320,23 +347,21 @@ namespace Data.Migrations
                     Image = table.Column<string>(maxLength: 200, nullable: false),
                     Type = table.Column<int>(nullable: true),
                     CategoryId = table.Column<int>(nullable: false),
-                    AuthorId = table.Column<int>(nullable: false)
+                    UserId = table.Column<int>(nullable: false)
                 },
                 constraints: table =>
                 {
                     table.PrimaryKey("PK_Post", x => x.Id);
                     table.ForeignKey(
-                        name: "FK_Post_AspNetUser_AuthorId",
-                        column: x => x.AuthorId,
-                        principalTable: "AspNetUser",
-                        principalColumn: "Id",
-                        onDelete: ReferentialAction.Restrict);
-                    table.ForeignKey(
                         name: "FK_Post_Category_CategoryId",
                         column: x => x.CategoryId,
                         principalTable: "Category",
-                        principalColumn: "Id",
-                        onDelete: ReferentialAction.Restrict);
+                        principalColumn: "Id");
+                    table.ForeignKey(
+                        name: "FK_Post_AspNetUser_UserId",
+                        column: x => x.UserId,
+                        principalTable: "AspNetUser",
+                        principalColumn: "Id");
                 });
 
             migrationBuilder.CreateTable(
@@ -359,14 +384,12 @@ namespace Data.Migrations
                         name: "FK_Comment_Post_PostId",
                         column: x => x.PostId,
                         principalTable: "Post",
-                        principalColumn: "Id",
-                        onDelete: ReferentialAction.Restrict);
+                        principalColumn: "Id");
                     table.ForeignKey(
                         name: "FK_Comment_AspNetUser_UserId",
                         column: x => x.UserId,
                         principalTable: "AspNetUser",
-                        principalColumn: "Id",
-                        onDelete: ReferentialAction.Restrict);
+                        principalColumn: "Id");
                 });
 
             migrationBuilder.CreateTable(
@@ -387,14 +410,12 @@ namespace Data.Migrations
                         name: "FK_Favorite_Post_PostId",
                         column: x => x.PostId,
                         principalTable: "Post",
-                        principalColumn: "Id",
-                        onDelete: ReferentialAction.Restrict);
+                        principalColumn: "Id");
                     table.ForeignKey(
                         name: "FK_Favorite_AspNetUser_UserId",
                         column: x => x.UserId,
                         principalTable: "AspNetUser",
-                        principalColumn: "Id",
-                        onDelete: ReferentialAction.Restrict);
+                        principalColumn: "Id");
                 });
 
             migrationBuilder.CreateTable(
@@ -406,7 +427,7 @@ namespace Data.Migrations
                     Version = table.Column<int>(nullable: false),
                     VersionStatus = table.Column<int>(nullable: false),
                     PostId = table.Column<int>(nullable: false),
-                    UserId = table.Column<int>(nullable: false),
+                    UserId = table.Column<int>(nullable: true),
                     Time = table.Column<DateTimeOffset>(nullable: false)
                 },
                 constraints: table =>
@@ -416,14 +437,12 @@ namespace Data.Migrations
                         name: "FK_Like_Post_PostId",
                         column: x => x.PostId,
                         principalTable: "Post",
-                        principalColumn: "Id",
-                        onDelete: ReferentialAction.Restrict);
+                        principalColumn: "Id");
                     table.ForeignKey(
                         name: "FK_Like_AspNetUser_UserId",
                         column: x => x.UserId,
                         principalTable: "AspNetUser",
-                        principalColumn: "Id",
-                        onDelete: ReferentialAction.Restrict);
+                        principalColumn: "Id");
                 });
 
             migrationBuilder.CreateTable(
@@ -444,14 +463,12 @@ namespace Data.Migrations
                         name: "FK_PostTag_Post_PostId",
                         column: x => x.PostId,
                         principalTable: "Post",
-                        principalColumn: "Id",
-                        onDelete: ReferentialAction.Restrict);
+                        principalColumn: "Id");
                     table.ForeignKey(
                         name: "FK_PostTag_Tag_TagId",
                         column: x => x.TagId,
                         principalTable: "Tag",
-                        principalColumn: "Id",
-                        onDelete: ReferentialAction.Restrict);
+                        principalColumn: "Id");
                 });
 
             migrationBuilder.CreateTable(
@@ -463,7 +480,7 @@ namespace Data.Migrations
                     Version = table.Column<int>(nullable: false),
                     VersionStatus = table.Column<int>(nullable: false),
                     PostId = table.Column<int>(nullable: false),
-                    UserId = table.Column<int>(nullable: false),
+                    UserId = table.Column<int>(nullable: true),
                     Ip = table.Column<string>(nullable: true),
                     Time = table.Column<DateTimeOffset>(nullable: false)
                 },
@@ -474,14 +491,12 @@ namespace Data.Migrations
                         name: "FK_View_Post_PostId",
                         column: x => x.PostId,
                         principalTable: "Post",
-                        principalColumn: "Id",
-                        onDelete: ReferentialAction.Restrict);
+                        principalColumn: "Id");
                     table.ForeignKey(
                         name: "FK_View_AspNetUser_UserId",
                         column: x => x.UserId,
                         principalTable: "AspNetUser",
-                        principalColumn: "Id",
-                        onDelete: ReferentialAction.Restrict);
+                        principalColumn: "Id");
                 });
 
             migrationBuilder.CreateIndex(
@@ -539,9 +554,19 @@ namespace Data.Migrations
                 column: "UserId");
 
             migrationBuilder.CreateIndex(
-                name: "IX_Employ_AuthorId",
+                name: "IX_Contact_ParentContactId",
+                table: "Contact",
+                column: "ParentContactId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_Contact_UserId",
+                table: "Contact",
+                column: "UserId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_Employ_UserId",
                 table: "Employ",
-                column: "AuthorId");
+                column: "UserId");
 
             migrationBuilder.CreateIndex(
                 name: "IX_Favorite_PostId",
@@ -569,14 +594,14 @@ namespace Data.Migrations
                 column: "UserId");
 
             migrationBuilder.CreateIndex(
-                name: "IX_Post_AuthorId",
-                table: "Post",
-                column: "AuthorId");
-
-            migrationBuilder.CreateIndex(
                 name: "IX_Post_CategoryId",
                 table: "Post",
                 column: "CategoryId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_Post_UserId",
+                table: "Post",
+                column: "UserId");
 
             migrationBuilder.CreateIndex(
                 name: "IX_PostTag_PostId",
@@ -628,6 +653,9 @@ namespace Data.Migrations
                 name: "Comment");
 
             migrationBuilder.DropTable(
+                name: "Contact");
+
+            migrationBuilder.DropTable(
                 name: "Employ");
 
             migrationBuilder.DropTable(
@@ -661,10 +689,10 @@ namespace Data.Migrations
                 name: "Post");
 
             migrationBuilder.DropTable(
-                name: "AspNetUser");
+                name: "Category");
 
             migrationBuilder.DropTable(
-                name: "Category");
+                name: "AspNetUser");
         }
     }
 }

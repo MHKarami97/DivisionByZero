@@ -22,8 +22,17 @@ namespace Entities.User
         {
             builder.Property(p => p.PostId).IsRequired();
 
-            builder.HasOne(p => p.User).WithMany(c => c.Views).HasForeignKey(p => p.UserId);
-            builder.HasOne(p => p.Post).WithMany(c => c.Views).HasForeignKey(p => p.PostId);
+            builder.HasOne(p => p.User)
+                .WithMany(c => c.Views)
+                .HasForeignKey(p => p.UserId)
+                .OnDelete(DeleteBehavior.NoAction);
+
+            builder.HasOne(p => p.Post)
+                .WithMany(c => c.Views)
+                .HasForeignKey(p => p.PostId)
+                .OnDelete(DeleteBehavior.NoAction);
+
+            builder.HasIndex(a => a.UserId).HasName("IX_View_UserId");
         }
     }
 }

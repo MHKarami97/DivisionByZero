@@ -40,7 +40,7 @@ namespace MyApi.Models
         public DateTimeOffset Time { get; set; }
 
         [JsonIgnore]
-        public int AuthorId { get; set; }
+        public int UserId { get; set; }
 
         public override void CustomMappings(IMappingExpression<Post, PostDto> mappingExpression)
         {
@@ -54,8 +54,8 @@ namespace MyApi.Models
     {
         public string Title { get; set; }
         public string CategoryName { get; set; }
-        public string AuthorFullName { get; set; }
-        public int AuthorId { get; set; }
+        public string UserFullName { get; set; }
+        public int UserId { get; set; }
         public string Time { get; set; }
         public string ShortDescription { get; set; }
         public int TimeToRead { get; set; }
@@ -73,8 +73,8 @@ namespace MyApi.Models
     {
         public string Title { get; set; }
         public string CategoryName { get; set; }
-        public string AuthorFullName { get; set; }
-        public int AuthorId { get; set; }
+        public string UserFullName { get; set; }
+        public int UserId { get; set; }
         public string Text { get; set; }
         public string Time { get; set; }
         public string ShortDescription { get; set; }

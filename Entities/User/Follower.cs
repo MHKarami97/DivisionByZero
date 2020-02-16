@@ -9,7 +9,7 @@ namespace Entities.User
         public int FollowerId { get; set; }
         public int UserId { get; set; }
 
-        public User User { get; set; }
+        public User Followers { get; set; }
     }
 
     public class FollowerConfiguration : IEntityTypeConfiguration<Follower>
@@ -19,8 +19,13 @@ namespace Entities.User
             builder.Property(p => p.FollowerId).IsRequired();
             builder.Property(p => p.UserId).IsRequired();
 
-            builder.HasOne(p => p.User).WithMany(c => c.Followers).HasForeignKey(p => p.UserId);
+            builder.HasOne(p => p.Followers)
+                .WithMany(c => c.Followers)
+                .HasForeignKey(p => p.UserId)
+                .OnDelete(DeleteBehavior.NoAction);
             //builder.HasOne(p => p.User).WithMany(c => c.Followers).HasForeignKey(p => p.FollowerId);
+
+            builder.HasIndex(a => a.UserId).HasName("IX_Follower_UserId");
         }
     }
 }

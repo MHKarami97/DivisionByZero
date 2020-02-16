@@ -25,8 +25,18 @@ namespace Entities.Post
             builder.Property(p => p.PostId).IsRequired();
             builder.Property(p => p.UserId).IsRequired();
 
-            builder.HasOne(p => p.Post).WithMany(c => c.Comments).HasForeignKey(p => p.PostId);
-            builder.HasOne(p => p.User).WithMany(c => c.Comments).HasForeignKey(p => p.UserId);
+            builder.HasOne(p => p.Post)
+                .WithMany(c => c.Comments)
+                .HasForeignKey(p => p.PostId)
+                .OnDelete(DeleteBehavior.NoAction);
+
+            builder.HasOne(p => p.User)
+                .WithMany(c => c.Comments)
+                .HasForeignKey(p => p.UserId)
+                .OnDelete(DeleteBehavior.NoAction);
+
+            builder.HasIndex(a => a.PostId).HasName("IX_Comment_PostId");
+            builder.HasIndex(a => a.UserId).HasName("IX_Comment_UserId");
         }
     }
 }
