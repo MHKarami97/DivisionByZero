@@ -82,10 +82,10 @@ namespace MyApi.Controllers.v1
 
             var list = await _repositoryLike.TableNoTracking
                 .Where(a => !a.VersionStatus.Equals(2) && a.UserId.Equals(userId))
-                .ProjectTo<ViewDto>(_mapper.ConfigurationProvider)
+                .ProjectTo<LikeDto>(_mapper.ConfigurationProvider)
                 .ToListAsync(cancellationToken);
 
-            return Ok(list);
+            return list;
         }
     }
 }

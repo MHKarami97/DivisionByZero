@@ -72,7 +72,7 @@ namespace MyApi.Controllers.v1
                 .ProjectTo<CategoryDto>(Mapper.ConfigurationProvider)
                 .ToListAsync(cancellationToken);
 
-            return Ok(list);
+            return list;
         }
 
         [HttpGet]
@@ -100,7 +100,7 @@ namespace MyApi.Controllers.v1
                 });
             }
 
-            return Ok(result);
+            return result;
         }
 
         [AllowAnonymous]
@@ -112,7 +112,7 @@ namespace MyApi.Controllers.v1
                 .ProjectTo<CategoryDto>(Mapper.ConfigurationProvider)
                 .ToListAsync(cancellationToken);
 
-            return Ok(list);
+            return list;
         }
     }
 }

@@ -71,7 +71,7 @@ namespace MyApi.Controllers.v1
                 .ProjectTo<EmploySelectDto>(Mapper.ConfigurationProvider)
                 .ToListAsync(cancellationToken);
 
-            return Ok(list);
+            return list;
         }
     }
 }

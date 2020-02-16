@@ -31,7 +31,7 @@ namespace MyApi.Controllers.v1
                 .ProjectTo<FollowerDto>(Mapper.ConfigurationProvider)
                 .ToListAsync(cancellationToken);
 
-            return Ok(list);
+            return list;
         }
 
         public override async Task<ApiResult> Delete(int id, CancellationToken cancellationToken)

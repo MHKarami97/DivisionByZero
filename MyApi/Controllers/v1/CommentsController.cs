@@ -45,7 +45,7 @@ namespace MyApi.Controllers.v1
                 .ProjectTo<CommentSelectDto>(_mapper.ConfigurationProvider)
                 .ToListAsync(cancellationToken);
 
-            return Ok(list);
+            return list;
         }
 
         [Authorize(Policy = "WorkerPolicy")]

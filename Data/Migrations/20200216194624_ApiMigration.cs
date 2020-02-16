@@ -240,10 +240,9 @@ namespace Data.Migrations
                     VersionStatus = table.Column<int>(nullable: false),
                     Text = table.Column<string>(nullable: false),
                     Time = table.Column<DateTimeOffset>(nullable: false),
-                    Email = table.Column<string>(nullable: false),
-                    Type = table.Column<int>(nullable: true),
-                    UserId = table.Column<int>(nullable: true),
-                    ParentContactId = table.Column<int>(nullable: true)
+                    UserId = table.Column<int>(nullable: false),
+                    ParentContactId = table.Column<int>(nullable: true),
+                    ByServer = table.Column<bool>(nullable: false)
                 },
                 constraints: table =>
                 {

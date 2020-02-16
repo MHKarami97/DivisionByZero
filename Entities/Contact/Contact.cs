@@ -10,10 +10,9 @@ namespace Entities.Contact
     {
         public string Text { get; set; }
         public DateTimeOffset Time { get; set; }
-        public string Email { get; set; }
-        public int? Type { get; set; }
-        public int? UserId { get; set; }
+        public int UserId { get; set; }
         public int? ParentContactId { get; set; }
+        public bool ByServer { get; set; }
 
         public User.User User { get; set; }
         public Contact ParentContact { get; set; }
@@ -27,7 +26,7 @@ namespace Entities.Contact
         {
             builder.Property(p => p.Time).IsRequired();
             builder.Property(p => p.Text).IsRequired();
-            builder.Property(p => p.Email).IsRequired();
+            builder.Property(p => p.UserId).IsRequired();
 
             builder.HasOne(p => p.User)
                 .WithMany(c => c.Contacts)

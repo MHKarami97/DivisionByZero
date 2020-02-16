@@ -26,9 +26,8 @@ namespace Data.Migrations
                         .HasColumnType("int")
                         .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
 
-                    b.Property<string>("Email")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
+                    b.Property<bool>("ByServer")
+                        .HasColumnType("bit");
 
                     b.Property<int?>("ParentContactId")
                         .HasColumnType("int");
@@ -40,10 +39,7 @@ namespace Data.Migrations
                     b.Property<DateTimeOffset>("Time")
                         .HasColumnType("datetimeoffset");
 
-                    b.Property<int?>("Type")
-                        .HasColumnType("int");
-
-                    b.Property<int?>("UserId")
+                    b.Property<int>("UserId")
                         .HasColumnType("int");
 
                     b.Property<int>("Version")
@@ -728,7 +724,8 @@ namespace Data.Migrations
                     b.HasOne("Entities.User.User", "User")
                         .WithMany("Contacts")
                         .HasForeignKey("UserId")
-                        .OnDelete(DeleteBehavior.NoAction);
+                        .OnDelete(DeleteBehavior.NoAction)
+                        .IsRequired();
                 });
 
             modelBuilder.Entity("Entities.Employ.Employ", b =>

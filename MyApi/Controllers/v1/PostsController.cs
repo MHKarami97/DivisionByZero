@@ -149,7 +149,7 @@ namespace MyApi.Controllers.v1
                 .Take(DefaultTake + to)
                 .ToListAsync(cancellationToken);
 
-            return Ok(list);
+            return list;
         }
 
         [AllowAnonymous]
@@ -166,7 +166,7 @@ namespace MyApi.Controllers.v1
                 .Take(DefaultTake)
                 .ToListAsync(cancellationToken);
 
-            return Ok(list);
+            return list;
         }
 
         [AllowAnonymous]
@@ -179,7 +179,7 @@ namespace MyApi.Controllers.v1
                 .Take(DefaultTake)
                 .ToListAsync(cancellationToken);
 
-            return Ok(list);
+            return list;
         }
 
         [HttpGet]
@@ -199,7 +199,7 @@ namespace MyApi.Controllers.v1
                         .Take(count)
                         .ToListAsync(cancellationToken);
 
-                    return Ok(list);
+                    return list;
                 case 2:
                     var result = await _repositoryLike.TableNoTracking
                         .GroupBy(a => a.PostId)
@@ -218,7 +218,7 @@ namespace MyApi.Controllers.v1
                        .Take(count)
                        .ToListAsync(cancellationToken);
 
-                    return Ok(list);
+                    return list;
                 case 3:
                     result = await _repositoryView.TableNoTracking
                        .GroupBy(a => a.PostId)
@@ -237,7 +237,7 @@ namespace MyApi.Controllers.v1
                         .Take(count)
                         .ToListAsync(cancellationToken);
 
-                    return Ok(list);
+                    return list;
                 default:
                     return BadRequest("نوع مطلب درخواستی نامعتبر است");
             }
@@ -257,7 +257,7 @@ namespace MyApi.Controllers.v1
                 .Take(DefaultTake)
                 .ToListAsync(cancellationToken);
 
-            return Ok(list);
+            return list;
         }
     }
 }

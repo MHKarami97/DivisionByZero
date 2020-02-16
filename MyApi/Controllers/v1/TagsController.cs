@@ -54,7 +54,7 @@ namespace MyApi.Controllers.v1
                 result.Add(res);
             }
 
-            return Ok(result);
+            return result;
         }
 
         [NonAction]
@@ -119,7 +119,7 @@ namespace MyApi.Controllers.v1
 
         [HttpGet]
         [AllowAnonymous]
-        public async Task<ApiResult<TagDto>> GetPostTag(int id, CancellationToken cancellationToken)
+        public async Task<ApiResult<List<TagDto>>> GetPostTag(int id, CancellationToken cancellationToken)
         {
             if (id.Equals(0))
                 return BadRequest("آی دی پست اشتباه است");
@@ -129,7 +129,7 @@ namespace MyApi.Controllers.v1
                 .ProjectTo<TagDto>(Mapper.ConfigurationProvider)
                 .ToListAsync(cancellationToken);
 
-            return Ok(list);
+            return list;
         }
 
         [NonAction]
