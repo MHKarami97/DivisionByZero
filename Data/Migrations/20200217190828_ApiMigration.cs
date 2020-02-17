@@ -47,6 +47,7 @@ namespace Data.Migrations
                     Birthday = table.Column<DateTime>(nullable: false),
                     Gender = table.Column<int>(nullable: false),
                     IsActive = table.Column<bool>(nullable: false),
+                    VerifyCode = table.Column<int>(nullable: true),
                     LastLoginDate = table.Column<DateTimeOffset>(nullable: true)
                 },
                 constraints: table =>

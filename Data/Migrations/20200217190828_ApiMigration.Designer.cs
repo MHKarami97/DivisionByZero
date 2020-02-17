@@ -10,7 +10,7 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace Data.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    [Migration("20200216194624_ApiMigration")]
+    [Migration("20200217190828_ApiMigration")]
     partial class ApiMigration
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -528,6 +528,9 @@ namespace Data.Migrations
                         .IsRequired()
                         .HasColumnType("nvarchar(100)")
                         .HasMaxLength(100);
+
+                    b.Property<int?>("VerifyCode")
+                        .HasColumnType("int");
 
                     b.HasKey("Id");
 
