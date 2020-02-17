@@ -1,5 +1,5 @@
 ﻿CREATE TABLE [dbo].[NLog] (
-   [ID] [int] IDENTITY(1,1) NOT NULL,
+   [ID] [bigint] IDENTITY(1,1) NOT NULL,
    [MachineName] [nvarchar](200) NULL,
    [Logged] [datetime] NOT NULL,
    [Level] [varchar](5) NOT NULL,
