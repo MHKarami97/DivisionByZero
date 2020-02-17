@@ -9,7 +9,7 @@ namespace WebFramework.Configuration
         {
             return SecureHeadersMiddlewareBuilder
                 .CreateBuilder()
-                .UseHsts(1200, false)
+                .UseHsts(1200)
                 .UseXSSProtection(XssMode.oneReport, "http://95.216.12.8:91")
                 .UseContentDefaultSecurityPolicy()
                 .UsePermittedCrossDomainPolicies(XPermittedCrossDomainOptionValue.masterOnly)

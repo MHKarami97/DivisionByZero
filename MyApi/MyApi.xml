@@ -9,6 +9,7 @@
             This method generate JWT Token
             </summary>
             <param name="tokenRequest">The information of token request</param>
+            <param name="tokenBodyRequest"></param>
             <param name="cancellationToken"></param>
             <returns></returns>
         </member>

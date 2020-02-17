@@ -94,6 +94,10 @@ namespace MyApi
 
             //app.UseElmah();
 
+            app.UseSecureHeadersMiddleware(SecureHeadersMiddlewareConfiguration.CustomConfiguration());
+
+            app.UseCors(x => x.AllowAnyOrigin().AllowAnyMethod().AllowAnyHeader());
+
             app.UseHttpsRedirection();
 
             app.UseStaticFiles();
@@ -101,10 +105,6 @@ namespace MyApi
             app.UseSwaggerAndUi();
 
             app.UseRouting();
-
-            app.UseSecureHeadersMiddleware(SecureHeadersMiddlewareConfiguration.CustomConfiguration());
-
-            app.UseCors(x => x.AllowAnyOrigin().AllowAnyMethod().AllowAnyHeader());
 
             app.UseAuthentication();
 
