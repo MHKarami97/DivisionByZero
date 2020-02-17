@@ -7,6 +7,7 @@ using Data.Repositories;
 using Data.Contracts;
 using Entities.Common;
 using Microsoft.AspNetCore.Http;
+using Microsoft.Extensions.Logging;
 using Services.Security;
 
 namespace WebFramework.Configuration
@@ -30,13 +31,17 @@ namespace WebFramework.Configuration
             containerBuilder.RegisterType<MemoryCacheClientPolicyStore>()
                 .As<IClientPolicyStore>()
                 .SingleInstance();
-
+            
             containerBuilder.RegisterType<HttpContextAccessor>()
                 .As<IHttpContextAccessor>()
                 .SingleInstance();
 
             containerBuilder.RegisterType<RateLimitConfiguration>()
                 .As<IRateLimitConfiguration>()
+                .SingleInstance();
+
+            containerBuilder.RegisterType<LoggerFactory>()
+                .As<ILoggerFactory>()
                 .SingleInstance();
 
             containerBuilder.RegisterType<Security>().As<ISecurity>();

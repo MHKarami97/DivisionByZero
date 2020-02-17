@@ -47,6 +47,9 @@ namespace MyApi
                 .ConfigureLogging(options => options.ClearProviders())
                 .ConfigureLogging(logger => {
                     logger.AddFilter(DbLoggerCategory.Database.Command.Name, LogLevel.Information);
+                    logger.AddFilter(DbLoggerCategory.Database.Transaction.Name, LogLevel.Information);
+                    logger.AddFilter(DbLoggerCategory.Database.Connection.Name, LogLevel.Information);
+                    logger.AddFilter(DbLoggerCategory.Update.Name, LogLevel.Information);
                     logger.ClearProviders();
                     logger.SetMinimumLevel(LogLevel.Trace);
                 })

@@ -137,45 +137,85 @@ namespace MyApi.Controllers.v1
         /// This method generate JWT Token
         /// </summary>
         /// <param name="tokenRequest">The information of token request</param>
+        /// <param name="tokenBodyRequest"></param>
         /// <param name="cancellationToken"></param>
         /// <returns></returns>
         [AllowAnonymous]
         [HttpPost]
-        public virtual async Task<ActionResult> Token([FromForm]TokenRequest tokenRequest, CancellationToken cancellationToken)
+        public virtual async Task<ActionResult> Token([FromForm]TokenRequest tokenRequest, [FromBody]TokenRequest tokenBodyRequest, CancellationToken cancellationToken)
         {
-            if (!tokenRequest.Grant_type.Equals("password", StringComparison.OrdinalIgnoreCase))
-                throw new Exception("OAuth flow is not password.");
+            if (tokenBodyRequest != null)
+            {
+                if (!tokenBodyRequest.Grant_type.Equals("password", StringComparison.OrdinalIgnoreCase))
+                    throw new Exception("OAuth flow is not password.");
 
-            var user = await _userManager.FindByNameAsync(tokenRequest.Username);
-            if (user == null)
-                throw new BadRequestException("نام کاربری یا رمز عبور اشتباه است");
+                var user = await _userManager.FindByNameAsync(tokenBodyRequest.Username);
+                if (user == null)
+                    throw new BadRequestException("نام کاربری یا رمز عبور اشتباه است");
 
-            var isPasswordValid = await _userManager.CheckPasswordAsync(user, tokenRequest.Password);
-            if (!isPasswordValid)
-                throw new BadRequestException("نام کاربری یا رمز عبور اشتباه است");
+                var isPasswordValid = await _userManager.CheckPasswordAsync(user, tokenBodyRequest.Password);
+                if (!isPasswordValid)
+                    throw new BadRequestException("نام کاربری یا رمز عبور اشتباه است");
 
-            var jwt = await _jwtService.GenerateAsync(user);
+                var jwt = await _jwtService.GenerateAsync(user);
 
-            return new JsonResult(jwt);
+                return new JsonResult(jwt);
+            }
+            else
+            {
+                if (!tokenRequest.Grant_type.Equals("password", StringComparison.OrdinalIgnoreCase))
+                    throw new Exception("OAuth flow is not password.");
+
+                var user = await _userManager.FindByNameAsync(tokenRequest.Username);
+                if (user == null)
+                    throw new BadRequestException("نام کاربری یا رمز عبور اشتباه است");
+
+                var isPasswordValid = await _userManager.CheckPasswordAsync(user, tokenRequest.Password);
+                if (!isPasswordValid)
+                    throw new BadRequestException("نام کاربری یا رمز عبور اشتباه است");
+
+                var jwt = await _jwtService.GenerateAsync(user);
+
+                return new JsonResult(jwt);
+            }
         }
 
         [AllowAnonymous]
         [HttpPost]
-        public async Task<IActionResult> RefreshToken([FromForm]TokenRequest tokenRequest)
+        public async Task<IActionResult> RefreshToken([FromForm]TokenRequest tokenRequest, [FromBody]TokenRequest tokenBodyRequest)
         {
-            var refreshToken = tokenRequest.Refresh_token;
+            if(tokenBodyRequest!=null)
+            {
+                var refreshToken = tokenBodyRequest.Refresh_token;
 
-            if (string.IsNullOrWhiteSpace(refreshToken))
-                return BadRequest("refreshToken is not set.");
+                if (string.IsNullOrWhiteSpace(refreshToken))
+                    return BadRequest("refreshToken is not set.");
 
-            var token = await _jwtService.FindTokenAsync(refreshToken);
+                var token = await _jwtService.FindTokenAsync(refreshToken);
 
-            if (token == null)
-                return Unauthorized();
+                if (token == null)
+                    return Unauthorized();
 
-            var jwt = await _jwtService.GenerateAsync(token.User);
+                var jwt = await _jwtService.GenerateAsync(token.User);
 
-            return new JsonResult(jwt);
+                return new JsonResult(jwt);
+            }
+            else
+            {
+                var refreshToken = tokenRequest.Refresh_token;
+
+                if (string.IsNullOrWhiteSpace(refreshToken))
+                    return BadRequest("refreshToken is not set.");
+
+                var token = await _jwtService.FindTokenAsync(refreshToken);
+
+                if (token == null)
+                    return Unauthorized();
+
+                var jwt = await _jwtService.GenerateAsync(token.User);
+
+                return new JsonResult(jwt);
+            }
         }
 
         [HttpGet]

@@ -7,23 +7,27 @@ using Entities.Common;
 using Entities.User;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
+using Microsoft.Extensions.Logging;
 
 namespace Data
 {
     public class ApplicationDbContext : IdentityDbContext<User, Role, int>
-        //DbContext
+    //DbContext
     {
-        public ApplicationDbContext(DbContextOptions options)
+        private readonly ILoggerFactory _loggerFactory;
+
+        public ApplicationDbContext(DbContextOptions options, ILoggerFactory loggerFactory)
             : base(options)
         {
-
+            _loggerFactory = loggerFactory;
         }
 
-        //protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
-        //{
-        //    optionsBuilder.UseSqlServer("Data Source=.;Initial Catalog=MyApiDb;Integrated Security=true");
-        //    base.OnConfiguring(optionsBuilder);
-        //}
+        protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
+        {
+            base.OnConfiguring(optionsBuilder);
+            optionsBuilder.EnableSensitiveDataLogging();
+            optionsBuilder.UseLoggerFactory(_loggerFactory);
+        }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
