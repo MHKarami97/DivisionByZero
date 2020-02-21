@@ -9,6 +9,7 @@ namespace Entities.User
     {
         public int PostId { get; set; }
         public int? UserId { get; set; }
+        public float Rate { get; set; }
         public DateTimeOffset Time { get; set; }
 
         public User User { get; set; }
@@ -20,6 +21,7 @@ namespace Entities.User
         public void Configure(EntityTypeBuilder<Like> builder)
         {
             builder.Property(p => p.PostId).IsRequired();
+            builder.Property(p => p.Rate).IsRequired();
 
             builder.HasOne(p => p.User)
                 .WithMany(c => c.Likes)

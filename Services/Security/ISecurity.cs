@@ -13,6 +13,8 @@ namespace Services.Security
 
         int ImageCheck(IFormFile file);
 
+        int RandomNumber(int min = 0, int max = int.MaxValue);
+
         bool TimeCheck(DateTimeOffset time);
     }
 }

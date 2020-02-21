@@ -10,7 +10,7 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace Data.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    [Migration("20200217190828_ApiMigration")]
+    [Migration("20200221214926_ApiMigration")]
     partial class ApiMigration
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -401,6 +401,9 @@ namespace Data.Migrations
 
                     b.Property<int>("PostId")
                         .HasColumnType("int");
+
+                    b.Property<float>("Rate")
+                        .HasColumnType("real");
 
                     b.Property<DateTimeOffset>("Time")
                         .HasColumnType("datetimeoffset");

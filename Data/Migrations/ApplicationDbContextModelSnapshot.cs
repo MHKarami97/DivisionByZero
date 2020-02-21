@@ -400,6 +400,9 @@ namespace Data.Migrations
                     b.Property<int>("PostId")
                         .HasColumnType("int");
 
+                    b.Property<float>("Rate")
+                        .HasColumnType("real");
+
                     b.Property<DateTimeOffset>("Time")
                         .HasColumnType("datetimeoffset");
 

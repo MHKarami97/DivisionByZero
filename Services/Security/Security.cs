@@ -1,6 +1,7 @@
 ﻿using Microsoft.AspNetCore.Http;
 using System;
 using System.IO;
+using System.Security.Cryptography;
 using System.Text.RegularExpressions;
 
 namespace Services.Security
@@ -50,6 +51,11 @@ namespace Services.Security
                 return 3;
 
             return 0;
+        }
+
+        public int RandomNumber(int min = 0, int max = int.MaxValue)
+        {
+            return RandomNumberGenerator.GetInt32(min, max);
         }
 
         public bool TimeCheck(DateTimeOffset time)

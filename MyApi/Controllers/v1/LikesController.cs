@@ -34,8 +34,11 @@ namespace MyApi.Controllers.v1
 
         [Authorize]
         [HttpGet("{id:int}")]
-        public async Task<ActionResult> LikePost(int id, CancellationToken cancellationToken)
+        public async Task<ActionResult> LikePost(int id, float rate, CancellationToken cancellationToken)
         {
+            if (rate < 0 || rate > 5)
+                return BadRequest("مقدار امتیاز نامعتبر است");
+
             var userId = HttpContext.User.Identity.GetUserId<int>();
 
             var isPostExist = await _repositoryPost.TableNoTracking
@@ -48,11 +51,12 @@ namespace MyApi.Controllers.v1
                 .AnyAsync(a => !a.VersionStatus.Equals(2) && a.UserId.Equals(userId) && a.PostId.Equals(id), cancellationToken);
 
             if (isLike)
-                return BadRequest("این مطلب قبلا لایک شده است");
+                return BadRequest("این مطلب قبلا امتیاز دهی شده است");
 
             await _repositoryLike.AddAsync(new Like
             {
                 PostId = id,
+                Rate = rate,
                 UserId = userId,
                 Time = DateTimeOffset.Now
             }, cancellationToken);

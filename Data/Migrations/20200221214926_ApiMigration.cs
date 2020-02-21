@@ -428,6 +428,7 @@ namespace Data.Migrations
                     VersionStatus = table.Column<int>(nullable: false),
                     PostId = table.Column<int>(nullable: false),
                     UserId = table.Column<int>(nullable: true),
+                    Rate = table.Column<float>(nullable: false),
                     Time = table.Column<DateTimeOffset>(nullable: false)
                 },
                 constraints: table =>

@@ -13,6 +13,8 @@ namespace MyApi.Models
 
         public string Time { get; set; }
 
+        public float Rate { get; set; }
+
         public override void CustomMappings(IMappingExpression<Like, LikeDto> mappingExpression)
         {
             mappingExpression.ForMember(
@@ -28,6 +30,9 @@ namespace MyApi.Models
 
         [Required]
         public int PostId { get; set; }
+
+        [Required]
+        public float Rate { get; set; }
 
         [JsonIgnore]
         public int UserId { get; set; }

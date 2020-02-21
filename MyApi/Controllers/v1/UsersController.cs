@@ -16,6 +16,7 @@ using Data.Contracts;
 using Entities.User;
 using WebFramework.Api;
 using Microsoft.AspNetCore.Identity;
+using Services.Security;
 using Services.Services;
 
 namespace MyApi.Controllers.v1
@@ -24,6 +25,7 @@ namespace MyApi.Controllers.v1
     [Route("api/v{version:apiVersion}/[controller]/[action]")]
     public class UsersController : BaseController
     {
+        private readonly ISecurity _security;
         private readonly IUserRepository _userRepository;
         private readonly ILogger<UsersController> _logger;
         private readonly IJwtService _jwtService;
@@ -32,13 +34,14 @@ namespace MyApi.Controllers.v1
         private readonly IRepository<Follower> _repositoryFollower;
 
         public UsersController(IUserRepository userRepository, IMapper mapper, ILogger<UsersController> logger, IJwtService jwtService,
-            UserManager<User> userManager, IRepository<Follower> repositoryFollower)
+            UserManager<User> userManager, IRepository<Follower> repositoryFollower, ISecurity security)
         {
             _userRepository = userRepository;
             _logger = logger;
             _jwtService = jwtService;
             _userManager = userManager;
             _repositoryFollower = repositoryFollower;
+            _security = security;
             _mapper = mapper;
         }
 
@@ -196,6 +199,13 @@ namespace MyApi.Controllers.v1
                 if (user == null)
                     throw new BadRequestException("نام کاربری یا رمز عبور اشتباه است");
 
+                user.VerifyCode = _security.RandomNumber(11111, 99999);
+
+                var result = await _userManager.UpdateAsync(user);
+
+                if (!result.Succeeded)
+                    throw new BadRequestException("خطا در ذخیره اطلاعات");
+
                 //todo send code
 
                 return Ok("کد تایید با موفقیت ارسال شد");
@@ -208,6 +218,13 @@ namespace MyApi.Controllers.v1
 
                 if (user == null)
                     throw new BadRequestException("اطلاعات اشتباه است");
+
+                user.VerifyCode = null;
+
+                var result = await _userManager.UpdateAsync(user);
+
+                if (!result.Succeeded)
+                    throw new BadRequestException("خطا در ذخیره اطلاعات");
 
                 var jwt = await _jwtService.GenerateAsync(user);
 
