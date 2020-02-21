@@ -21,7 +21,6 @@ namespace MyApi.Controllers.v1
     [ApiVersion("1")]
     public class PostsController : CrudController<PostDto, PostSelectDto, Post>
     {
-        private const int DefaultTake = 7;
         private readonly UserManager<User> _userManager;
         private readonly IRepository<Like> _repositoryLike;
         private readonly IRepository<PostTag> _repositoryTag;
@@ -200,6 +199,7 @@ namespace MyApi.Controllers.v1
                         .ToListAsync(cancellationToken);
 
                     return list;
+
                 case 2:
                     var result = await _repositoryLike.TableNoTracking
                         .GroupBy(a => a.PostId)
@@ -219,6 +219,7 @@ namespace MyApi.Controllers.v1
                        .ToListAsync(cancellationToken);
 
                     return list;
+
                 case 3:
                     result = await _repositoryView.TableNoTracking
                        .GroupBy(a => a.PostId)
@@ -238,6 +239,27 @@ namespace MyApi.Controllers.v1
                         .ToListAsync(cancellationToken);
 
                     return list;
+
+                case 4:
+                    result = await _repositoryComment.TableNoTracking
+                        .GroupBy(a => a.PostId)
+                        .Select(g => new { g.Key, Count = g.Count() })
+                        .OrderByDescending(a => a.Count)
+                        .Take(count)
+                        .ToListAsync(cancellationToken);
+
+                    ids = result.Select(item => item.Key).ToList();
+
+                    list = await Repository.TableNoTracking
+                        .Where(a => !a.VersionStatus.Equals(2))
+                        .Where(a => ids.Contains(a.Id))
+                        .OrderByDescending(a => a.Time)
+                        .ProjectTo<PostShortSelectDto>(Mapper.ConfigurationProvider)
+                        .Take(count)
+                        .ToListAsync(cancellationToken);
+
+                    return list;
+
                 default:
                     return BadRequest("نوع مطلب درخواستی نامعتبر است");
             }

@@ -48,6 +48,20 @@ namespace MyApi.Controllers.v1
             return list;
         }
 
+        [HttpGet]
+        [AllowAnonymous]
+        public async Task<ApiResult<List<CommentSelectDto>>> GetLastComments(CancellationToken cancellationToken)
+        {
+            var list = await Repository.TableNoTracking
+                .Where(a => !a.VersionStatus.Equals(2))
+                .ProjectTo<CommentSelectDto>(_mapper.ConfigurationProvider)
+                .OrderByDescending(a=>a.Time)
+                .Take(DefaultTake)
+                .ToListAsync(cancellationToken);
+
+            return list;
+        }
+
         [Authorize(Policy = "WorkerPolicy")]
         public override Task<ApiResult<List<CommentSelectDto>>> Get(CancellationToken cancellationToken)
         {

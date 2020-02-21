@@ -19,13 +19,15 @@ namespace MyApi.Controllers.v1
     public class TagsController : CrudController<TagDto, Tag>
     {
         private readonly IRepository<PostTag> _repositoryTag;
+        private readonly IRepository<Post> _repositoryPost;
         protected readonly ApplicationDbContext DbContext;
 
-        public TagsController(IRepository<Tag> repository, IMapper mapper, IRepository<PostTag> repositoryTag, ApplicationDbContext dbContext)
+        public TagsController(IRepository<Tag> repository, IMapper mapper, IRepository<PostTag> repositoryTag, ApplicationDbContext dbContext, IRepository<Post> repositoryPost)
             : base(repository, mapper)
         {
             _repositoryTag = repositoryTag;
             DbContext = dbContext;
+            _repositoryPost = repositoryPost;
         }
 
         [AllowAnonymous]
@@ -127,6 +129,30 @@ namespace MyApi.Controllers.v1
             var list = await _repositoryTag.TableNoTracking
                 .Where(a => !a.VersionStatus.Equals(2) && a.PostId.Equals(id))
                 .ProjectTo<TagDto>(Mapper.ConfigurationProvider)
+                .ToListAsync(cancellationToken);
+
+            return list;
+        }
+
+        [HttpGet]
+        [AllowAnonymous]
+        public async Task<ApiResult<List<PostDto>>> GetPostsInTag(string tag, CancellationToken cancellationToken)
+        {
+            if (string.IsNullOrEmpty(tag))
+                return BadRequest("آی دی پست اشتباه است");
+
+            var getTag = await Repository.TableNoTracking
+                .SingleAsync(a => a.Name.Equals(tag), cancellationToken);
+
+            var postTags = await _repositoryTag.TableNoTracking
+                .Where(a => !a.VersionStatus.Equals(2) && a.TagId.Equals(getTag.Id))
+                .Select(a => a.PostId)
+                .ToListAsync(cancellationToken);
+
+            var list = await _repositoryPost.TableNoTracking
+                .Where(a => !a.VersionStatus.Equals(2))
+                .Where(a => postTags.Contains(a.Id))
+                .ProjectTo<PostDto>(Mapper.ConfigurationProvider)
                 .ToListAsync(cancellationToken);
 
             return list;

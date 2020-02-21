@@ -140,8 +140,8 @@ namespace MyApi.Controllers.v1
         /// <param name="tokenBodyRequest"></param>
         /// <param name="cancellationToken"></param>
         /// <returns></returns>
-        [AllowAnonymous]
         [HttpPost]
+        [AllowAnonymous]
         public virtual async Task<ActionResult> Token([FromForm]TokenRequest tokenRequest, [FromBody]TokenRequest tokenBodyRequest, CancellationToken cancellationToken)
         {
             if (tokenBodyRequest != null)
@@ -180,11 +180,46 @@ namespace MyApi.Controllers.v1
             }
         }
 
+        [HttpPost]
+        [AllowAnonymous]
+        public virtual async Task<ActionResult> LoginByPhone(LoginDto dto, CancellationToken cancellationToken)
+        {
+            if (string.IsNullOrEmpty(dto.Phone))
+                throw new BadRequestException("شماره وارد شده نامعتبر است");
+
+            if (dto.VerifyCode == 0)
+            {
+                var user = await _userManager
+                    .Users
+                    .SingleAsync(a => a.PhoneNumber.Equals(dto.Phone), cancellationToken);
+
+                if (user == null)
+                    throw new BadRequestException("نام کاربری یا رمز عبور اشتباه است");
+
+                //todo send code
+
+                return Ok("کد تایید با موفقیت ارسال شد");
+            }
+            else
+            {
+                var user = await _userManager
+                    .Users
+                    .SingleAsync(a => a.PhoneNumber.Equals(dto.Phone) && a.VerifyCode.Equals(dto.VerifyCode), cancellationToken);
+
+                if (user == null)
+                    throw new BadRequestException("اطلاعات اشتباه است");
+
+                var jwt = await _jwtService.GenerateAsync(user);
+
+                return new JsonResult(jwt);
+            }
+        }
+
         [AllowAnonymous]
         [HttpPost]
         public async Task<IActionResult> RefreshToken([FromForm]TokenRequest tokenRequest, [FromBody]TokenRequest tokenBodyRequest)
         {
-            if(tokenBodyRequest!=null)
+            if (tokenBodyRequest != null)
             {
                 var refreshToken = tokenBodyRequest.Refresh_token;
 
