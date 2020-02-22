@@ -9,7 +9,6 @@ using Entities.Common;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Logging;
 using Repositories.Contracts;
-using Repositories.Repositories;
 using Services.Security;
 
 namespace WebFramework.Configuration
@@ -21,10 +20,6 @@ namespace WebFramework.Configuration
             containerBuilder.RegisterGeneric(typeof(Repository<>))
                 .As(typeof(IRepository<>))
                 .InstancePerLifetimeScope();
-
-            // containerBuilder.RegisterType<PostRepository>()
-            //     .As<IPostRepository>()
-            //     .SingleInstance();
 
             containerBuilder.RegisterType<MemoryCacheIpPolicyStore>()
                 .As<IIpPolicyStore>()

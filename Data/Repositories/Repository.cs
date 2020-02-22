@@ -22,10 +22,10 @@ namespace Data.Repositories
         public virtual IQueryable<TEntity> Table => Entities;
         public virtual IQueryable<TEntity> TableNoTracking => Entities.AsNoTracking();
 
-        public Repository(ApplicationDbContext dbContext, IMapper mapper)
+        public Repository(ApplicationDbContext dbContext,IMapper mapper)
         {
-            Mapper = mapper;
             DbContext = dbContext;
+            Mapper = mapper;
             Entities = DbContext.Set<TEntity>(); // City => Cities
         }
 

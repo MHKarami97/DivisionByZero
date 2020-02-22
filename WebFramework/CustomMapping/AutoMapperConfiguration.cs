@@ -4,6 +4,7 @@ using System.Linq;
 using System.Reflection;
 using Microsoft.Extensions.DependencyInjection;
 using Models.CustomMapping;
+using Models.Models;
 
 namespace WebFramework.CustomMapping
 {
@@ -38,7 +39,8 @@ namespace WebFramework.CustomMapping
 
         public static void AddCustomMappingProfile(this IMapperConfigurationExpression config)
         {
-            config.AddCustomMappingProfile(Assembly.GetEntryAssembly());
+            var repositoriesAssembly = typeof(BannerDto).Assembly;
+            config.AddCustomMappingProfile(repositoriesAssembly);
         }
 
         public static void AddCustomMappingProfile(this IMapperConfigurationExpression config, params Assembly[] assemblies)
