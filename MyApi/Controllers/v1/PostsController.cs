@@ -82,8 +82,12 @@ namespace MyApi.Controllers.v1
             .ProjectTo<TagDto>(Mapper.ConfigurationProvider)
             .ToListAsync(cancellationToken);
 
-            var likes = await _repositoryLike.TableNoTracking
+            var likesCount = await _repositoryLike.TableNoTracking
                 .CountAsync(a => !a.VersionStatus.Equals(2) && a.PostId.Equals(result.Data.Id), cancellationToken);
+
+            var likes = await _repositoryLike.TableNoTracking
+                .Where(a => !a.VersionStatus.Equals(2) && a.PostId.Equals(result.Data.Id))
+                .SumAsync(a => a.Rate, cancellationToken);
 
             var comments = await _repositoryComment.TableNoTracking
                 .CountAsync(a => !a.VersionStatus.Equals(2) && a.PostId.Equals(result.Data.Id), cancellationToken);
@@ -93,7 +97,7 @@ namespace MyApi.Controllers.v1
 
             result.Data.Tags = tags;
             result.Data.View = views;
-            result.Data.Likes = likes;
+            result.Data.Likes = likes/likesCount;
             result.Data.Comment = comments;
 
             await _viewsController.IncreaseView(id, isAuthorize, cancellationToken);

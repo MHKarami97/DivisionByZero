@@ -85,7 +85,7 @@ namespace MyApi.Models
         public int View { get; set; }
 
         [IgnoreMap]
-        public int Likes { get; set; }
+        public float Likes { get; set; }
 
         [IgnoreMap]
         public int Comment { get; set; }
