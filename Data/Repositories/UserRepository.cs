@@ -21,10 +21,11 @@ namespace Data.Repositories
         public Task<User> GetByUserAndPass(string username, string password, CancellationToken cancellationToken)
         {
             var passwordHash = SecurityHelper.GetSha256Hash(password);
+
             return Table.Where(p => p.UserName == username && p.PasswordHash == passwordHash).SingleOrDefaultAsync(cancellationToken);
         }
 
-        public Task UpdateSecuirtyStampAsync(User user, CancellationToken cancellationToken)
+        public Task UpdateSecurityStampAsync(User user, CancellationToken cancellationToken)
         {
             user.SecurityStamp = Guid.NewGuid().ToString();
             return UpdateAsync(user, cancellationToken);
@@ -44,7 +45,7 @@ namespace Data.Repositories
 
         public async Task AddAsync(User user, string password, CancellationToken cancellationToken)
         {
-            var exists = await TableNoTracking.AnyAsync(p => p.UserName == user.UserName);
+            var exists = await TableNoTracking.AnyAsync(p => p.UserName == user.UserName, cancellationToken);
             if (exists)
                 throw new BadRequestException("نام کاربری تکراری است");
 
