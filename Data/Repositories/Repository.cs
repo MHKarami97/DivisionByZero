@@ -1,4 +1,5 @@
-﻿using Common.Utilities;
+﻿using AutoMapper;
+using Common.Utilities;
 using Microsoft.EntityFrameworkCore;
 using System;
 using System.Collections.Generic;
@@ -16,12 +17,14 @@ namespace Data.Repositories
     {
         public const int DefaultTake = 7;
         protected readonly ApplicationDbContext DbContext;
+        public readonly IMapper Mapper;
         public DbSet<TEntity> Entities { get; }
         public virtual IQueryable<TEntity> Table => Entities;
         public virtual IQueryable<TEntity> TableNoTracking => Entities.AsNoTracking();
 
-        public Repository(ApplicationDbContext dbContext)
+        public Repository(ApplicationDbContext dbContext, IMapper mapper)
         {
+            Mapper = mapper;
             DbContext = dbContext;
             Entities = DbContext.Set<TEntity>(); // City => Cities
         }

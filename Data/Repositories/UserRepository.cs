@@ -1,4 +1,5 @@
-﻿using Common;
+﻿using AutoMapper;
+using Common;
 using Common.Exceptions;
 using Common.Utilities;
 using Microsoft.EntityFrameworkCore;
@@ -13,8 +14,8 @@ namespace Data.Repositories
 {
     public class UserRepository : Repository<User>, IUserRepository, IScopedDependency
     {
-        public UserRepository(ApplicationDbContext dbContext)
-            : base(dbContext)
+        public UserRepository(ApplicationDbContext dbContext, IMapper mapper)
+            : base(dbContext, mapper)
         {
         }
 

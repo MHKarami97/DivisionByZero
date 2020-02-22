@@ -22,15 +22,13 @@ namespace Repositories.Repositories
 {
     public class PostRepository : Repository<Post>, IPostRepository, IScopedDependency
     {
-        protected readonly IMapper Mapper;
         private readonly IRepository<Like> _repositoryLike;
         private readonly IRepository<Comment> _repositoryComment;
         private readonly IRepository<View> _repositoryView;
 
         public PostRepository(ApplicationDbContext dbContext, IMapper mapper, IRepository<Like> repositoryLike, IRepository<Comment> repositoryComment, IRepository<View> repositoryView)
-            : base(dbContext)
+            : base(dbContext, mapper)
         {
-            Mapper = mapper;
             _repositoryLike = repositoryLike;
             _repositoryComment = repositoryComment;
             _repositoryView = repositoryView;
