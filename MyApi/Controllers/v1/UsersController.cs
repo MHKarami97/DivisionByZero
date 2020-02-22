@@ -140,55 +140,55 @@ namespace MyApi.Controllers.v1
         /// This method generate JWT Token
         /// </summary>
         /// <param name="tokenRequest">The information of token request</param>
-        /// <param name="tokenBodyRequest"></param>
         /// <param name="cancellationToken"></param>
         /// <returns></returns>
         [HttpPost]
         [AllowAnonymous]
-        public virtual async Task<ActionResult> Token([FromForm]TokenRequest tokenRequest, [FromBody]TokenRequest tokenBodyRequest, CancellationToken cancellationToken)
+        public virtual async Task<ActionResult> Token([FromForm]TokenRequest tokenRequest, CancellationToken cancellationToken)
         {
-            if (tokenBodyRequest != null)
-            {
-                if (!tokenBodyRequest.Grant_type.Equals("password", StringComparison.OrdinalIgnoreCase))
-                    throw new Exception("OAuth flow is not password.");
+            if (!tokenRequest.Grant_type.Equals("password", StringComparison.OrdinalIgnoreCase))
+                throw new Exception("OAuth flow is not password.");
 
-                var user = await _userManager.FindByNameAsync(tokenBodyRequest.Username);
-                if (user == null)
-                    throw new BadRequestException("نام کاربری یا رمز عبور اشتباه است");
+            var user = await _userManager.FindByNameAsync(tokenRequest.Username);
+            if (user == null)
+                throw new BadRequestException("نام کاربری یا رمز عبور اشتباه است");
 
-                var isPasswordValid = await _userManager.CheckPasswordAsync(user, tokenBodyRequest.Password);
-                if (!isPasswordValid)
-                    throw new BadRequestException("نام کاربری یا رمز عبور اشتباه است");
+            var isPasswordValid = await _userManager.CheckPasswordAsync(user, tokenRequest.Password);
+            if (!isPasswordValid)
+                throw new BadRequestException("نام کاربری یا رمز عبور اشتباه است");
 
-                var jwt = await _jwtService.GenerateAsync(user);
+            var jwt = await _jwtService.GenerateAsync(user);
 
-                return new JsonResult(jwt);
-            }
-            else
-            {
-                if (!tokenRequest.Grant_type.Equals("password", StringComparison.OrdinalIgnoreCase))
-                    throw new Exception("OAuth flow is not password.");
-
-                var user = await _userManager.FindByNameAsync(tokenRequest.Username);
-                if (user == null)
-                    throw new BadRequestException("نام کاربری یا رمز عبور اشتباه است");
-
-                var isPasswordValid = await _userManager.CheckPasswordAsync(user, tokenRequest.Password);
-                if (!isPasswordValid)
-                    throw new BadRequestException("نام کاربری یا رمز عبور اشتباه است");
-
-                var jwt = await _jwtService.GenerateAsync(user);
-
-                return new JsonResult(jwt);
-            }
+            return new JsonResult(jwt);
         }
+
+        [HttpPost]
+        [AllowAnonymous]
+        public virtual async Task<ActionResult> TokenByBody([FromBody]TokenRequest tokenBodyRequest, CancellationToken cancellationToken)
+        {
+            if (!tokenBodyRequest.Grant_type.Equals("password", StringComparison.OrdinalIgnoreCase))
+                throw new Exception("OAuth flow is not password.");
+
+            var user = await _userManager.FindByNameAsync(tokenBodyRequest.Username);
+            if (user == null)
+                throw new BadRequestException("نام کاربری یا رمز عبور اشتباه است");
+
+            var isPasswordValid = await _userManager.CheckPasswordAsync(user, tokenBodyRequest.Password);
+            if (!isPasswordValid)
+                throw new BadRequestException("نام کاربری یا رمز عبور اشتباه است");
+
+            var jwt = await _jwtService.GenerateAsync(user);
+
+            return new JsonResult(jwt);
+        }
+
 
         [HttpPost]
         [AllowAnonymous]
         public virtual async Task<ActionResult> LoginByPhone(LoginDto dto, CancellationToken cancellationToken)
         {
-            Assert.NotNullArgument(dto.Phone,"شماره وارد شده نامعتبر است");
-            
+            Assert.NotNullArgument(dto.Phone, "شماره وارد شده نامعتبر است");
+
             if (dto.VerifyCode == 0)
             {
                 var user = await _userManager

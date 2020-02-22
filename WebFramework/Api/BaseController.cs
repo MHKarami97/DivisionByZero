@@ -13,12 +13,6 @@ namespace WebFramework.Api
     public class BaseController : ControllerBase
     {
         public const int DefaultTake = 7;
-        public  int? UserId;
-
-        public BaseController()
-        {
-            UserId = HttpContext?.User?.Identity?.GetUserId<int>();
-        }
 
         //public UserRepository UserRepository { get; set; } => property injection
         public bool UserIsAutheticated => HttpContext.User.Identity.IsAuthenticated;
