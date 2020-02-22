@@ -46,7 +46,6 @@
   </ItemGroup>
 
   <ItemGroup>
-    <Folder Include="error\" />
     <Folder Include="wwwroot\uploads\" />
   </ItemGroup>
 
