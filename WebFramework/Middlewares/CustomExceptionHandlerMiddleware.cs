@@ -2,7 +2,6 @@
 using System;
 using System.Net;
 using Newtonsoft.Json;
-using WebFramework.Api;
 using Common.Exceptions;
 using System.Globalization;
 using System.Threading.Tasks;
@@ -13,7 +12,7 @@ using Microsoft.AspNetCore.Builder;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using Microsoft.IdentityModel.Tokens;
-using System.Data;
+using Models.Base;
 
 namespace WebFramework.Middlewares
 {

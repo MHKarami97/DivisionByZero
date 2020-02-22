@@ -1,9 +1,9 @@
 ﻿using Entities.More;
+using Models.Base;
 using System.ComponentModel.DataAnnotations;
 using System.Text.Json.Serialization;
-using WebFramework.Api;
 
-namespace MyApi.Models
+namespace Models.Models
 {
     public class BannerDto : BaseDto<BannerDto, Banner>
     {

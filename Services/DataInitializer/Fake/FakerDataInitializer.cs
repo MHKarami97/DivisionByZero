@@ -2,7 +2,6 @@
 using Data.Contracts;
 using Entities.Post;
 using Entities.User;
-using System;
 using System.Collections.Generic;
 
 namespace Services.DataInitializer.Fake

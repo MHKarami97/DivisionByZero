@@ -1,155 +1,44 @@
-﻿using Models.Models;
-using System.Collections.Generic;
+﻿using AutoMapper;
+using AutoMapper.QueryableExtensions;
+using Common;
+using Common.Utilities;
+using Data;
+using Microsoft.EntityFrameworkCore;
+using System;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
-using AutoMapper;
-using AutoMapper.QueryableExtensions;
-using Common.Utilities;
 using Data.Contracts;
+using Data.Repositories;
 using Entities.Post;
 using Entities.User;
-using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Identity;
-using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
 using Models.Base;
+using Models.Models;
 using Repositories.Contracts;
-using System;
-using WebFramework.Api;
+using System.Collections.Generic;
+using System.Data;
 
-namespace MyApi.Controllers.v1
+namespace Repositories.Repositories
 {
-    [ApiVersion("1")]
-    public class PostsController : CrudController<PostDto, PostSelectDto, Post>
+    public class PostRepository : Repository<Post>, IPostRepository, IScopedDependency
     {
-        private readonly IPostRepository _postRepository;
-        private readonly UserManager<User> _userManager;
+        protected readonly IMapper Mapper;
         private readonly IRepository<Like> _repositoryLike;
-        private readonly IRepository<PostTag> _repositoryTag;
-        private readonly IRepository<Follower> _repositoryFollower;
         private readonly IRepository<Comment> _repositoryComment;
         private readonly IRepository<View> _repositoryView;
-        private readonly ViewsController _viewsController;
 
-        public PostsController(IRepository<Post> repository, IMapper mapper, UserManager<User> userManager, IRepository<PostTag> repositoryTag, IRepository<Follower> repositoryFollower, IRepository<Like> repositoryLike, IRepository<Comment> repositoryComment, IRepository<View> repositoryView, ViewsController viewsController, IPostRepository postRepository)
-            : base(repository, mapper)
+        public PostRepository(ApplicationDbContext dbContext, IMapper mapper, IRepository<Like> repositoryLike, IRepository<Comment> repositoryComment, IRepository<View> repositoryView)
+            : base(dbContext)
         {
-            _userManager = userManager;
-            _repositoryTag = repositoryTag;
-            _repositoryFollower = repositoryFollower;
+            Mapper = mapper;
             _repositoryLike = repositoryLike;
             _repositoryComment = repositoryComment;
             _repositoryView = repositoryView;
-            _viewsController = viewsController;
-            _postRepository = postRepository;
         }
 
-        [NonAction]
-        public override Task<ApiResult<List<PostSelectDto>>> Get(CancellationToken cancellationToken)
+        public async Task<ApiResult<List<PostShortSelectDto>>> GetAllByCatId(CancellationToken cancellationToken, int id, int to = 0)
         {
-            return base.Get(cancellationToken);
-        }
-
-        [AllowAnonymous]
-        public override async Task<ApiResult<PostSelectDto>> Get(int id, CancellationToken cancellationToken)
-        {
-            var result = await base.Get(id, cancellationToken);
-
-            result.Data.IsFollowed = false;
-            result.Data.IsLiked = false;
-            var isAuthorize = false;
-
-            if (UserIsAutheticated)
-            {
-                var userId = HttpContext.User.Identity.GetUserId<int>();
-
-                var isFollowed = await _repositoryFollower.TableNoTracking
-                    .AnyAsync(a => a.VersionStatus.Equals(2) && a.FollowerId.Equals(result.Data.UserId) && a.UserId.Equals(userId), cancellationToken);
-
-                var isLiked = await _repositoryLike.TableNoTracking
-                    .AnyAsync(a => a.VersionStatus.Equals(2) && a.PostId.Equals(result.Data.Id) && a.UserId.Equals(userId), cancellationToken);
-
-                if (isLiked)
-                    result.Data.IsLiked = true;
-
-                if (isFollowed)
-                    result.Data.IsFollowed = true;
-
-                isAuthorize = true;
-            }
-
-            var tags = await _repositoryTag.TableNoTracking
-            .Where(a => !a.VersionStatus.Equals(2) && a.PostId.Equals(result.Data.Id))
-            .Include(a => a.Tag)
-            .Select(a => a.Tag)
-            .ProjectTo<TagDto>(Mapper.ConfigurationProvider)
-            .ToListAsync(cancellationToken);
-
-            var likesCount = await _repositoryLike.TableNoTracking
-                .CountAsync(a => !a.VersionStatus.Equals(2) && a.PostId.Equals(result.Data.Id), cancellationToken);
-
-            var likes = await _repositoryLike.TableNoTracking
-                .Where(a => !a.VersionStatus.Equals(2) && a.PostId.Equals(result.Data.Id))
-                .SumAsync(a => a.Rate, cancellationToken);
-
-            var comments = await _repositoryComment.TableNoTracking
-                .CountAsync(a => !a.VersionStatus.Equals(2) && a.PostId.Equals(result.Data.Id), cancellationToken);
-
-            var views = await _repositoryView.TableNoTracking
-                .CountAsync(a => !a.VersionStatus.Equals(2) && a.PostId.Equals(result.Data.Id), cancellationToken);
-
-            result.Data.Tags = tags;
-            result.Data.View = views;
-            result.Data.Likes = likes / likesCount;
-            result.Data.Comment = comments;
-
-            await _viewsController.IncreaseView(id, isAuthorize, cancellationToken);
-
-            return result;
-        }
-
-        public override async Task<ApiResult<PostSelectDto>> Update(int id, PostDto dto, CancellationToken cancellationToken)
-        {
-            var user = await _userManager.GetUserAsync(HttpContext.User);
-
-            if (await _userManager.IsInRoleAsync(user, "Admin"))
-            {
-                return await base.Update(id, dto, cancellationToken);
-            }
-
-            if (await _userManager.IsInRoleAsync(user, "User"))
-            {
-                var item = await Repository.TableNoTracking.SingleAsync(a => a.Id.Equals(id), cancellationToken);
-
-                if (!item.UserId.Equals(user.Id))
-                    return BadRequest();
-
-                return await base.Update(id, dto, cancellationToken);
-            }
-
-            return BadRequest();
-        }
-
-        [Authorize(Policy = "SuperAdminPolicy")]
-        public override Task<ApiResult> Delete(int id, CancellationToken cancellationToken)
-        {
-            return base.Delete(id, cancellationToken);
-        }
-
-        public override Task<ApiResult<PostSelectDto>> Create(PostDto dto, CancellationToken cancellationToken)
-        {
-            dto.UserId = HttpContext.User.Identity.GetUserId<int>();
-            dto.Time = DateTimeOffset.Now;
-
-            return base.Create(dto, cancellationToken);
-        }
-
-        [AllowAnonymous]
-        [HttpGet("{id:int}")]
-        public virtual async Task<ApiResult<List<PostShortSelectDto>>> GetAllByCatId(CancellationToken cancellationToken, int id, int to = 0)
-        {
-            var list = await Repository.TableNoTracking
+            var list = await TableNoTracking
                 .Where(a => !a.VersionStatus.Equals(2) && a.CategoryId.Equals(id))
                 .OrderByDescending(a => a.Time)
                 .ProjectTo<PostShortSelectDto>(Mapper.ConfigurationProvider)
@@ -159,18 +48,24 @@ namespace MyApi.Controllers.v1
             return list;
         }
 
-        [AllowAnonymous]
-        [HttpGet("{id:int}")]
-        public virtual async Task<ApiResult<List<PostShortSelectDto>>> GetSimilar(CancellationToken cancellationToken, int id)
+        public async Task<ApiResult<List<PostShortSelectDto>>> GetSimilar(CancellationToken cancellationToken, int id)
         {
-            return await _postRepository.GetSimilar(cancellationToken, id);
+            var post = await TableNoTracking
+                .Where(a => a.Id.Equals(id))
+                .SingleAsync(cancellationToken);
+
+            var list = await TableNoTracking
+                .Where(a => !a.VersionStatus.Equals(2) && a.CategoryId.Equals(post.CategoryId))
+                .ProjectTo<PostShortSelectDto>(Mapper.ConfigurationProvider)
+                .Take(DefaultTake)
+                .ToListAsync(cancellationToken);
+
+            return list;
         }
 
-        [AllowAnonymous]
-        [HttpGet("{id:int}")]
-        public virtual async Task<ApiResult<List<PostShortSelectDto>>> GetByUserId(int id, CancellationToken cancellationToken)
+        public async Task<ApiResult<List<PostShortSelectDto>>> GetByUserId(CancellationToken cancellationToken, int id)
         {
-            var list = await Repository.TableNoTracking
+            var list = await TableNoTracking
                 .Where(a => !a.VersionStatus.Equals(2) && a.UserId.Equals(id))
                 .ProjectTo<PostShortSelectDto>(Mapper.ConfigurationProvider)
                 .Take(DefaultTake)
@@ -179,12 +74,10 @@ namespace MyApi.Controllers.v1
             return list;
         }
 
-        [HttpGet]
-        [AllowAnonymous]
-        public virtual async Task<ApiResult<List<PostShortSelectDto>>> GetCustom(CancellationToken cancellationToken, int type = 1, int dateType = 1, int count = DefaultTake)
+        public async Task<ApiResult<List<PostShortSelectDto>>> GetCustom(CancellationToken cancellationToken, int type, int dateType, int count)
         {
             if (count > 30)
-                return BadRequest("تعداد درخواست زیاد است");
+                throw new DataException("تعداد درخواست زیاد است");
 
             var today = DateTimeOffset.Now;
             var week = today.AddDays(-7);
@@ -195,7 +88,7 @@ namespace MyApi.Controllers.v1
                     switch (type)
                     {
                         case 1:
-                            var list = await Repository.TableNoTracking
+                            var list = await TableNoTracking
                                 .Where(a => !a.VersionStatus.Equals(2))
                                 .OrderByDescending(a => a.Time)
                                 .ProjectTo<PostShortSelectDto>(Mapper.ConfigurationProvider)
@@ -214,7 +107,7 @@ namespace MyApi.Controllers.v1
 
                             var ids = result.Select(item => item.Key).ToList();
 
-                            list = await Repository.TableNoTracking
+                            list = await TableNoTracking
                                .Where(a => !a.VersionStatus.Equals(2))
                                .Where(a => ids.Contains(a.Id))
                                .OrderByDescending(a => a.Time)
@@ -234,7 +127,7 @@ namespace MyApi.Controllers.v1
 
                             ids = result.Select(item => item.Key).ToList();
 
-                            list = await Repository.TableNoTracking
+                            list = await TableNoTracking
                                 .Where(a => !a.VersionStatus.Equals(2))
                                 .Where(a => ids.Contains(a.Id))
                                 .OrderByDescending(a => a.Time)
@@ -254,7 +147,7 @@ namespace MyApi.Controllers.v1
 
                             ids = result.Select(item => item.Key).ToList();
 
-                            list = await Repository.TableNoTracking
+                            list = await TableNoTracking
                                 .Where(a => !a.VersionStatus.Equals(2))
                                 .Where(a => ids.Contains(a.Id))
                                 .OrderByDescending(a => a.Time)
@@ -265,14 +158,14 @@ namespace MyApi.Controllers.v1
                             return list;
 
                         default:
-                            return BadRequest("نوع مطلب درخواستی نامعتبر است");
+                            throw new DataException("نوع مطلب درخواستی نامعتبر است");
                     }
 
                 case 2:
                     switch (type)
                     {
                         case 1:
-                            var list = await Repository.TableNoTracking
+                            var list = await TableNoTracking
                                 .Where(a => !a.VersionStatus.Equals(2))
                                 .Where(a => a.Time.Year == today.Year && a.Time.Month == today.Month)
                                 .OrderByDescending(a => a.Time)
@@ -292,7 +185,7 @@ namespace MyApi.Controllers.v1
 
                             var ids = result.Select(item => item.Key).ToList();
 
-                            list = await Repository.TableNoTracking
+                            list = await TableNoTracking
                                .Where(a => !a.VersionStatus.Equals(2))
                                .Where(a => ids.Contains(a.Id))
                                .Where(a => a.Time.Year == today.Year && a.Time.Month == today.Month)
@@ -313,7 +206,7 @@ namespace MyApi.Controllers.v1
 
                             ids = result.Select(item => item.Key).ToList();
 
-                            list = await Repository.TableNoTracking
+                            list = await TableNoTracking
                                 .Where(a => !a.VersionStatus.Equals(2))
                                 .Where(a => ids.Contains(a.Id))
                                 .Where(a => a.Time.Year == today.Year && a.Time.Month == today.Month)
@@ -334,7 +227,7 @@ namespace MyApi.Controllers.v1
 
                             ids = result.Select(item => item.Key).ToList();
 
-                            list = await Repository.TableNoTracking
+                            list = await TableNoTracking
                                 .Where(a => !a.VersionStatus.Equals(2))
                                 .Where(a => ids.Contains(a.Id))
                                 .Where(a => a.Time.Year == today.Year && a.Time.Month == today.Month)
@@ -346,14 +239,14 @@ namespace MyApi.Controllers.v1
                             return list;
 
                         default:
-                            return BadRequest("نوع مطلب درخواستی نامعتبر است");
+                            throw new DataException("نوع مطلب درخواستی نامعتبر است");
                     }
 
                 case 3:
                     switch (type)
                     {
                         case 1:
-                            var list = await Repository.TableNoTracking
+                            var list = await TableNoTracking
                                 .Where(a => !a.VersionStatus.Equals(2))
                                 .Where(a => a.Time >= week)
                                 .OrderByDescending(a => a.Time)
@@ -373,7 +266,7 @@ namespace MyApi.Controllers.v1
 
                             var ids = result.Select(item => item.Key).ToList();
 
-                            list = await Repository.TableNoTracking
+                            list = await TableNoTracking
                                .Where(a => !a.VersionStatus.Equals(2))
                                .Where(a => ids.Contains(a.Id))
                                .Where(a => a.Time >= week)
@@ -394,7 +287,7 @@ namespace MyApi.Controllers.v1
 
                             ids = result.Select(item => item.Key).ToList();
 
-                            list = await Repository.TableNoTracking
+                            list = await TableNoTracking
                                 .Where(a => !a.VersionStatus.Equals(2))
                                 .Where(a => ids.Contains(a.Id))
                                 .Where(a => a.Time >= week)
@@ -415,7 +308,7 @@ namespace MyApi.Controllers.v1
 
                             ids = result.Select(item => item.Key).ToList();
 
-                            list = await Repository.TableNoTracking
+                            list = await TableNoTracking
                                 .Where(a => !a.VersionStatus.Equals(2))
                                 .Where(a => ids.Contains(a.Id))
                                 .Where(a => a.Time >= week)
@@ -427,21 +320,19 @@ namespace MyApi.Controllers.v1
                             return list;
 
                         default:
-                            return BadRequest("نوع مطلب درخواستی نامعتبر است");
+                            throw new DataException("نوع مطلب درخواستی نامعتبر است");
                     }
 
                 default:
-                    return BadRequest("خطا در اطلاعات ورودی");
+                    throw new DataException("خطا در اطلاعات ورودی");
             }
         }
 
-        [HttpGet]
-        [AllowAnonymous]
-        public virtual async Task<ApiResult<List<PostShortSelectDto>>> Search(string str, CancellationToken cancellationToken)
+        public async Task<ApiResult<List<PostShortSelectDto>>> Search(CancellationToken cancellationToken, string str)
         {
             Assert.NotNullArgument(str, "کلمه مورد جستجو نامعتبر است");
 
-            var list = await Repository.TableNoTracking
+            var list = await TableNoTracking
                 .Where(a => !a.VersionStatus.Equals(2) && a.Title.Contains(str))
                 .OrderByDescending(a => a.Time)
                 .ProjectTo<PostShortSelectDto>(Mapper.ConfigurationProvider)

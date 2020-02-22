@@ -1,9 +1,9 @@
 ﻿using Entities.More;
 using System.ComponentModel.DataAnnotations;
 using System.Text.Json.Serialization;
-using WebFramework.Api;
+using Models.Base;
 
-namespace MyApi.Models
+namespace Models.Models
 {
     public class HelpDto : BaseDto<HelpDto, Help>
     {

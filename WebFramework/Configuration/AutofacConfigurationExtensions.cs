@@ -8,6 +8,8 @@ using Data.Contracts;
 using Entities.Common;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Logging;
+using Repositories.Contracts;
+using Repositories.Repositories;
 using Services.Security;
 
 namespace WebFramework.Configuration
@@ -20,6 +22,10 @@ namespace WebFramework.Configuration
                 .As(typeof(IRepository<>))
                 .InstancePerLifetimeScope();
 
+            // containerBuilder.RegisterType<PostRepository>()
+            //     .As<IPostRepository>()
+            //     .SingleInstance();
+
             containerBuilder.RegisterType<MemoryCacheIpPolicyStore>()
                 .As<IIpPolicyStore>()
                 .SingleInstance();
@@ -31,7 +37,7 @@ namespace WebFramework.Configuration
             containerBuilder.RegisterType<MemoryCacheClientPolicyStore>()
                 .As<IClientPolicyStore>()
                 .SingleInstance();
-            
+
             containerBuilder.RegisterType<HttpContextAccessor>()
                 .As<IHttpContextAccessor>()
                 .SingleInstance();
@@ -52,18 +58,19 @@ namespace WebFramework.Configuration
             var entitiesAssembly = typeof(IEntity).Assembly;
             var dataAssembly = typeof(ApplicationDbContext).Assembly;
             var servicesAssembly = typeof(JwtService).Assembly;
+            var repositoriesAssembly = typeof(IPostRepository).Assembly;
 
-            containerBuilder.RegisterAssemblyTypes(commonAssembly, entitiesAssembly, dataAssembly, servicesAssembly)
+            containerBuilder.RegisterAssemblyTypes(commonAssembly, entitiesAssembly, dataAssembly, servicesAssembly, repositoriesAssembly)
                 .AssignableTo<IScopedDependency>()
                 .AsImplementedInterfaces()
                 .InstancePerLifetimeScope();
 
-            containerBuilder.RegisterAssemblyTypes(commonAssembly, entitiesAssembly, dataAssembly, servicesAssembly)
+            containerBuilder.RegisterAssemblyTypes(commonAssembly, entitiesAssembly, dataAssembly, servicesAssembly, repositoriesAssembly)
                 .AssignableTo<ITransientDependency>()
                 .AsImplementedInterfaces()
                 .InstancePerDependency();
 
-            containerBuilder.RegisterAssemblyTypes(commonAssembly, entitiesAssembly, dataAssembly, servicesAssembly)
+            containerBuilder.RegisterAssemblyTypes(commonAssembly, entitiesAssembly, dataAssembly, servicesAssembly, repositoriesAssembly)
                 .AssignableTo<ISingletonDependency>()
                 .AsImplementedInterfaces()
                 .SingleInstance();

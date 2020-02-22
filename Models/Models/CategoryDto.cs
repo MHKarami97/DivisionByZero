@@ -1,10 +1,10 @@
 ﻿using Entities.Post;
-using WebFramework.Api;
+using Models.Base;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.Text.Json.Serialization;
 
-namespace MyApi.Models
+namespace Models.Models
 {
     public class CategoryDto : BaseDto<CategoryDto, Category>
     {

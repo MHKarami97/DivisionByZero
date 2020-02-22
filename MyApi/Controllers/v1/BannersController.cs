@@ -4,12 +4,13 @@ using System.Threading;
 using System.Threading.Tasks;
 using AutoMapper;
 using AutoMapper.QueryableExtensions;
-using MyApi.Models;
 using Data.Contracts;
 using Entities.More;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using Models.Base;
+using Models.Models;
 using WebFramework.Api;
 
 namespace MyApi.Controllers.v1

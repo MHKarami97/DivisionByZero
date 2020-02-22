@@ -2,7 +2,7 @@
 using System.ComponentModel.DataAnnotations;
 using System.Text.RegularExpressions;
 
-namespace MyApi.Models
+namespace Models.Models
 {
     public class RoleDto : IValidatableObject
     {

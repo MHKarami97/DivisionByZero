@@ -1,6 +1,6 @@
 ﻿using System.ComponentModel.DataAnnotations;
 
-namespace MyApi.Models
+namespace Models.Models
 {
     public class TokenRequest
     {

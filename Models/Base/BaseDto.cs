@@ -1,9 +1,9 @@
 ﻿using AutoMapper;
 using System.ComponentModel.DataAnnotations;
 using Entities.Common;
-using WebFramework.CustomMapping;
+using Models.CustomMapping;
 
-namespace WebFramework.Api
+namespace Models.Base
 {
     public abstract class BaseDto<TDto, TEntity, TKey> : IHaveCustomMapping
         where TDto : class, new()

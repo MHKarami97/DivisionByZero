@@ -1,4 +1,4 @@
-﻿namespace MyApi.Models
+﻿namespace Models.Models
 {
     public class StatisticDto
     {

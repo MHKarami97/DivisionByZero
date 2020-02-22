@@ -3,9 +3,9 @@ using AutoMapper;
 using Entities.Post;
 using System.ComponentModel.DataAnnotations;
 using System.Text.Json.Serialization;
-using WebFramework.Api;
+using Models.Base;
 
-namespace MyApi.Models
+namespace Models.Models
 {
     public class CommentDto : BaseDto<CommentDto, Comment>
     {

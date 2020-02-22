@@ -4,7 +4,8 @@ using Entities.User;
 using Microsoft.AspNetCore.Authorization;
 using WebFramework.Api;
 using Microsoft.AspNetCore.Identity;
-using MyApi.Models;
+using Models.Base;
+using Models.Models;
 
 namespace MyApi.Controllers.v1
 {

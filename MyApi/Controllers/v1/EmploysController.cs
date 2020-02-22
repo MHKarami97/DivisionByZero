@@ -5,12 +5,13 @@ using System.Threading.Tasks;
 using AutoMapper;
 using AutoMapper.QueryableExtensions;
 using Common.Utilities;
-using MyApi.Models;
+using Models.Models;
 using Data.Contracts;
 using Entities.Employ;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using Models.Base;
 using System;
 using WebFramework.Api;
 

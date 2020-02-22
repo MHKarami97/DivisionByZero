@@ -1,8 +1,8 @@
 ﻿using AutoMapper;
 using Entities.User;
-using WebFramework.CustomMapping;
+using Models.CustomMapping;
 
-namespace MyApi.Models
+namespace Models.Models
 {
     public class UserCustomMapping : IHaveCustomMapping
     {

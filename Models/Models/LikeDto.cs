@@ -1,19 +1,21 @@
 ﻿using AutoMapper;
 using Entities.User;
 using System;
-using WebFramework.Api;
 using System.ComponentModel.DataAnnotations;
 using System.Text.Json.Serialization;
+using Models.Base;
 
-namespace MyApi.Models
+namespace Models.Models
 {
-    public class ViewDto : BaseDto<ViewDto, View>
+    public class LikeDto : BaseDto<LikeDto, Like>
     {
         public string PostTitle { get; set; }
 
         public string Time { get; set; }
 
-        public override void CustomMappings(IMappingExpression<View, ViewDto> mappingExpression)
+        public float Rate { get; set; }
+
+        public override void CustomMappings(IMappingExpression<Like, LikeDto> mappingExpression)
         {
             mappingExpression.ForMember(
                 dest => dest.Time,
@@ -21,13 +23,16 @@ namespace MyApi.Models
         }
     }
 
-    public class ViewSelectDto : BaseDto<ViewSelectDto, View>
+    public class LikeSelectDto : BaseDto<LikeSelectDto, Like>
     {
         [JsonIgnore]
         public override int Id { get; set; }
 
         [Required]
         public int PostId { get; set; }
+
+        [Required]
+        public float Rate { get; set; }
 
         [JsonIgnore]
         public int UserId { get; set; }

@@ -1,9 +1,9 @@
 ﻿using Entities.User;
-using WebFramework.Api;
 using System.ComponentModel.DataAnnotations;
 using System.Text.Json.Serialization;
+using Models.Base;
 
-namespace MyApi.Models
+namespace Models.Models
 {
     public class FavoriteDto : BaseDto<FavoriteDto, Favorite>
     {

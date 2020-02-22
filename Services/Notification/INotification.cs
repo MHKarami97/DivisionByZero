@@ -1,7 +1,4 @@
-﻿using Microsoft.AspNetCore.Http;
-using System;
-
-namespace Services.Notification
+﻿namespace Services.Notification
 {
     public interface INotification
     {

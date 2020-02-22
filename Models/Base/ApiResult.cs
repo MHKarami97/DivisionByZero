@@ -4,7 +4,7 @@ using Microsoft.AspNetCore.Mvc;
 using Newtonsoft.Json;
 using System.Linq;
 
-namespace WebFramework.Api
+namespace Models.Base
 {
     public class ApiResult
     {

@@ -1,4 +1,4 @@
-﻿using MyApi.Models;
+﻿using Models.Models;
 using System.Threading;
 using System.Threading.Tasks;
 using Data.Contracts;
@@ -6,6 +6,7 @@ using Entities.Post;
 using Entities.User;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using Models.Base;
 using WebFramework.Api;
 
 namespace MyApi.Controllers.v1

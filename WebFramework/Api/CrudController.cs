@@ -8,6 +8,7 @@ using System.Threading.Tasks;
 using AutoMapper;
 using Data.Contracts;
 using Entities.Common;
+using Models.Base;
 
 namespace WebFramework.Api
 {

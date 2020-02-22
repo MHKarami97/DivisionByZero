@@ -1,12 +1,12 @@
 ﻿using AutoMapper;
+using Entities.User;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.Text.RegularExpressions;
-using Entities.User;
 using ValidationContext = System.ComponentModel.DataAnnotations.ValidationContext;
 
-namespace MyApi.Models
+namespace Models.Models
 {
     public class UserDto : IValidatableObject
     {

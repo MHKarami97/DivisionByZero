@@ -9,7 +9,8 @@ using Entities.Post;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
-using MyApi.Models;
+using Models.Base;
+using Models.Models;
 using WebFramework.Api;
 
 namespace MyApi.Controllers.v1

@@ -4,7 +4,8 @@ using Microsoft.Extensions.Logging;
 using System.Threading.Tasks;
 using Entities.User;
 using Microsoft.AspNetCore.Identity;
-using MyApi.Models;
+using Models.Base;
+using Models.Models;
 using WebFramework.Api;
 
 namespace MyApi.Controllers.v1

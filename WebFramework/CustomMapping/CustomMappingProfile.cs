@@ -1,4 +1,5 @@
 ﻿using AutoMapper;
+using Models.CustomMapping;
 using System.Collections.Generic;
 
 namespace WebFramework.CustomMapping
