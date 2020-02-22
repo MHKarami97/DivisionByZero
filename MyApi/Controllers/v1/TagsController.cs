@@ -1,5 +1,6 @@
 ﻿using AutoMapper;
 using AutoMapper.QueryableExtensions;
+using Common.Utilities;
 using Data;
 using Data.Contracts;
 using Entities.Post;
@@ -69,11 +70,9 @@ namespace MyApi.Controllers.v1
         [Authorize]
         public async Task<ActionResult> AddTag(PostTagDto dto, CancellationToken cancellationToken)
         {
-            if (!dto.TagName.Any())
-                return BadRequest("لیست تگ ها خالی است");
+            Assert.NotEmpty(dto.TagName, "list","لیست تگ ها خالی است");
 
-            if (dto.PostId == 0)
-                return BadRequest("آی دی پست نامعتبر است");
+            Assert.NotNull(dto.PostId, "آی دی پست نامعتبر است");
 
             foreach (var tagDto in dto.TagName)
             {
@@ -138,8 +137,7 @@ namespace MyApi.Controllers.v1
         [AllowAnonymous]
         public async Task<ApiResult<List<PostDto>>> GetPostsInTag(string tag, CancellationToken cancellationToken)
         {
-            if (string.IsNullOrEmpty(tag))
-                return BadRequest("آی دی پست اشتباه است");
+            Assert.NotNullArgument(tag, "آی دی پست اشتباه است");
 
             var getTag = await Repository.TableNoTracking
                 .SingleAsync(a => a.Name.Equals(tag), cancellationToken);

@@ -187,9 +187,8 @@ namespace MyApi.Controllers.v1
         [AllowAnonymous]
         public virtual async Task<ActionResult> LoginByPhone(LoginDto dto, CancellationToken cancellationToken)
         {
-            if (string.IsNullOrEmpty(dto.Phone))
-                throw new BadRequestException("شماره وارد شده نامعتبر است");
-
+            Assert.NotNullArgument(dto.Phone,"شماره وارد شده نامعتبر است");
+            
             if (dto.VerifyCode == 0)
             {
                 var user = await _userManager

@@ -90,6 +90,18 @@ namespace WebFramework.Middlewares
                 SetUnAuthorizeResponse(exception);
                 await WriteToResponseAsync();
             }
+            catch (ArgumentNullException exception)
+            {
+                _logger.LogError(exception, exception.Message);
+
+                var dic = new Dictionary<string, string>
+                {
+                    ["Exception"] = exception.Message
+                };
+                message = JsonConvert.SerializeObject(dic);
+
+                await WriteToResponseAsync();
+            }
             catch (Exception exception)
             {
                 _logger.LogError(exception, exception.Message);

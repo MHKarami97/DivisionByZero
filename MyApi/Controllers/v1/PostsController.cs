@@ -58,7 +58,7 @@ namespace MyApi.Controllers.v1
 
             if (UserIsAutheticated)
             {
-                var userId = HttpContext.User.Identity.GetUserId<int>();
+                var userId = UserId;
 
                 var isFollowed = await _repositoryFollower.TableNoTracking
                     .AnyAsync(a => a.VersionStatus.Equals(2) && a.FollowerId.Equals(result.Data.UserId) && a.UserId.Equals(userId), cancellationToken);
@@ -445,9 +445,8 @@ namespace MyApi.Controllers.v1
         [AllowAnonymous]
         public virtual async Task<ApiResult<List<PostShortSelectDto>>> Search(string str, CancellationToken cancellationToken)
         {
-            if (string.IsNullOrEmpty(str))
-                return BadRequest("کلمه مورد جستجو خالی است");
-
+            Assert.NotNullArgument(str,"کلمه مورد جستجو نامعتبر است");
+            
             var list = await Repository.TableNoTracking
                 .Where(a => !a.VersionStatus.Equals(2) && a.Title.Contains(str))
                 .OrderByDescending(a => a.Time)
