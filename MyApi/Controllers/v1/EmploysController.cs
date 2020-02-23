@@ -1,17 +1,15 @@
 ﻿using System.Collections.Generic;
-using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using AutoMapper;
-using AutoMapper.QueryableExtensions;
 using Common.Utilities;
 using Models.Models;
 using Data.Contracts;
 using Entities.Employ;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
 using Models.Base;
+using Repositories.Contracts;
 using System;
 using WebFramework.Api;
 
@@ -20,9 +18,12 @@ namespace MyApi.Controllers.v1
     [ApiVersion("1")]
     public class EmploysController : CrudController<EmployDto, EmploySelectDto, Employ>
     {
-        public EmploysController(IRepository<Employ> repository, IMapper mapper)
+        private readonly IEmployRepository<EmploySelectDto> _employRepository;
+
+        public EmploysController(IRepository<Employ> repository, IMapper mapper, IEmployRepository<EmploySelectDto> employRepository)
             : base(repository, mapper)
         {
+            _employRepository = employRepository;
         }
 
         [AllowAnonymous]
@@ -34,13 +35,15 @@ namespace MyApi.Controllers.v1
         [AllowAnonymous]
         public override async Task<ApiResult<List<EmploySelectDto>>> Get(CancellationToken cancellationToken)
         {
-            var list = await Repository.TableNoTracking
-                .Where(a => !a.VersionStatus.Equals(2))
-                .OrderByDescending(a => a.Time)
-                .ProjectTo<EmploySelectDto>(Mapper.ConfigurationProvider)
-                .ToListAsync(cancellationToken);
+            return await _employRepository.Get(cancellationToken);
+        }
 
-            return list;
+        public override Task<ApiResult<EmploySelectDto>> Create(EmployDto dto, CancellationToken cancellationToken)
+        {
+            dto.UserId = HttpContext.User.Identity.GetUserId<int>();
+            dto.Time = DateTimeOffset.Now;
+
+            return base.Create(dto, cancellationToken);
         }
 
         [Authorize(Policy = "WorkerPolicy")]
@@ -55,24 +58,11 @@ namespace MyApi.Controllers.v1
             return base.Delete(id, cancellationToken);
         }
 
-        public override Task<ApiResult<EmploySelectDto>> Create(EmployDto dto, CancellationToken cancellationToken)
-        {
-            dto.UserId = HttpContext.User.Identity.GetUserId<int>();
-            dto.Time = DateTimeOffset.Now;
-
-            return base.Create(dto, cancellationToken);
-        }
-
         [AllowAnonymous]
         [HttpGet("{id:int}")]
         public virtual async Task<ApiResult<List<EmploySelectDto>>> GetByUserId(int id, CancellationToken cancellationToken)
         {
-            var list = await Repository.TableNoTracking
-                .Where(a => !a.VersionStatus.Equals(2) && a.UserId.Equals(id))
-                .ProjectTo<EmploySelectDto>(Mapper.ConfigurationProvider)
-                .ToListAsync(cancellationToken);
-
-            return list;
+            return await _employRepository.GetByUserId(id, cancellationToken);
         }
     }
 }

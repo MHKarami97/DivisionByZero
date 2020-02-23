@@ -1,9 +1,7 @@
 ﻿using System.Collections.Generic;
-using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using AutoMapper;
-using AutoMapper.QueryableExtensions;
 using Common.Utilities;
 using Models.Models;
 using Data.Contracts;
@@ -12,8 +10,8 @@ using Entities.User;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
 using Models.Base;
+using Repositories.Contracts;
 using System;
 using WebFramework.Api;
 
@@ -23,11 +21,13 @@ namespace MyApi.Controllers.v1
     public class ContactsController : CrudController<ContactDto, ContactSelectDto, Contact>
     {
         private readonly UserManager<User> _userManager;
+        private readonly IContactRepository<ContactSelectDto> _contactRepository;
 
-        public ContactsController(IRepository<Contact> repository, IMapper mapper, UserManager<User> userManager)
+        public ContactsController(IRepository<Contact> repository, IMapper mapper, UserManager<User> userManager, IContactRepository<ContactSelectDto> contactRepository)
             : base(repository, mapper)
         {
             _userManager = userManager;
+            _contactRepository = contactRepository;
         }
 
         [NonAction]
@@ -41,25 +41,9 @@ namespace MyApi.Controllers.v1
             var user = await _userManager.GetUserAsync(HttpContext.User);
 
             if (!await _userManager.IsInRoleAsync(user, "Member"))
-            {
-                var list = await Repository.TableNoTracking
-                    .Where(a => !a.VersionStatus.Equals(2) && a.ParentContactId.Equals(0))
-                    .OrderByDescending(a => a.Time)
-                    .ProjectTo<ContactSelectDto>(Mapper.ConfigurationProvider)
-                    .ToListAsync(cancellationToken);
+                return await _contactRepository.Get(cancellationToken);
 
-                return list;
-            }
-            else
-            {
-                var list = await Repository.TableNoTracking
-                    .Where(a => !a.VersionStatus.Equals(2) && a.ParentContactId.Equals(0) && a.UserId.Equals(user.Id))
-                    .OrderByDescending(a => a.Time)
-                    .ProjectTo<ContactSelectDto>(Mapper.ConfigurationProvider)
-                    .ToListAsync(cancellationToken);
-
-                return list;
-            }
+            return await _contactRepository.Get(cancellationToken, user.Id);
         }
 
         [Authorize(Policy = "WorkerPolicy")]
@@ -76,21 +60,19 @@ namespace MyApi.Controllers.v1
 
         public override async Task<ApiResult<ContactSelectDto>> Create(ContactDto dto, CancellationToken cancellationToken)
         {
-            dto.ByServer = false;
-
             var user = await _userManager.GetUserAsync(HttpContext.User);
 
+            dto.ByServer = false;
+            dto.Time = DateTimeOffset.Now;
             dto.UserId = HttpContext.User.Identity.GetUserId<int>();
 
-            if (!await _userManager.IsInRoleAsync(user, "Member"))
-            {
-                if (dto.ParentContactId == 0)
-                    return BadRequest("فقط کاربر عادی می تواند تیکت ایجاد کند");
+            if (await _userManager.IsInRoleAsync(user, "Member"))
+                return await base.Create(dto, cancellationToken);
 
-                dto.ByServer = true;
-            }
+            if (dto.ParentContactId == 0)
+                return BadRequest("فقط کاربر عادی می تواند تیکت ایجاد کند");
 
-            dto.Time = DateTimeOffset.Now;
+            dto.ByServer = true;
 
             return await base.Create(dto, cancellationToken);
         }
@@ -98,12 +80,7 @@ namespace MyApi.Controllers.v1
         [HttpGet("{id:int}")]
         public virtual async Task<ApiResult<List<ContactSelectDto>>> GetByUserId(int id, CancellationToken cancellationToken)
         {
-            var list = await Repository.TableNoTracking
-                .Where(a => !a.VersionStatus.Equals(2) && a.UserId.Equals(id))
-                .ProjectTo<ContactSelectDto>(Mapper.ConfigurationProvider)
-                .ToListAsync(cancellationToken);
-
-            return list;
+            return await _contactRepository.GetByUserId(id, cancellationToken);
         }
 
         [HttpGet("{id:int}")]
@@ -112,25 +89,10 @@ namespace MyApi.Controllers.v1
             var user = await _userManager.GetUserAsync(HttpContext.User);
 
             if (!await _userManager.IsInRoleAsync(user, "Member"))
-            {
-                var list = await Repository.TableNoTracking
-                    .Where(a => !a.VersionStatus.Equals(2) && a.ParentContactId.Equals(id))
-                    .OrderByDescending(a => a.Time)
-                    .ProjectTo<ContactSelectDto>(Mapper.ConfigurationProvider)
-                    .ToListAsync(cancellationToken);
 
-                return list;
-            }
-            else
-            {
-                var list = await Repository.TableNoTracking
-                    .Where(a => !a.VersionStatus.Equals(2) && a.ParentContactId.Equals(id) && a.UserId.Equals(user.Id))
-                    .OrderByDescending(a => a.Time)
-                    .ProjectTo<ContactSelectDto>(Mapper.ConfigurationProvider)
-                    .ToListAsync(cancellationToken);
+                return await _contactRepository.GetByParentId(cancellationToken, id);
 
-                return list;
-            }
+            return await _contactRepository.GetByParentId(cancellationToken, id, user.Id);
         }
     }
 }
