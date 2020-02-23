@@ -1,9 +1,7 @@
 ﻿using System.Collections.Generic;
-using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using AutoMapper;
-using AutoMapper.QueryableExtensions;
 using Data.Contracts;
 using Entities.Post;
 using Microsoft.AspNetCore.Authorization;
@@ -11,6 +9,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Models.Base;
 using Models.Models;
+using Repositories.Contracts;
 using WebFramework.Api;
 
 namespace MyApi.Controllers.v1
@@ -18,9 +17,12 @@ namespace MyApi.Controllers.v1
     [ApiVersion("1")]
     public class CategoriesController : CrudController<CategoryCreateDto, CategoryDto, Category>
     {
-        public CategoriesController(IRepository<Category> repository, IMapper mapper)
+        private readonly ICategoryRepository _categoryRepository;
+
+        public CategoriesController(IRepository<Category> repository, IMapper mapper, ICategoryRepository categoryRepository)
             : base(repository, mapper)
         {
+            _categoryRepository = categoryRepository;
         }
 
         [AllowAnonymous]
@@ -68,52 +70,21 @@ namespace MyApi.Controllers.v1
         [AllowAnonymous]
         public virtual async Task<ApiResult<List<CategoryDto>>> GetAllMainCat(CancellationToken cancellationToken)
         {
-            var list = await Repository.TableNoTracking
-                .Where(a => !a.VersionStatus.Equals(2) && a.ParentCategoryId.Equals(0))
-                .ProjectTo<CategoryDto>(Mapper.ConfigurationProvider)
-                .ToListAsync(cancellationToken);
-
-            return list;
+            return await _categoryRepository.GetAllMainCat(cancellationToken);
         }
 
         [HttpGet]
         [AllowAnonymous]
         public virtual async Task<ApiResult<List<CategoryWithSubCatDto>>> GetCategoryWithSub(CancellationToken cancellationToken)
         {
-            var result = new List<CategoryWithSubCatDto>();
-
-            var list = await Repository.TableNoTracking
-                .Where(a => !a.VersionStatus.Equals(2) && a.ParentCategoryId.Equals(0))
-                .ToListAsync(cancellationToken);
-
-            foreach (var category in list)
-            {
-                var sub = await Repository.TableNoTracking
-                    .Where(a => !a.VersionStatus.Equals(2) && a.ParentCategoryId.Equals(category.Id))
-                    .ProjectTo<ShortCategoryDto>(Mapper.ConfigurationProvider)
-                    .ToListAsync(cancellationToken);
-
-                result.Add(new CategoryWithSubCatDto
-                {
-                    Name = category.Name,
-                    Image = category.Image,
-                    Sub = sub
-                });
-            }
-
-            return result;
+            return await _categoryRepository.GetCategoryWithSub(cancellationToken);
         }
 
         [AllowAnonymous]
         [HttpGet("{id:int}")]
         public virtual async Task<ApiResult<List<CategoryDto>>> GetAllByCatId(int id, CancellationToken cancellationToken)
         {
-            var list = await Repository.TableNoTracking
-                .Where(a => !a.VersionStatus.Equals(2) && a.ParentCategoryId.Equals(id))
-                .ProjectTo<CategoryDto>(Mapper.ConfigurationProvider)
-                .ToListAsync(cancellationToken);
-
-            return list;
+            return await _categoryRepository.GetAllByCatId(id, cancellationToken);
         }
     }
 }

@@ -23,7 +23,7 @@ namespace MyApi.Controllers.v1
     [ApiVersion("1")]
     public class PostsController : CrudController<PostDto, PostSelectDto, Post>
     {
-        private readonly IPostRepository _postRepository;
+        private readonly IPostRepository<PostShortSelectDto> _postRepository;
         private readonly UserManager<User> _userManager;
         private readonly IRepository<Like> _repositoryLike;
         private readonly IRepository<PostTag> _repositoryTag;
@@ -32,7 +32,7 @@ namespace MyApi.Controllers.v1
         private readonly IRepository<View> _repositoryView;
         private readonly ViewsController _viewsController;
 
-        public PostsController(IRepository<Post> repository, IMapper mapper, UserManager<User> userManager, IRepository<PostTag> repositoryTag, IRepository<Follower> repositoryFollower, IRepository<Like> repositoryLike, IRepository<Comment> repositoryComment, IRepository<View> repositoryView, ViewsController viewsController, IPostRepository postRepository)
+        public PostsController(IRepository<Post> repository, IMapper mapper, UserManager<User> userManager, IRepository<PostTag> repositoryTag, IRepository<Follower> repositoryFollower, IRepository<Like> repositoryLike, IRepository<Comment> repositoryComment, IRepository<View> repositoryView, ViewsController viewsController, IPostRepository<PostShortSelectDto> postRepository)
             : base(repository, mapper)
         {
             _userManager = userManager;
@@ -149,14 +149,7 @@ namespace MyApi.Controllers.v1
         [HttpGet("{id:int}")]
         public virtual async Task<ApiResult<List<PostShortSelectDto>>> GetAllByCatId(CancellationToken cancellationToken, int id, int to = 0)
         {
-            var list = await Repository.TableNoTracking
-                .Where(a => !a.VersionStatus.Equals(2) && a.CategoryId.Equals(id))
-                .OrderByDescending(a => a.Time)
-                .ProjectTo<PostShortSelectDto>(Mapper.ConfigurationProvider)
-                .Take(DefaultTake + to)
-                .ToListAsync(cancellationToken);
-
-            return list;
+            return await _postRepository.GetAllByCatId(cancellationToken, id, to);
         }
 
         [AllowAnonymous]
@@ -170,285 +163,21 @@ namespace MyApi.Controllers.v1
         [HttpGet("{id:int}")]
         public virtual async Task<ApiResult<List<PostShortSelectDto>>> GetByUserId(int id, CancellationToken cancellationToken)
         {
-            var list = await Repository.TableNoTracking
-                .Where(a => !a.VersionStatus.Equals(2) && a.UserId.Equals(id))
-                .ProjectTo<PostShortSelectDto>(Mapper.ConfigurationProvider)
-                .Take(DefaultTake)
-                .ToListAsync(cancellationToken);
-
-            return list;
+            return await _postRepository.GetByUserId(cancellationToken, id);
         }
 
         [HttpGet]
         [AllowAnonymous]
         public virtual async Task<ApiResult<List<PostShortSelectDto>>> GetCustom(CancellationToken cancellationToken, int type = 1, int dateType = 1, int count = DefaultTake)
         {
-            if (count > 30)
-                return BadRequest("تعداد درخواست زیاد است");
-
-            var today = DateTimeOffset.Now;
-            var week = today.AddDays(-7);
-
-            switch (dateType)
-            {
-                case 1:
-                    switch (type)
-                    {
-                        case 1:
-                            var list = await Repository.TableNoTracking
-                                .Where(a => !a.VersionStatus.Equals(2))
-                                .OrderByDescending(a => a.Time)
-                                .ProjectTo<PostShortSelectDto>(Mapper.ConfigurationProvider)
-                                .Take(count)
-                                .ToListAsync(cancellationToken);
-
-                            return list;
-
-                        case 2:
-                            var result = await _repositoryLike.TableNoTracking
-                                .GroupBy(a => a.PostId)
-                                .Select(g => new { g.Key, Count = g.Count() })
-                                .OrderByDescending(a => a.Count)
-                                .Take(count)
-                                .ToListAsync(cancellationToken);
-
-                            var ids = result.Select(item => item.Key).ToList();
-
-                            list = await Repository.TableNoTracking
-                               .Where(a => !a.VersionStatus.Equals(2))
-                               .Where(a => ids.Contains(a.Id))
-                               .OrderByDescending(a => a.Time)
-                               .ProjectTo<PostShortSelectDto>(Mapper.ConfigurationProvider)
-                               .Take(count)
-                               .ToListAsync(cancellationToken);
-
-                            return list;
-
-                        case 3:
-                            result = await _repositoryView.TableNoTracking
-                               .GroupBy(a => a.PostId)
-                               .Select(g => new { g.Key, Count = g.Count() })
-                               .OrderByDescending(a => a.Count)
-                               .Take(count)
-                               .ToListAsync(cancellationToken);
-
-                            ids = result.Select(item => item.Key).ToList();
-
-                            list = await Repository.TableNoTracking
-                                .Where(a => !a.VersionStatus.Equals(2))
-                                .Where(a => ids.Contains(a.Id))
-                                .OrderByDescending(a => a.Time)
-                                .ProjectTo<PostShortSelectDto>(Mapper.ConfigurationProvider)
-                                .Take(count)
-                                .ToListAsync(cancellationToken);
-
-                            return list;
-
-                        case 4:
-                            result = await _repositoryComment.TableNoTracking
-                                .GroupBy(a => a.PostId)
-                                .Select(g => new { g.Key, Count = g.Count() })
-                                .OrderByDescending(a => a.Count)
-                                .Take(count)
-                                .ToListAsync(cancellationToken);
-
-                            ids = result.Select(item => item.Key).ToList();
-
-                            list = await Repository.TableNoTracking
-                                .Where(a => !a.VersionStatus.Equals(2))
-                                .Where(a => ids.Contains(a.Id))
-                                .OrderByDescending(a => a.Time)
-                                .ProjectTo<PostShortSelectDto>(Mapper.ConfigurationProvider)
-                                .Take(count)
-                                .ToListAsync(cancellationToken);
-
-                            return list;
-
-                        default:
-                            return BadRequest("نوع مطلب درخواستی نامعتبر است");
-                    }
-
-                case 2:
-                    switch (type)
-                    {
-                        case 1:
-                            var list = await Repository.TableNoTracking
-                                .Where(a => !a.VersionStatus.Equals(2))
-                                .Where(a => a.Time.Year == today.Year && a.Time.Month == today.Month)
-                                .OrderByDescending(a => a.Time)
-                                .ProjectTo<PostShortSelectDto>(Mapper.ConfigurationProvider)
-                                .Take(count)
-                                .ToListAsync(cancellationToken);
-
-                            return list;
-
-                        case 2:
-                            var result = await _repositoryLike.TableNoTracking
-                                .GroupBy(a => a.PostId)
-                                .Select(g => new { g.Key, Count = g.Count() })
-                                .OrderByDescending(a => a.Count)
-                                .Take(count)
-                                .ToListAsync(cancellationToken);
-
-                            var ids = result.Select(item => item.Key).ToList();
-
-                            list = await Repository.TableNoTracking
-                               .Where(a => !a.VersionStatus.Equals(2))
-                               .Where(a => ids.Contains(a.Id))
-                               .Where(a => a.Time.Year == today.Year && a.Time.Month == today.Month)
-                               .OrderByDescending(a => a.Time)
-                               .ProjectTo<PostShortSelectDto>(Mapper.ConfigurationProvider)
-                               .Take(count)
-                               .ToListAsync(cancellationToken);
-
-                            return list;
-
-                        case 3:
-                            result = await _repositoryView.TableNoTracking
-                               .GroupBy(a => a.PostId)
-                               .Select(g => new { g.Key, Count = g.Count() })
-                               .OrderByDescending(a => a.Count)
-                               .Take(count)
-                               .ToListAsync(cancellationToken);
-
-                            ids = result.Select(item => item.Key).ToList();
-
-                            list = await Repository.TableNoTracking
-                                .Where(a => !a.VersionStatus.Equals(2))
-                                .Where(a => ids.Contains(a.Id))
-                                .Where(a => a.Time.Year == today.Year && a.Time.Month == today.Month)
-                                .OrderByDescending(a => a.Time)
-                                .ProjectTo<PostShortSelectDto>(Mapper.ConfigurationProvider)
-                                .Take(count)
-                                .ToListAsync(cancellationToken);
-
-                            return list;
-
-                        case 4:
-                            result = await _repositoryComment.TableNoTracking
-                                .GroupBy(a => a.PostId)
-                                .Select(g => new { g.Key, Count = g.Count() })
-                                .OrderByDescending(a => a.Count)
-                                .Take(count)
-                                .ToListAsync(cancellationToken);
-
-                            ids = result.Select(item => item.Key).ToList();
-
-                            list = await Repository.TableNoTracking
-                                .Where(a => !a.VersionStatus.Equals(2))
-                                .Where(a => ids.Contains(a.Id))
-                                .Where(a => a.Time.Year == today.Year && a.Time.Month == today.Month)
-                                .OrderByDescending(a => a.Time)
-                                .ProjectTo<PostShortSelectDto>(Mapper.ConfigurationProvider)
-                                .Take(count)
-                                .ToListAsync(cancellationToken);
-
-                            return list;
-
-                        default:
-                            return BadRequest("نوع مطلب درخواستی نامعتبر است");
-                    }
-
-                case 3:
-                    switch (type)
-                    {
-                        case 1:
-                            var list = await Repository.TableNoTracking
-                                .Where(a => !a.VersionStatus.Equals(2))
-                                .Where(a => a.Time >= week)
-                                .OrderByDescending(a => a.Time)
-                                .ProjectTo<PostShortSelectDto>(Mapper.ConfigurationProvider)
-                                .Take(count)
-                                .ToListAsync(cancellationToken);
-
-                            return list;
-
-                        case 2:
-                            var result = await _repositoryLike.TableNoTracking
-                                .GroupBy(a => a.PostId)
-                                .Select(g => new { g.Key, Count = g.Count() })
-                                .OrderByDescending(a => a.Count)
-                                .Take(count)
-                                .ToListAsync(cancellationToken);
-
-                            var ids = result.Select(item => item.Key).ToList();
-
-                            list = await Repository.TableNoTracking
-                               .Where(a => !a.VersionStatus.Equals(2))
-                               .Where(a => ids.Contains(a.Id))
-                               .Where(a => a.Time >= week)
-                               .OrderByDescending(a => a.Time)
-                               .ProjectTo<PostShortSelectDto>(Mapper.ConfigurationProvider)
-                               .Take(count)
-                               .ToListAsync(cancellationToken);
-
-                            return list;
-
-                        case 3:
-                            result = await _repositoryView.TableNoTracking
-                               .GroupBy(a => a.PostId)
-                               .Select(g => new { g.Key, Count = g.Count() })
-                               .OrderByDescending(a => a.Count)
-                               .Take(count)
-                               .ToListAsync(cancellationToken);
-
-                            ids = result.Select(item => item.Key).ToList();
-
-                            list = await Repository.TableNoTracking
-                                .Where(a => !a.VersionStatus.Equals(2))
-                                .Where(a => ids.Contains(a.Id))
-                                .Where(a => a.Time >= week)
-                                .OrderByDescending(a => a.Time)
-                                .ProjectTo<PostShortSelectDto>(Mapper.ConfigurationProvider)
-                                .Take(count)
-                                .ToListAsync(cancellationToken);
-
-                            return list;
-
-                        case 4:
-                            result = await _repositoryComment.TableNoTracking
-                                .GroupBy(a => a.PostId)
-                                .Select(g => new { g.Key, Count = g.Count() })
-                                .OrderByDescending(a => a.Count)
-                                .Take(count)
-                                .ToListAsync(cancellationToken);
-
-                            ids = result.Select(item => item.Key).ToList();
-
-                            list = await Repository.TableNoTracking
-                                .Where(a => !a.VersionStatus.Equals(2))
-                                .Where(a => ids.Contains(a.Id))
-                                .Where(a => a.Time >= week)
-                                .OrderByDescending(a => a.Time)
-                                .ProjectTo<PostShortSelectDto>(Mapper.ConfigurationProvider)
-                                .Take(count)
-                                .ToListAsync(cancellationToken);
-
-                            return list;
-
-                        default:
-                            return BadRequest("نوع مطلب درخواستی نامعتبر است");
-                    }
-
-                default:
-                    return BadRequest("خطا در اطلاعات ورودی");
-            }
+            return await _postRepository.GetCustom(cancellationToken, type, dateType, count);
         }
 
         [HttpGet]
         [AllowAnonymous]
         public virtual async Task<ApiResult<List<PostShortSelectDto>>> Search(string str, CancellationToken cancellationToken)
         {
-            Assert.NotNullArgument(str, "کلمه مورد جستجو نامعتبر است");
-
-            var list = await Repository.TableNoTracking
-                .Where(a => !a.VersionStatus.Equals(2) && a.Title.Contains(str))
-                .OrderByDescending(a => a.Time)
-                .ProjectTo<PostShortSelectDto>(Mapper.ConfigurationProvider)
-                .Take(DefaultTake)
-                .ToListAsync(cancellationToken);
-
-            return list;
+            return await _postRepository.Search(cancellationToken, str);
         }
     }
 }

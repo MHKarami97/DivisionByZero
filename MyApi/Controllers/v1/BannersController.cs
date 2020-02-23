@@ -30,14 +30,9 @@ namespace MyApi.Controllers.v1
         }
 
         [AllowAnonymous]
-        public override async Task<ApiResult<List<BannerSelectDto>>> Get(CancellationToken cancellationToken)
+        public override Task<ApiResult<List<BannerSelectDto>>> Get(CancellationToken cancellationToken)
         {
-            var list = await Repository.TableNoTracking
-                .Where(a => !a.VersionStatus.Equals(2))
-                .ProjectTo<BannerSelectDto>(Mapper.ConfigurationProvider)
-                .ToListAsync(cancellationToken);
-
-            return list;
+            return base.Get(cancellationToken);
         }
 
         [Authorize(Policy = "WorkerPolicy")]

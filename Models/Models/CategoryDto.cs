@@ -40,6 +40,6 @@ namespace Models.Models
     {
         public string Name { get; set; }
         public string Image { get; set; }
-        public List<ShortCategoryDto> Sub { get; set; }
+        public List<ShortCategoryDto> ChildCategories { get; set; }
     }
 }
