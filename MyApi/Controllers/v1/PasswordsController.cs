@@ -31,6 +31,11 @@ namespace MyApi.Controllers.v1
         {
             var user = await _userManager.GetUserAsync(User);
 
+            var validOldPass = await _passwordValidator.ValidateAsync(_userManager, user, model.OldPassword);
+
+            if (!validOldPass.Succeeded)
+                return BadRequest("رمز عبور قبلی معتبر نمی باشد");
+
             if (!model.NewPassword.Equals(model.ConfirmPassword))
                 return BadRequest("رمز عبور و تایید آن برابر نیست");
 

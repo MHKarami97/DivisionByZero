@@ -1,17 +1,10 @@
-﻿using AutoMapper;
-using AutoMapper.QueryableExtensions;
-using Common.Utilities;
-using Data.Contracts;
-using Entities.Post;
-using Entities.User;
+﻿using Common.Utilities;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
 using Models.Base;
 using Models.Models;
-using System;
+using Repositories.Contracts;
 using System.Collections.Generic;
-using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using WebFramework.Api;
@@ -22,47 +15,23 @@ namespace MyApi.Controllers.v1
     [Route("api/v{version:apiVersion}/[controller]/[action]")]
     public class LikesController : BaseController
     {
-        private readonly IRepository<Like> _repositoryLike;
-        private readonly IRepository<Post> _repositoryPost;
-        private readonly IMapper _mapper;
+        private readonly ILikeRepository _likeRepository;
 
-        public LikesController(IRepository<Like> repositoryLike, IRepository<Post> repositoryPost, IMapper mapper)
+        public LikesController(ILikeRepository likeRepository)
         {
-            _repositoryLike = repositoryLike;
-            _repositoryPost = repositoryPost;
-            _mapper = mapper;
+            _likeRepository = likeRepository;
         }
 
         [Authorize]
         [HttpGet("{id:int}")]
         public async Task<ActionResult> LikePost(int id, float rate, CancellationToken cancellationToken)
         {
-            if (rate < 0 || rate > 5)
-                return BadRequest("مقدار امتیاز نامعتبر است");
-
             var userId = HttpContext.User.Identity.GetUserId<int>();
 
-            var isPostExist = await _repositoryPost.TableNoTracking
-                .AnyAsync(a => !a.VersionStatus.Equals(2) && a.Id.Equals(id), cancellationToken);
+            if (await _likeRepository.LikePost(userId, id, rate, cancellationToken))
+                return Ok("با موفقیت انجام شد");
 
-            if (!isPostExist)
-                return BadRequest("مطلب موجود نمی باشد");
-
-            var isLike = await _repositoryLike.TableNoTracking
-                .AnyAsync(a => !a.VersionStatus.Equals(2) && a.UserId.Equals(userId) && a.PostId.Equals(id), cancellationToken);
-
-            if (isLike)
-                return BadRequest("این مطلب قبلا امتیاز دهی شده است");
-
-            await _repositoryLike.AddAsync(new Like
-            {
-                PostId = id,
-                Rate = rate,
-                UserId = userId,
-                Time = DateTimeOffset.Now
-            }, cancellationToken);
-
-            return Ok("با موفقیت انجام شد");
+            return BadRequest("خطا در برنامه");
         }
 
         [Authorize]
@@ -71,12 +40,10 @@ namespace MyApi.Controllers.v1
         {
             var userId = HttpContext.User.Identity.GetUserId<int>();
 
-            var result = await _repositoryLike.TableNoTracking
-                .SingleAsync(a => !a.VersionStatus.Equals(2) && a.UserId.Equals(userId) && a.PostId.Equals(id), cancellationToken);
+            if (await _likeRepository.DisLikePost(userId, id, cancellationToken))
+                return Ok("با موفقیت انجام شد");
 
-            await _repositoryLike.DeleteAsync(result, cancellationToken);
-
-            return Ok("با موفقیت انجام شد");
+            return BadRequest("خطا در برنامه");
         }
 
         [HttpGet]
@@ -85,12 +52,7 @@ namespace MyApi.Controllers.v1
         {
             var userId = HttpContext.User.Identity.GetUserId<int>();
 
-            var list = await _repositoryLike.TableNoTracking
-                .Where(a => !a.VersionStatus.Equals(2) && a.UserId.Equals(userId))
-                .ProjectTo<LikeDto>(_mapper.ConfigurationProvider)
-                .ToListAsync(cancellationToken);
-
-            return list;
+            return await _likeRepository.Get(userId, cancellationToken);
         }
     }
 }

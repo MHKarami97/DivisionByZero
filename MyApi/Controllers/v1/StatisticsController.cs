@@ -30,21 +30,21 @@ namespace MyApi.Controllers.v1
         [HttpGet]
         public async Task<ApiResult<StatisticDto>> Get(CancellationToken cancellationToken)
         {
-            var countPost = await _repositoryPost.
-                TableNoTracking.
-                CountAsync(a => !a.VersionStatus.Equals(2), cancellationToken);
+            var countPost = await _repositoryPost
+                .TableNoTracking
+                .CountAsync(a => !a.VersionStatus.Equals(2), cancellationToken);
 
-            var countComment = await _repositoryComment.
-                TableNoTracking.
-                CountAsync(a => !a.VersionStatus.Equals(2), cancellationToken);
+            var countComment = await _repositoryComment
+                .TableNoTracking
+                .CountAsync(a => !a.VersionStatus.Equals(2), cancellationToken);
 
-            var countView = await _repositoryView.
-                TableNoTracking.
-                CountAsync(a => !a.VersionStatus.Equals(2), cancellationToken);
+            var countView = await _repositoryView
+                .TableNoTracking
+                .CountAsync(a => !a.VersionStatus.Equals(2), cancellationToken);
 
-            var countUser = await _repositoryUser.
-                TableNoTracking.
-                CountAsync(a => a.IsActive.Equals(true), cancellationToken);
+            var countUser = await _repositoryUser
+                .TableNoTracking
+                .CountAsync(a => a.IsActive.Equals(true), cancellationToken);
 
             return new StatisticDto
             {

@@ -1,6 +1,4 @@
-﻿using AutoMapper;
-using AutoMapper.QueryableExtensions;
-using Common.Utilities;
+﻿using Common.Utilities;
 using Data.Contracts;
 using Entities.User;
 using Microsoft.AspNetCore.Authorization;
@@ -9,6 +7,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Models.Base;
 using Models.Models;
+using Repositories.Contracts;
 using Services.Security;
 using System;
 using System.Collections.Generic;
@@ -23,17 +22,18 @@ namespace MyApi.Controllers.v1
     [Route("api/v{version:apiVersion}/[controller]/[action]")]
     public class ViewsController : BaseController
     {
+        private readonly IViewRepository _viewRepository;
+
         private readonly IRepository<View> _repositoryView;
         private readonly IHttpContextAccessor _accessor;
         private readonly ISecurity _security;
-        private readonly IMapper _mapper;
 
-        public ViewsController(IRepository<View> repositoryLike, IMapper mapper, ISecurity security, IHttpContextAccessor accessor)
+        public ViewsController(IRepository<View> repositoryLike, ISecurity security, IHttpContextAccessor accessor, IViewRepository viewRepository)
         {
             _repositoryView = repositoryLike;
-            _mapper = mapper;
             _security = security;
             _accessor = accessor;
+            _viewRepository = viewRepository;
         }
 
         [HttpGet]
@@ -42,18 +42,17 @@ namespace MyApi.Controllers.v1
         {
             var userId = HttpContext.User.Identity.GetUserId<int>();
 
-            var list = await _repositoryView.TableNoTracking
-                .Where(a => !a.VersionStatus.Equals(2) && a.UserId.Equals(userId))
-                .ProjectTo<ViewDto>(_mapper.ConfigurationProvider)
-                .ToListAsync(cancellationToken);
-
-            return Ok(list);
+            return await _viewRepository.Get(userId, cancellationToken);
         }
 
         [NonAction]
         public async Task<bool> IncreaseView(int id, bool isAuthorize, CancellationToken cancellationToken)
         {
             int? userId = null;
+
+            if (isAuthorize)
+                userId = HttpContext.User.Identity.GetUserId<int>();
+
             var ip = _accessor.HttpContext?.Connection?.RemoteIpAddress?.ToString();
 
             var lastView = await _repositoryView.TableNoTracking
@@ -65,18 +64,7 @@ namespace MyApi.Controllers.v1
             if (lastView != DateTimeOffset.MinValue && !_security.TimeCheck(lastView))
                 return false;
 
-            if (isAuthorize)
-                userId = HttpContext.User.Identity.GetUserId<int>();
-
-            await _repositoryView.AddAsync(new View
-            {
-                PostId = id,
-                UserId = userId,
-                Ip = ip,
-                Time = DateTimeOffset.Now
-            }, cancellationToken);
-
-            return true;
+            return await _viewRepository.IncreaseView(userId, ip, id, cancellationToken);
         }
     }
 }

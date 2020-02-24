@@ -44,7 +44,7 @@ namespace MyApi.Controllers.v1
         }
 
         [HttpPost]
-        public async Task<ActionResult> AddOrUpdate(RoleDto role)
+        public async Task<ActionResult> Create(RoleDto role)
         {
             var result = await _roleManager.FindByNameAsync(role.Name);
 
@@ -60,7 +60,26 @@ namespace MyApi.Controllers.v1
             if (roleResult.Succeeded)
                 return Ok();
 
-            return BadRequest("این نقش موجود است");
+            return BadRequest("خطا در برنامه");
+        }
+
+        [HttpPost]
+        public async Task<ActionResult> Update(RoleDto role)
+        {
+            var result = await _roleManager.FindByNameAsync(role.Name);
+
+            if (result == null)
+                return BadRequest("این نقش ناموجود است");
+
+            result.Name = role.Name;
+            result.Description = role.Description;
+
+            var roleResult = await _roleManager.UpdateAsync(result);
+
+            if (roleResult.Succeeded)
+                return Ok();
+
+            return BadRequest("خطا در برنامه");
         }
     }
 }
