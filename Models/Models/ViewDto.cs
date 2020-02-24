@@ -21,6 +21,20 @@ namespace Models.Models
         }
     }
 
+    public class ViewShortDto : BaseDto<ViewShortDto, View>
+    {
+        public string UserFullName { get; set; }
+
+        public string Time { get; set; }
+
+        public override void CustomMappings(IMappingExpression<View, ViewShortDto> mappingExpression)
+        {
+            mappingExpression.ForMember(
+                dest => dest.Time,
+                config => config.MapFrom(src => src.Time.ToString("d")));
+        }
+    }
+
     public class ViewSelectDto : BaseDto<ViewSelectDto, View>
     {
         [JsonIgnore]

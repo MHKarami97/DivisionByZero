@@ -166,6 +166,20 @@ namespace MyApi.Controllers.v1
             return await _postRepository.GetByUserId(cancellationToken, id);
         }
 
+        [AllowAnonymous]
+        [HttpGet("{id:int}")]
+        public virtual async Task<ApiResult<List<ViewShortDto>>> GetView(int id, CancellationToken cancellationToken)
+        {
+            return await _postRepository.GetView(cancellationToken, id);
+        }
+
+        [AllowAnonymous]
+        [HttpGet("{id:int}")]
+        public virtual async Task<ApiResult<List<LikeShortDto>>> GetLike(int id, CancellationToken cancellationToken)
+        {
+            return await _postRepository.GetLike(cancellationToken, id);
+        }
+
         [HttpGet]
         [AllowAnonymous]
         public virtual async Task<ApiResult<List<PostShortSelectDto>>> GetCustom(CancellationToken cancellationToken, int type = 1, int dateType = 1, int count = DefaultTake)

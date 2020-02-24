@@ -23,6 +23,22 @@ namespace Models.Models
         }
     }
 
+    public class LikeShortDto : BaseDto<LikeShortDto, Like>
+    {
+        public string UserFullName { get; set; }
+
+        public string Time { get; set; }
+
+        public float Rate { get; set; }
+
+        public override void CustomMappings(IMappingExpression<Like, LikeShortDto> mappingExpression)
+        {
+            mappingExpression.ForMember(
+                dest => dest.Time,
+                config => config.MapFrom(src => src.Time.ToString("d")));
+        }
+    }
+
     public class LikeSelectDto : BaseDto<LikeSelectDto, Like>
     {
         [JsonIgnore]

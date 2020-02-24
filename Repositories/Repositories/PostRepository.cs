@@ -13,6 +13,7 @@ using Data.Repositories;
 using Entities.Post;
 using Entities.User;
 using Models.Base;
+using Models.Models;
 using Repositories.Contracts;
 using System.Collections.Generic;
 using System.Data;
@@ -69,6 +70,28 @@ namespace Repositories.Repositories
                 .ToListAsync(cancellationToken);
 
             return list;
+        }
+
+        public async Task<ApiResult<List<ViewShortDto>>> GetView(CancellationToken cancellationToken, int id)
+        {
+            var result = await _repositoryView.TableNoTracking
+                .Where(a => !a.VersionStatus.Equals(2) && a.PostId.Equals(id))
+                .OrderByDescending(a => a.Time)
+                .ProjectTo<ViewShortDto>(Mapper.ConfigurationProvider)
+                .ToListAsync(cancellationToken);
+
+            return result;
+        }
+
+        public async Task<ApiResult<List<LikeShortDto>>> GetLike(CancellationToken cancellationToken, int id)
+        {
+            var result = await _repositoryLike.TableNoTracking
+                .Where(a => !a.VersionStatus.Equals(2) && a.PostId.Equals(id))
+                .OrderByDescending(a => a.Time)
+                .ProjectTo<LikeShortDto>(Mapper.ConfigurationProvider)
+                .ToListAsync(cancellationToken);
+
+            return result;
         }
 
         public async Task<ApiResult<List<TSelect>>> GetCustom(CancellationToken cancellationToken, int type, int dateType, int count)
