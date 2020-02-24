@@ -25,7 +25,7 @@ namespace Repositories.Repositories
         public async Task<ApiResult<List<CategoryDto>>> GetAllMainCat(CancellationToken cancellationToken)
         {
             var list = await TableNoTracking
-                .Where(a => !a.VersionStatus.Equals(2) && a.ParentCategoryId.Equals(0) || a.ParentCategoryId.Equals(null))
+                .Where(a => !a.VersionStatus.Equals(2) && a.ParentCategoryId.Equals(0) || a.ParentCategoryId == null)
                 .ProjectTo<CategoryDto>(Mapper.ConfigurationProvider)
                 .ToListAsync(cancellationToken);
 
@@ -35,7 +35,7 @@ namespace Repositories.Repositories
         public async Task<ApiResult<List<CategoryWithSubCatDto>>> GetCategoryWithSub(CancellationToken cancellationToken)
         {
             var list = await TableNoTracking
-                .Where(a => !a.VersionStatus.Equals(2) && a.ParentCategoryId.Equals(0) || a.ParentCategoryId.Equals(null))
+                .Where(a => !a.VersionStatus.Equals(2) && a.ParentCategoryId.Equals(0) || a.ParentCategoryId == null)
                 .Include(a => a.ChildCategories)
                 .ProjectTo<CategoryWithSubCatDto>(Mapper.ConfigurationProvider)
                 .ToListAsync(cancellationToken);

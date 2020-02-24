@@ -19,7 +19,11 @@ namespace Services.DataInitializer
             {
                 _repository.Add(new Category
                 {
-                    Name = "دسته بندی اصلی"
+                    Name = "دسته بندی اصلی",
+                    Version = 1,
+                    VersionStatus = 0,
+                    Image = "img.png",
+                    ParentCategoryId = 0
                 });
             }
         }
