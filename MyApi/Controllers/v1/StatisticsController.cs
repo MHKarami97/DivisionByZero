@@ -4,6 +4,7 @@ using System.Threading.Tasks;
 using Data.Contracts;
 using Entities.Post;
 using Entities.User;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Models.Base;
@@ -28,6 +29,7 @@ namespace MyApi.Controllers.v1
         }
 
         [HttpGet]
+        [AllowAnonymous]
         public async Task<ApiResult<StatisticDto>> Get(CancellationToken cancellationToken)
         {
             var countPost = await _repositoryPost
