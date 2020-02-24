@@ -20,9 +20,9 @@ namespace MyApi.Controllers.v1
     public class CommentsController : CrudController<CommentDto, CommentSelectDto, Comment>
     {
         private readonly ISecurity _security;
-        private readonly ICommentRepository<CommentSelectDto> _commentRepository;
+        private readonly ICommentRepository _commentRepository;
 
-        public CommentsController(IRepository<Comment> repository, IMapper mapper, ICommentRepository<CommentSelectDto> commentRepository, ISecurity security)
+        public CommentsController(IRepository<Comment> repository, IMapper mapper, ICommentRepository commentRepository, ISecurity security)
             : base(repository, mapper)
         {
             _commentRepository = commentRepository;

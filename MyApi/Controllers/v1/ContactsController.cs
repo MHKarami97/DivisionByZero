@@ -21,9 +21,9 @@ namespace MyApi.Controllers.v1
     public class ContactsController : CrudController<ContactDto, ContactSelectDto, Contact>
     {
         private readonly UserManager<User> _userManager;
-        private readonly IContactRepository<ContactSelectDto> _contactRepository;
+        private readonly IContactRepository _contactRepository;
 
-        public ContactsController(IRepository<Contact> repository, IMapper mapper, UserManager<User> userManager, IContactRepository<ContactSelectDto> contactRepository)
+        public ContactsController(IRepository<Contact> repository, IMapper mapper, UserManager<User> userManager, IContactRepository contactRepository)
             : base(repository, mapper)
         {
             _userManager = userManager;

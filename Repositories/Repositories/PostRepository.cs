@@ -20,7 +20,7 @@ using System.Data;
 
 namespace Repositories.Repositories
 {
-    public class PostRepository<TSelect> : Repository<Post>, IPostRepository<TSelect>, IScopedDependency
+    public class PostRepository : Repository<Post>, IPostRepository, IScopedDependency, IBaseRepository
     {
         private readonly IRepository<Like> _repositoryLike;
         private readonly IRepository<Comment> _repositoryComment;
@@ -34,19 +34,19 @@ namespace Repositories.Repositories
             _repositoryView = repositoryView;
         }
 
-        public async Task<ApiResult<List<TSelect>>> GetAllByCatId(CancellationToken cancellationToken, int id, int to = 0)
+        public async Task<ApiResult<List<PostShortSelectDto>>> GetAllByCatId(CancellationToken cancellationToken, int id, int to = 0)
         {
             var list = await TableNoTracking
                 .Where(a => !a.VersionStatus.Equals(2) && a.CategoryId.Equals(id))
                 .OrderByDescending(a => a.Time)
-                .ProjectTo<TSelect>(Mapper.ConfigurationProvider)
+                .ProjectTo<PostShortSelectDto>(Mapper.ConfigurationProvider)
                 .Take(DefaultTake + to)
                 .ToListAsync(cancellationToken);
 
             return list;
         }
 
-        public async Task<ApiResult<List<TSelect>>> GetSimilar(CancellationToken cancellationToken, int id)
+        public async Task<ApiResult<List<PostShortSelectDto>>> GetSimilar(CancellationToken cancellationToken, int id)
         {
             var post = await TableNoTracking
                 .Where(a => a.Id.Equals(id))
@@ -54,18 +54,18 @@ namespace Repositories.Repositories
 
             var list = await TableNoTracking
                 .Where(a => !a.VersionStatus.Equals(2) && a.CategoryId.Equals(post.CategoryId))
-                .ProjectTo<TSelect>(Mapper.ConfigurationProvider)
+                .ProjectTo<PostShortSelectDto>(Mapper.ConfigurationProvider)
                 .Take(DefaultTake)
                 .ToListAsync(cancellationToken);
 
             return list;
         }
 
-        public async Task<ApiResult<List<TSelect>>> GetByUserId(CancellationToken cancellationToken, int id)
+        public async Task<ApiResult<List<PostShortSelectDto>>> GetByUserId(CancellationToken cancellationToken, int id)
         {
             var list = await TableNoTracking
                 .Where(a => !a.VersionStatus.Equals(2) && a.UserId.Equals(id))
-                .ProjectTo<TSelect>(Mapper.ConfigurationProvider)
+                .ProjectTo<PostShortSelectDto>(Mapper.ConfigurationProvider)
                 .Take(DefaultTake)
                 .ToListAsync(cancellationToken);
 
@@ -94,7 +94,7 @@ namespace Repositories.Repositories
             return result;
         }
 
-        public async Task<ApiResult<List<TSelect>>> GetCustom(CancellationToken cancellationToken, int type, int dateType, int count)
+        public async Task<ApiResult<List<PostShortSelectDto>>> GetCustom(CancellationToken cancellationToken, int type, int dateType, int count)
         {
             if (count > 30)
                 throw new DataException("تعداد درخواست زیاد است");
@@ -111,7 +111,7 @@ namespace Repositories.Repositories
                             var list = await TableNoTracking
                                 .Where(a => !a.VersionStatus.Equals(2))
                                 .OrderByDescending(a => a.Time)
-                                .ProjectTo<TSelect>(Mapper.ConfigurationProvider)
+                                .ProjectTo<PostShortSelectDto>(Mapper.ConfigurationProvider)
                                 .Take(count)
                                 .ToListAsync(cancellationToken);
 
@@ -131,7 +131,7 @@ namespace Repositories.Repositories
                                .Where(a => !a.VersionStatus.Equals(2))
                                .Where(a => ids.Contains(a.Id))
                                .OrderByDescending(a => a.Time)
-                               .ProjectTo<TSelect>(Mapper.ConfigurationProvider)
+                               .ProjectTo<PostShortSelectDto>(Mapper.ConfigurationProvider)
                                .Take(count)
                                .ToListAsync(cancellationToken);
 
@@ -151,7 +151,7 @@ namespace Repositories.Repositories
                                 .Where(a => !a.VersionStatus.Equals(2))
                                 .Where(a => ids.Contains(a.Id))
                                 .OrderByDescending(a => a.Time)
-                                .ProjectTo<TSelect>(Mapper.ConfigurationProvider)
+                                .ProjectTo<PostShortSelectDto>(Mapper.ConfigurationProvider)
                                 .Take(count)
                                 .ToListAsync(cancellationToken);
 
@@ -171,7 +171,7 @@ namespace Repositories.Repositories
                                 .Where(a => !a.VersionStatus.Equals(2))
                                 .Where(a => ids.Contains(a.Id))
                                 .OrderByDescending(a => a.Time)
-                                .ProjectTo<TSelect>(Mapper.ConfigurationProvider)
+                                .ProjectTo<PostShortSelectDto>(Mapper.ConfigurationProvider)
                                 .Take(count)
                                 .ToListAsync(cancellationToken);
 
@@ -189,7 +189,7 @@ namespace Repositories.Repositories
                                 .Where(a => !a.VersionStatus.Equals(2))
                                 .Where(a => a.Time.Year == today.Year && a.Time.Month == today.Month)
                                 .OrderByDescending(a => a.Time)
-                                .ProjectTo<TSelect>(Mapper.ConfigurationProvider)
+                                .ProjectTo<PostShortSelectDto>(Mapper.ConfigurationProvider)
                                 .Take(count)
                                 .ToListAsync(cancellationToken);
 
@@ -210,7 +210,7 @@ namespace Repositories.Repositories
                                .Where(a => ids.Contains(a.Id))
                                .Where(a => a.Time.Year == today.Year && a.Time.Month == today.Month)
                                .OrderByDescending(a => a.Time)
-                               .ProjectTo<TSelect>(Mapper.ConfigurationProvider)
+                               .ProjectTo<PostShortSelectDto>(Mapper.ConfigurationProvider)
                                .Take(count)
                                .ToListAsync(cancellationToken);
 
@@ -231,7 +231,7 @@ namespace Repositories.Repositories
                                 .Where(a => ids.Contains(a.Id))
                                 .Where(a => a.Time.Year == today.Year && a.Time.Month == today.Month)
                                 .OrderByDescending(a => a.Time)
-                                .ProjectTo<TSelect>(Mapper.ConfigurationProvider)
+                                .ProjectTo<PostShortSelectDto>(Mapper.ConfigurationProvider)
                                 .Take(count)
                                 .ToListAsync(cancellationToken);
 
@@ -252,7 +252,7 @@ namespace Repositories.Repositories
                                 .Where(a => ids.Contains(a.Id))
                                 .Where(a => a.Time.Year == today.Year && a.Time.Month == today.Month)
                                 .OrderByDescending(a => a.Time)
-                                .ProjectTo<TSelect>(Mapper.ConfigurationProvider)
+                                .ProjectTo<PostShortSelectDto>(Mapper.ConfigurationProvider)
                                 .Take(count)
                                 .ToListAsync(cancellationToken);
 
@@ -270,7 +270,7 @@ namespace Repositories.Repositories
                                 .Where(a => !a.VersionStatus.Equals(2))
                                 .Where(a => a.Time >= week)
                                 .OrderByDescending(a => a.Time)
-                                .ProjectTo<TSelect>(Mapper.ConfigurationProvider)
+                                .ProjectTo<PostShortSelectDto>(Mapper.ConfigurationProvider)
                                 .Take(count)
                                 .ToListAsync(cancellationToken);
 
@@ -291,7 +291,7 @@ namespace Repositories.Repositories
                                .Where(a => ids.Contains(a.Id))
                                .Where(a => a.Time >= week)
                                .OrderByDescending(a => a.Time)
-                               .ProjectTo<TSelect>(Mapper.ConfigurationProvider)
+                               .ProjectTo<PostShortSelectDto>(Mapper.ConfigurationProvider)
                                .Take(count)
                                .ToListAsync(cancellationToken);
 
@@ -312,7 +312,7 @@ namespace Repositories.Repositories
                                 .Where(a => ids.Contains(a.Id))
                                 .Where(a => a.Time >= week)
                                 .OrderByDescending(a => a.Time)
-                                .ProjectTo<TSelect>(Mapper.ConfigurationProvider)
+                                .ProjectTo<PostShortSelectDto>(Mapper.ConfigurationProvider)
                                 .Take(count)
                                 .ToListAsync(cancellationToken);
 
@@ -333,7 +333,7 @@ namespace Repositories.Repositories
                                 .Where(a => ids.Contains(a.Id))
                                 .Where(a => a.Time >= week)
                                 .OrderByDescending(a => a.Time)
-                                .ProjectTo<TSelect>(Mapper.ConfigurationProvider)
+                                .ProjectTo<PostShortSelectDto>(Mapper.ConfigurationProvider)
                                 .Take(count)
                                 .ToListAsync(cancellationToken);
 
@@ -348,14 +348,14 @@ namespace Repositories.Repositories
             }
         }
 
-        public async Task<ApiResult<List<TSelect>>> Search(CancellationToken cancellationToken, string str)
+        public async Task<ApiResult<List<PostShortSelectDto>>> Search(CancellationToken cancellationToken, string str)
         {
             Assert.NotNullArgument(str, "کلمه مورد جستجو نامعتبر است");
 
             var list = await TableNoTracking
                 .Where(a => !a.VersionStatus.Equals(2) && a.Title.Contains(str))
                 .OrderByDescending(a => a.Time)
-                .ProjectTo<TSelect>(Mapper.ConfigurationProvider)
+                .ProjectTo<PostShortSelectDto>(Mapper.ConfigurationProvider)
                 .Take(DefaultTake)
                 .ToListAsync(cancellationToken);
 

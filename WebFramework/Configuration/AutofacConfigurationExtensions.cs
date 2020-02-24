@@ -53,7 +53,7 @@ namespace WebFramework.Configuration
             var entitiesAssembly = typeof(IEntity).Assembly;
             var dataAssembly = typeof(ApplicationDbContext).Assembly;
             var servicesAssembly = typeof(JwtService).Assembly;
-            var repositoriesAssembly = typeof(IPostRepository).Assembly;
+            var repositoriesAssembly = typeof(IBaseRepository).Assembly;
 
             containerBuilder.RegisterAssemblyTypes(commonAssembly, entitiesAssembly, dataAssembly, servicesAssembly, repositoriesAssembly)
                 .AssignableTo<IScopedDependency>()

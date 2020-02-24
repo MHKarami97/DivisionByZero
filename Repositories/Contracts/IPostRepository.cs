@@ -8,20 +8,20 @@ using System.Threading.Tasks;
 
 namespace Repositories.Contracts
 {
-    public interface IPostRepository<TSelect> : IRepository<Post>
+    public interface IPostRepository : IRepository<Post>
     {
-        Task<ApiResult<List<TSelect>>> GetAllByCatId(CancellationToken cancellationToken, int id, int to = 0);
+        Task<ApiResult<List<PostShortSelectDto>>> GetAllByCatId(CancellationToken cancellationToken, int id, int to = 0);
 
-        Task<ApiResult<List<TSelect>>> GetSimilar(CancellationToken cancellationToken, int id);
+        Task<ApiResult<List<PostShortSelectDto>>> GetSimilar(CancellationToken cancellationToken, int id);
 
-        Task<ApiResult<List<TSelect>>> GetByUserId(CancellationToken cancellationToken, int id);
+        Task<ApiResult<List<PostShortSelectDto>>> GetByUserId(CancellationToken cancellationToken, int id);
 
         Task<ApiResult<List<ViewShortDto>>> GetView(CancellationToken cancellationToken, int id);
 
         Task<ApiResult<List<LikeShortDto>>> GetLike(CancellationToken cancellationToken, int id);
 
-        Task<ApiResult<List<TSelect>>> GetCustom(CancellationToken cancellationToken, int type, int dateType, int count);
+        Task<ApiResult<List<PostShortSelectDto>>> GetCustom(CancellationToken cancellationToken, int type, int dateType, int count);
 
-        Task<ApiResult<List<TSelect>>> Search(CancellationToken cancellationToken, string str);
+        Task<ApiResult<List<PostShortSelectDto>>> Search(CancellationToken cancellationToken, string str);
     }
 }

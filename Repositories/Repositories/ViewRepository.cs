@@ -16,7 +16,7 @@ using System.Linq;
 
 namespace Repositories.Repositories
 {
-    public class ViewRepository : Repository<View>, IViewRepository, IScopedDependency
+    public class ViewRepository : Repository<View>, IViewRepository, IScopedDependency, IBaseRepository
     {
         public ViewRepository(ApplicationDbContext dbContext, IMapper mapper)
             : base(dbContext, mapper)

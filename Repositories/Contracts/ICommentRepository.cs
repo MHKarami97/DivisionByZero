@@ -9,11 +9,11 @@ using System.Threading.Tasks;
 
 namespace Repositories.Contracts
 {
-    public interface ICommentRepository<TSelect> : IRepository<Comment>
+    public interface ICommentRepository : IRepository<Comment>
     {
-        Task<ApiResult<List<TSelect>>> GetPostComments(int id, CancellationToken cancellationToken);
+        Task<ApiResult<List<CommentSelectDto>>> GetPostComments(int id, CancellationToken cancellationToken);
 
-        Task<ApiResult<List<TSelect>>> GetLastComments(CancellationToken cancellationToken);
+        Task<ApiResult<List<CommentSelectDto>>> GetLastComments(CancellationToken cancellationToken);
 
         Task<DateTimeOffset> Create(CommentDto dto, CancellationToken cancellationToken);
     }

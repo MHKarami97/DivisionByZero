@@ -18,9 +18,9 @@ namespace MyApi.Controllers.v1
     [ApiVersion("1")]
     public class EmploysController : CrudController<EmployDto, EmploySelectDto, Employ>
     {
-        private readonly IEmployRepository<EmploySelectDto> _employRepository;
+        private readonly IEmployRepository _employRepository;
 
-        public EmploysController(IRepository<Employ> repository, IMapper mapper, IEmployRepository<EmploySelectDto> employRepository)
+        public EmploysController(IRepository<Employ> repository, IMapper mapper, IEmployRepository employRepository)
             : base(repository, mapper)
         {
             _employRepository = employRepository;

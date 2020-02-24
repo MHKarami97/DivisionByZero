@@ -17,7 +17,7 @@ using System.Linq;
 
 namespace Repositories.Repositories
 {
-    public class LikeRepository : Repository<Like>, ILikeRepository, IScopedDependency
+    public class LikeRepository : Repository<Like>, ILikeRepository, IScopedDependency, IBaseRepository
     {
         public LikeRepository(ApplicationDbContext dbContext, IMapper mapper)
             : base(dbContext, mapper)

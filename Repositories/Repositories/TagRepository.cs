@@ -18,7 +18,7 @@ using System.Linq;
 
 namespace Repositories.Repositories
 {
-    public class TagRepository : Repository<Tag>, ITagRepository, IScopedDependency
+    public class TagRepository : Repository<Tag>, ITagRepository, IScopedDependency, IBaseRepository
     {
         private readonly IRepository<PostTag> _repositoryPostTag;
         private readonly IRepository<Post> _repositoryPost;

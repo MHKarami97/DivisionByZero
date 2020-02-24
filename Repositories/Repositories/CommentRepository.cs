@@ -16,30 +16,30 @@ using System.Collections.Generic;
 
 namespace Repositories.Repositories
 {
-    public class CommentRepository<TSelect> : Repository<Comment>, ICommentRepository<TSelect>, IScopedDependency
+    public class CommentRepository : Repository<Comment>, ICommentRepository, IScopedDependency, IBaseRepository
     {
         public CommentRepository(ApplicationDbContext dbContext, IMapper mapper)
             : base(dbContext, mapper)
         {
         }
 
-        public async Task<ApiResult<List<TSelect>>> GetPostComments(int id, CancellationToken cancellationToken)
+        public async Task<ApiResult<List<CommentSelectDto>>> GetPostComments(int id, CancellationToken cancellationToken)
         {
             var list = await TableNoTracking
                 .Where(a => !a.VersionStatus.Equals(2) && a.PostId.Equals(id))
-                .ProjectTo<TSelect>(Mapper.ConfigurationProvider)
+                .ProjectTo<CommentSelectDto>(Mapper.ConfigurationProvider)
                 .ToListAsync(cancellationToken);
 
             return list;
         }
 
-        public async Task<ApiResult<List<TSelect>>> GetLastComments(CancellationToken cancellationToken)
+        public async Task<ApiResult<List<CommentSelectDto>>> GetLastComments(CancellationToken cancellationToken)
         {
             var list = await TableNoTracking
                 .Where(a => !a.VersionStatus.Equals(2))
                 .OrderByDescending(a => a.Time)
                 .Take(DefaultTake)
-                .ProjectTo<TSelect>(Mapper.ConfigurationProvider)
+                .ProjectTo<CommentSelectDto>(Mapper.ConfigurationProvider)
                 .ToListAsync(cancellationToken);
 
             return list;

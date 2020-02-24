@@ -15,7 +15,7 @@ using System.Collections.Generic;
 
 namespace Repositories.Repositories
 {
-    public class CategoryRepository : Repository<Category>, ICategoryRepository, IScopedDependency
+    public class CategoryRepository : Repository<Category>, ICategoryRepository, IScopedDependency, IBaseRepository
     {
         public CategoryRepository(ApplicationDbContext dbContext, IMapper mapper)
             : base(dbContext, mapper)
@@ -25,7 +25,7 @@ namespace Repositories.Repositories
         public async Task<ApiResult<List<CategoryDto>>> GetAllMainCat(CancellationToken cancellationToken)
         {
             var list = await TableNoTracking
-                .Where(a => !a.VersionStatus.Equals(2) && a.ParentCategoryId.Equals(0))
+                .Where(a => !a.VersionStatus.Equals(2) && a.ParentCategoryId.Equals(0) || a.ParentCategoryId.Equals(null))
                 .ProjectTo<CategoryDto>(Mapper.ConfigurationProvider)
                 .ToListAsync(cancellationToken);
 

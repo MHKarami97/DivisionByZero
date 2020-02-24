@@ -23,7 +23,7 @@ namespace MyApi.Controllers.v1
     [ApiVersion("1")]
     public class PostsController : CrudController<PostDto, PostSelectDto, Post>
     {
-        private readonly IPostRepository<PostShortSelectDto> _postRepository;
+        private readonly IPostRepository _postRepository;
         private readonly UserManager<User> _userManager;
         private readonly IRepository<Like> _repositoryLike;
         private readonly IRepository<PostTag> _repositoryTag;
@@ -32,7 +32,7 @@ namespace MyApi.Controllers.v1
         private readonly IRepository<View> _repositoryView;
         private readonly ViewsController _viewsController;
 
-        public PostsController(IRepository<Post> repository, IMapper mapper, UserManager<User> userManager, IRepository<PostTag> repositoryTag, IRepository<Follower> repositoryFollower, IRepository<Like> repositoryLike, IRepository<Comment> repositoryComment, IRepository<View> repositoryView, ViewsController viewsController, IPostRepository<PostShortSelectDto> postRepository)
+        public PostsController(IRepository<Post> repository, IMapper mapper, UserManager<User> userManager, IRepository<PostTag> repositoryTag, IRepository<Follower> repositoryFollower, IRepository<Like> repositoryLike, IRepository<Comment> repositoryComment, IRepository<View> repositoryView, ViewsController viewsController, IPostRepository postRepository)
             : base(repository, mapper)
         {
             _userManager = userManager;
