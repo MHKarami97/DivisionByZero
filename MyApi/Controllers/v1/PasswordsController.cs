@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using Common.Utilities;
+using Microsoft.AspNetCore.Mvc;
 using System.Threading.Tasks;
 using Entities.User;
 using Microsoft.AspNetCore.Authorization;
@@ -29,7 +30,8 @@ namespace MyApi.Controllers.v1
         [HttpPost]
         public async Task<ApiResult> ChangePassword(ChangePasswordDto model)
         {
-            var user = await _userManager.GetUserAsync(User);
+            var userId = HttpContext.User.Identity.GetUserId<int>();
+            var user = await _userManager.FindByIdAsync(userId.ToString());
 
             var validOldPass = await _passwordValidator.ValidateAsync(_userManager, user, model.OldPassword);
 
@@ -62,7 +64,6 @@ namespace MyApi.Controllers.v1
             //     });
 
             return Ok();
-
         }
 
         [HttpPost]
@@ -75,7 +76,7 @@ namespace MyApi.Controllers.v1
             var user = await _userManager.FindByEmailAsync(model.Email);
 
             if (user == null || !await _userManager.IsEmailConfirmedAsync(user))
-                return BadRequest();
+                return BadRequest("کاربر نامعتبر است یا تایید نشده است");
 
             var code = await _userManager.GeneratePasswordResetTokenAsync(user);
 

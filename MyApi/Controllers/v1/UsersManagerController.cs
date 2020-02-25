@@ -1,10 +1,14 @@
-﻿using System.Linq;
+﻿using Common.Utilities;
+using Data.Contracts;
+using System.Linq;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using System.Threading.Tasks;
 using Entities.User;
 using WebFramework.Api;
 using Microsoft.AspNetCore.Identity;
+using Models.Base;
+using System.Threading;
 
 namespace MyApi.Controllers.v1
 {
@@ -14,27 +18,23 @@ namespace MyApi.Controllers.v1
     {
         private readonly UserManager<User> _userManager;
         private readonly RoleManager<Role> _roleManager;
+        private readonly IUserRepository _userRepository;
 
-        public UsersManagerController(UserManager<User> userManager, RoleManager<Role> roleManager)
+        public UsersManagerController(UserManager<User> userManager, RoleManager<Role> roleManager, IUserRepository userRepository)
         {
             _userManager = userManager;
             _roleManager = roleManager;
+            _userRepository = userRepository;
         }
 
-        [Authorize]
         [HttpPost]
+        [Authorize(Policy = "WorkerPolicy")]
         [ResponseCache(Location = ResponseCacheLocation.None, NoStore = true)]
-        public async Task<IActionResult> ActivateUserEmailStat(int userId)
+        public async Task<ApiResult> ActivateUserEmail(int userId, CancellationToken cancellationToken)
         {
             var user = await _userManager.FindByIdAsync(userId.ToString());
 
-            user.EmailConfirmed = true;
-
-            var result = await _userManager.UpdateSecurityStampAsync(user);
-            var updateUser = await _userManager.UpdateAsync(user);
-
-            if (!result.Succeeded || !updateUser.Succeeded)
-                return BadRequest();
+            await _userRepository.ActivateUserEmail(user, cancellationToken);
 
             return Ok();
         }
@@ -42,17 +42,11 @@ namespace MyApi.Controllers.v1
         [HttpPost]
         [Authorize(Policy = "WorkerPolicy")]
         [ResponseCache(Location = ResponseCacheLocation.None, NoStore = true)]
-        public async Task<IActionResult> ChangeUserLockoutMode(int userId, bool activate)
+        public async Task<ApiResult> ChangeUserLockout(int userId, bool status, CancellationToken cancellationToken)
         {
             var user = await _userManager.FindByIdAsync(userId.ToString());
 
-            user.LockoutEnabled = activate;
-
-            var result = await _userManager.UpdateSecurityStampAsync(user);
-            var updateUser = await _userManager.UpdateAsync(user);
-
-            if (!result.Succeeded || !updateUser.Succeeded)
-                return BadRequest();
+            await _userRepository.ChangeUserLockout(user, status, cancellationToken);
 
             return Ok();
         }
@@ -60,7 +54,7 @@ namespace MyApi.Controllers.v1
         [HttpPost]
         [Authorize(Policy = "SuperAdminPolicy")]
         [ResponseCache(Location = ResponseCacheLocation.None, NoStore = true)]
-        public async Task<IActionResult> ChangeUserRoles(int userId, int[] roleIds)
+        public async Task<ApiResult> ChangeUserRoles(int userId, int[] roleIds)
         {
             var user = await _userManager.FindByIdAsync(userId.ToString());
 
@@ -85,51 +79,47 @@ namespace MyApi.Controllers.v1
         [HttpPost]
         [Authorize(Policy = "WorkerPolicy")]
         [ResponseCache(Location = ResponseCacheLocation.None, NoStore = true)]
-        public async Task<IActionResult> ChangeUserStat(int userId, bool activate)
+        public async Task<ApiResult> ChangeUserStatus(int userId, bool status, CancellationToken cancellationToken)
         {
             var user = await _userManager.FindByIdAsync(userId.ToString());
 
-            user.IsActive = activate;
-
-            var result = await _userManager.UpdateSecurityStampAsync(user);
-            var updateUser = await _userManager.UpdateAsync(user);
-
-            if (!result.Succeeded || !updateUser.Succeeded)
-                return BadRequest();
+            await _userRepository.ChangeUserStatus(user, status, cancellationToken);
 
             return Ok();
         }
 
         [HttpPost]
+        [Authorize]
         [ResponseCache(Location = ResponseCacheLocation.None, NoStore = true)]
-        public async Task<IActionResult> ChangeUserTwoFactorAuthenticationStat(int userId, bool activate)
+        public async Task<ApiResult> ChangeUserTwoFactorAuthenticationStatus(int userId, bool status, CancellationToken cancellationToken)
         {
-            var user = await _userManager.FindByIdAsync(userId.ToString());
+            var userAuthorizedId = HttpContext.User.Identity.GetUserId<int>();
+            var requestedUser = await _userManager.FindByIdAsync(userAuthorizedId.ToString());
 
-            user.TwoFactorEnabled = activate;
+            var isAdmin = await _userManager.IsInRoleAsync(requestedUser, "Admin");
 
-            var result = await _userManager.UpdateSecurityStampAsync(user);
-            var updateUser = await _userManager.UpdateAsync(user);
+            if (isAdmin)
+            {
+                var user = await _userManager.FindByIdAsync(userId.ToString());
 
-            if (!result.Succeeded || !updateUser.Succeeded)
-                return BadRequest();
+                await _userRepository.ChangeUserTwoFactorAuthenticationStatus(user, status, cancellationToken);
+
+                return Ok();
+            }
+
+            await _userRepository.ChangeUserTwoFactorAuthenticationStatus(requestedUser, status, cancellationToken);
 
             return Ok();
         }
 
         [HttpPost]
+        [Authorize(Policy = "WorkerPolicy")]
         [ResponseCache(Location = ResponseCacheLocation.None, NoStore = true)]
-        public async Task<IActionResult> EndUserLockout(int userId)
+        public async Task<ApiResult> EndUserLockout(int userId, CancellationToken cancellationToken)
         {
             var user = await _userManager.FindByIdAsync(userId.ToString());
 
-            user.LockoutEnd = null;
-
-            var result = await _userManager.UpdateSecurityStampAsync(user);
-            var updateUser = await _userManager.UpdateAsync(user);
-
-            if (!result.Succeeded || !updateUser.Succeeded)
-                return BadRequest();
+            await _userRepository.EndUserLockout(user, cancellationToken);
 
             return Ok();
         }

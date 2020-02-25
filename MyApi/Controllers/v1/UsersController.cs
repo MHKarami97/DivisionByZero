@@ -26,12 +26,12 @@ namespace MyApi.Controllers.v1
     [Route("api/v{version:apiVersion}/[controller]/[action]")]
     public class UsersController : BaseController
     {
+        private readonly IMapper _mapper;
         private readonly ISecurity _security;
-        private readonly IUserRepository _userRepository;
-        private readonly ILogger<UsersController> _logger;
         private readonly IJwtService _jwtService;
         private readonly UserManager<User> _userManager;
-        private readonly IMapper _mapper;
+        private readonly IUserRepository _userRepository;
+        private readonly ILogger<UsersController> _logger;
         private readonly IRepository<Follower> _repositoryFollower;
 
         public UsersController(IUserRepository userRepository, IMapper mapper, ILogger<UsersController> logger, IJwtService jwtService,
@@ -72,15 +72,11 @@ namespace MyApi.Controllers.v1
                 if (user == null)
                     return NotFound();
 
-                await _userManager.UpdateSecurityStampAsync(user);
-
                 return _mapper.Map<UserReturnDto>(user);
             }
 
             if (userId != id)
                 return NotFound();
-
-            await _userManager.UpdateSecurityStampAsync(requestedUser);
 
             return _mapper.Map<UserReturnDto>(requestedUser);
         }
@@ -154,9 +150,21 @@ namespace MyApi.Controllers.v1
             if (user == null)
                 throw new BadRequestException("نام کاربری یا رمز عبور اشتباه است");
 
+            if (user.LockoutEnabled && user.LockoutEnd.HasValue && user.LockoutEnd.Value > DateTimeOffset.Now)
+                throw new BadRequestException("حساب شما قفل شده است، لطفا کمی بعد تلاش کنید");
+
+            if (user.LockoutEnabled && user.LockoutEnd.HasValue && user.LockoutEnd.Value < DateTimeOffset.Now)
+                await _userRepository.DisableLockout(user, cancellationToken);
+
             var isPasswordValid = await _userManager.CheckPasswordAsync(user, tokenRequest.Password);
             if (!isPasswordValid)
+            {
+                await _userRepository.LockoutIncrease(user, cancellationToken);
+
                 throw new BadRequestException("نام کاربری یا رمز عبور اشتباه است");
+            }
+
+            await _userRepository.UpdateSecurityStampAsync(user, cancellationToken);
 
             var jwt = await _jwtService.GenerateAsync(user);
 
@@ -174,15 +182,26 @@ namespace MyApi.Controllers.v1
             if (user == null)
                 throw new BadRequestException("نام کاربری یا رمز عبور اشتباه است");
 
+            if (user.LockoutEnabled && user.LockoutEnd.HasValue && user.LockoutEnd.Value > DateTimeOffset.Now)
+                throw new BadRequestException("حساب شما قفل شده است، لطفا کمی بعد تلاش کنید");
+
+            if (user.LockoutEnabled && user.LockoutEnd.HasValue && user.LockoutEnd.Value < DateTimeOffset.Now)
+                await _userRepository.DisableLockout(user, cancellationToken);
+
             var isPasswordValid = await _userManager.CheckPasswordAsync(user, tokenBodyRequest.Password);
             if (!isPasswordValid)
+            {
+                await _userRepository.LockoutIncrease(user, cancellationToken);
+
                 throw new BadRequestException("نام کاربری یا رمز عبور اشتباه است");
+            }
+
+            await _userRepository.UpdateSecurityStampAsync(user, cancellationToken);
 
             var jwt = await _jwtService.GenerateAsync(user);
 
             return new JsonResult(jwt);
         }
-
 
         [HttpPost]
         [AllowAnonymous]
@@ -192,12 +211,10 @@ namespace MyApi.Controllers.v1
 
             if (dto.VerifyCode == 0)
             {
-                var user = await _userManager
-                    .Users
-                    .SingleAsync(a => a.PhoneNumber.Equals(dto.Phone), cancellationToken);
+                var user = await _userRepository.GetByPhone(dto.Phone, cancellationToken);
 
                 if (user == null)
-                    throw new BadRequestException("نام کاربری یا رمز عبور اشتباه است");
+                    throw new BadRequestException("شماره موبایل اشتباه است");
 
                 user.VerifyCode = _security.RandomNumber(11111, 99999);
 
@@ -212,12 +229,23 @@ namespace MyApi.Controllers.v1
             }
             else
             {
-                var user = await _userManager
-                    .Users
-                    .SingleAsync(a => a.PhoneNumber.Equals(dto.Phone) && a.VerifyCode.Equals(dto.VerifyCode), cancellationToken);
+                var user = await _userRepository.GetByPhone(dto.Phone, cancellationToken);
 
                 if (user == null)
+                    throw new BadRequestException("شماره موبایل اشتباه است");
+
+                if(!user.VerifyCode.Equals(dto.VerifyCode))
+                {
+                    await _userRepository.LockoutIncrease(user, cancellationToken);
+
                     throw new BadRequestException("اطلاعات اشتباه است");
+                }
+
+                if (user.LockoutEnabled && user.LockoutEnd.HasValue && user.LockoutEnd.Value > DateTimeOffset.Now)
+                    throw new BadRequestException("حساب شما قفل شده است، لطفا کمی بعد تلاش کنید");
+
+                if (user.LockoutEnabled && user.LockoutEnd.HasValue && user.LockoutEnd.Value < DateTimeOffset.Now)
+                    await _userRepository.DisableLockout(user, cancellationToken);
 
                 user.VerifyCode = null;
 
@@ -225,6 +253,8 @@ namespace MyApi.Controllers.v1
 
                 if (!result.Succeeded)
                     throw new BadRequestException("خطا در ذخیره اطلاعات");
+
+                await _userRepository.UpdateSecurityStampAsync(user, cancellationToken);
 
                 var jwt = await _jwtService.GenerateAsync(user);
 

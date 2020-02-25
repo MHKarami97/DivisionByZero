@@ -26,9 +26,15 @@ namespace Data.Repositories
             return Table.Where(p => p.UserName == username && p.PasswordHash == passwordHash).SingleOrDefaultAsync(cancellationToken);
         }
 
+        public Task<User> GetByPhone(string phone, CancellationToken cancellationToken)
+        {
+            return Table.Where(p => p.PhoneNumber == phone).SingleOrDefaultAsync(cancellationToken);
+        }
+
         public Task UpdateSecurityStampAsync(User user, CancellationToken cancellationToken)
         {
             user.SecurityStamp = Guid.NewGuid().ToString();
+
             return UpdateAsync(user, cancellationToken);
         }
 
@@ -41,6 +47,68 @@ namespace Data.Repositories
         public Task UpdateLastLoginDateAsync(User user, CancellationToken cancellationToken)
         {
             user.LastLoginDate = DateTimeOffset.Now;
+            return UpdateAsync(user, cancellationToken);
+        }
+
+        public Task LockoutIncrease(User user, CancellationToken cancellationToken)
+        {
+            user.AccessFailedCount += 1;
+
+            if (user.AccessFailedCount <= 3)
+                return UpdateAsync(user, cancellationToken);
+
+            user.LockoutEnabled = true;
+            user.LockoutEnd = DateTimeOffset.Now.AddHours(2);
+
+            return UpdateAsync(user, cancellationToken);
+        }
+
+        public Task DisableLockout(User user, CancellationToken cancellationToken)
+        {
+            user.LockoutEnabled = false;
+            user.AccessFailedCount = 0;
+            user.LockoutEnd = null;
+
+            return UpdateAsync(user, cancellationToken);
+        }
+
+        public Task ChangeUserLockout(User user, bool status, CancellationToken cancellationToken)
+        {
+            user.LockoutEnabled = status;
+            user.SecurityStamp = Guid.NewGuid().ToString();
+
+            return UpdateAsync(user, cancellationToken);
+        }
+
+        public Task ChangeUserStatus(User user, bool status, CancellationToken cancellationToken)
+        {
+            user.IsActive = status;
+            user.SecurityStamp = Guid.NewGuid().ToString();
+
+            return UpdateAsync(user, cancellationToken);
+        }
+
+        public Task ChangeUserTwoFactorAuthenticationStatus(User user, bool status, CancellationToken cancellationToken)
+        {
+            user.IsActive = status;
+            user.SecurityStamp = Guid.NewGuid().ToString();
+
+            return UpdateAsync(user, cancellationToken);
+        }
+
+        public Task EndUserLockout(User user, CancellationToken cancellationToken)
+        {
+            user.LockoutEnd = null;
+            user.SecurityStamp = Guid.NewGuid().ToString();
+
+            return UpdateAsync(user, cancellationToken);
+        }
+
+        public Task ActivateUserEmail(User user, CancellationToken cancellationToken)
+        {
+            user.EmailConfirmed = true;
+            user.SecurityStamp = Guid.NewGuid().ToString();
+
             return UpdateAsync(user, cancellationToken);
         }
 
