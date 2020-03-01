@@ -13,6 +13,7 @@ using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using Microsoft.IdentityModel.Tokens;
 using Models.Base;
+using System.Data;
 
 namespace WebFramework.Middlewares
 {
@@ -91,6 +92,18 @@ namespace WebFramework.Middlewares
                 await WriteToResponseAsync();
             }
             catch (ArgumentNullException exception)
+            {
+                _logger.LogError(exception, exception.Message);
+
+                var dic = new Dictionary<string, string>
+                {
+                    ["Exception"] = exception.Message
+                };
+                message = JsonConvert.SerializeObject(dic);
+
+                await WriteToResponseAsync();
+            }
+            catch (DataException exception)
             {
                 _logger.LogError(exception, exception.Message);
 

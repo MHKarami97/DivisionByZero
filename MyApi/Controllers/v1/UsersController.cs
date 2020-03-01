@@ -19,6 +19,7 @@ using WebFramework.Api;
 using Microsoft.AspNetCore.Identity;
 using Services.Security;
 using Services.Services;
+using System.Data;
 
 namespace MyApi.Controllers.v1
 {
@@ -144,14 +145,25 @@ namespace MyApi.Controllers.v1
         public virtual async Task<ActionResult> Token([FromForm]TokenRequest tokenRequest, CancellationToken cancellationToken)
         {
             if (!tokenRequest.Grant_type.Equals("password", StringComparison.OrdinalIgnoreCase))
-                throw new Exception("OAuth flow is not password.");
+                throw new DataException("OAuth flow is not password.");
+
+            //Prevent Brute Force Attack
+            await Task.Delay(_security.RandomNumber(1, 2), cancellationToken);
 
             var user = await _userManager.FindByNameAsync(tokenRequest.Username);
             if (user == null)
-                throw new BadRequestException("نام کاربری یا رمز عبور اشتباه است");
+            {
+                _logger.LogError("نام کاربری اشتباه");
+
+                throw new DataException("نام کاربری یا رمز عبور اشتباه است");
+            }
 
             if (user.LockoutEnabled && user.LockoutEnd.HasValue && user.LockoutEnd.Value > DateTimeOffset.Now)
-                throw new BadRequestException("حساب شما قفل شده است، لطفا کمی بعد تلاش کنید");
+            {
+                _logger.LogError("قفل بودن کاربر");
+
+                throw new DataException("حساب شما قفل شده است، لطفا کمی بعد تلاش کنید");
+            }
 
             if (user.LockoutEnabled && user.LockoutEnd.HasValue && user.LockoutEnd.Value < DateTimeOffset.Now)
                 await _userRepository.DisableLockout(user, cancellationToken);
@@ -161,7 +173,9 @@ namespace MyApi.Controllers.v1
             {
                 await _userRepository.LockoutIncrease(user, cancellationToken);
 
-                throw new BadRequestException("نام کاربری یا رمز عبور اشتباه است");
+                _logger.LogError("رمز عبور اشتباه");
+
+                throw new DataException("نام کاربری یا رمز عبور اشتباه است");
             }
 
             await _userRepository.UpdateSecurityStampAsync(user, cancellationToken);
@@ -176,14 +190,25 @@ namespace MyApi.Controllers.v1
         public virtual async Task<ActionResult> TokenByBody([FromBody]TokenRequest tokenBodyRequest, CancellationToken cancellationToken)
         {
             if (!tokenBodyRequest.Grant_type.Equals("password", StringComparison.OrdinalIgnoreCase))
-                throw new Exception("OAuth flow is not password.");
+                throw new DataException("OAuth flow is not password.");
+
+            //Prevent Brute Force Attack
+            await Task.Delay(_security.RandomNumber(1, 2), cancellationToken);
 
             var user = await _userManager.FindByNameAsync(tokenBodyRequest.Username);
             if (user == null)
-                throw new BadRequestException("نام کاربری یا رمز عبور اشتباه است");
+            {
+                _logger.LogError("نام کاربری اشتباه");
+
+                throw new DataException("نام کاربری یا رمز عبور اشتباه است");
+            }
 
             if (user.LockoutEnabled && user.LockoutEnd.HasValue && user.LockoutEnd.Value > DateTimeOffset.Now)
-                throw new BadRequestException("حساب شما قفل شده است، لطفا کمی بعد تلاش کنید");
+            {
+                _logger.LogError("قفل بودن کاربر");
+
+                throw new DataException("حساب شما قفل شده است، لطفا کمی بعد تلاش کنید");
+            }
 
             if (user.LockoutEnabled && user.LockoutEnd.HasValue && user.LockoutEnd.Value < DateTimeOffset.Now)
                 await _userRepository.DisableLockout(user, cancellationToken);
@@ -193,7 +218,9 @@ namespace MyApi.Controllers.v1
             {
                 await _userRepository.LockoutIncrease(user, cancellationToken);
 
-                throw new BadRequestException("نام کاربری یا رمز عبور اشتباه است");
+                _logger.LogError("رمز عبور اشتباه");
+
+                throw new DataException("نام کاربری یا رمز عبور اشتباه است");
             }
 
             await _userRepository.UpdateSecurityStampAsync(user, cancellationToken);
@@ -209,12 +236,19 @@ namespace MyApi.Controllers.v1
         {
             Assert.NotNullArgument(dto.Phone, "شماره وارد شده نامعتبر است");
 
+            //Prevent Brute Force Attack
+            await Task.Delay(_security.RandomNumber(1, 2), cancellationToken);
+
             if (dto.VerifyCode == 0)
             {
                 var user = await _userRepository.GetByPhone(dto.Phone, cancellationToken);
 
                 if (user == null)
-                    throw new BadRequestException("شماره موبایل اشتباه است");
+                {
+                    _logger.LogError("شماره موبایل اشتباه");
+
+                    throw new DataException("شماره موبایل اشتباه است");
+                }
 
                 user.VerifyCode = _security.RandomNumber(11111, 99999);
 
@@ -232,17 +266,23 @@ namespace MyApi.Controllers.v1
                 var user = await _userRepository.GetByPhone(dto.Phone, cancellationToken);
 
                 if (user == null)
-                    throw new BadRequestException("شماره موبایل اشتباه است");
+                    throw new DataException("شماره موبایل اشتباه است");
 
-                if(!user.VerifyCode.Equals(dto.VerifyCode))
+                if (!user.VerifyCode.Equals(dto.VerifyCode))
                 {
                     await _userRepository.LockoutIncrease(user, cancellationToken);
+
+                    _logger.LogError("کد تایید موبایل اشتباه");
 
                     throw new BadRequestException("اطلاعات اشتباه است");
                 }
 
                 if (user.LockoutEnabled && user.LockoutEnd.HasValue && user.LockoutEnd.Value > DateTimeOffset.Now)
-                    throw new BadRequestException("حساب شما قفل شده است، لطفا کمی بعد تلاش کنید");
+                {
+                    _logger.LogError("قفل بودن حساب");
+
+                    throw new DataException("حساب شما قفل شده است، لطفا کمی بعد تلاش کنید");
+                }
 
                 if (user.LockoutEnabled && user.LockoutEnd.HasValue && user.LockoutEnd.Value < DateTimeOffset.Now)
                     await _userRepository.DisableLockout(user, cancellationToken);
