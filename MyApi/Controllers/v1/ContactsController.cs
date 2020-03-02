@@ -64,6 +64,7 @@ namespace MyApi.Controllers.v1
 
             dto.ByServer = false;
             dto.Time = DateTimeOffset.Now;
+            dto.Text = dto.Text.FixPersianChars();
             dto.UserId = HttpContext.User.Identity.GetUserId<int>();
 
             if (await _userManager.IsInRoleAsync(user, "Member"))

@@ -71,6 +71,7 @@ namespace MyApi.Controllers.v1
         {
             dto.UserId = HttpContext.User.Identity.GetUserId<int>();
             dto.Time = DateTimeOffset.Now;
+            dto.Text = dto.Text.FixPersianChars();
 
             if (!_security.TimeCheck(await _commentRepository.Create(dto, cancellationToken)))
                 return BadRequest("لطفا کمی صبر کنید و بعد نظر بدهید");

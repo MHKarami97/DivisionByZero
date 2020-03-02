@@ -141,6 +141,9 @@ namespace MyApi.Controllers.v1
         {
             dto.UserId = HttpContext.User.Identity.GetUserId<int>();
             dto.Time = DateTimeOffset.Now;
+            dto.Text = dto.Text.FixPersianChars();
+            dto.Title = dto.Title.FixPersianChars();
+            dto.ShortDescription = dto.ShortDescription.FixPersianChars();
 
             return base.Create(dto, cancellationToken);
         }

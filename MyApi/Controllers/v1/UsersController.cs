@@ -365,19 +365,16 @@ namespace MyApi.Controllers.v1
         {
             _logger.LogError("متد Create فراخوانی شد");
 
-            var exists = await _userManager.Users.AnyAsync(p => p.PhoneNumber == userDto.PhoneNumber, cancellationToken: cancellationToken);
-            if (exists)
-                return BadRequest("نام کاربری تکراری است");
-
             var user = new User
             {
                 Birthday = userDto.Birthday,
-                FullName = userDto.FullName,
+                FullName = userDto.FullName.ToLower(),
                 Gender = userDto.Gender,
-                UserName = userDto.UserName,
-                Email = userDto.Email,
-                PhoneNumber = userDto.PhoneNumber
+                UserName = userDto.UserName.ToLower(),
+                Email = _security.EmailChecker(userDto.Email),
+                PhoneNumber = userDto.PhoneNumber.Fa2En()
             };
+
             var result = await _userManager.CreateAsync(user, userDto.Password);
 
             if (!result.Succeeded)
@@ -392,7 +389,7 @@ namespace MyApi.Controllers.v1
         }
 
         [HttpPut]
-        public virtual async Task<ApiResult> Update(int id, User user, CancellationToken cancellationToken)
+        public virtual async Task<ApiResult> Update(int id, UserUpdateDto user, CancellationToken cancellationToken)
         {
             var userId = HttpContext.User.Identity.GetUserId<int>();
 
@@ -406,13 +403,29 @@ namespace MyApi.Controllers.v1
 
             var updateUser = await _userRepository.GetByIdAsync(cancellationToken, id);
 
-            updateUser.UserName = user.UserName;
-            updateUser.PasswordHash = user.PasswordHash;
-            updateUser.FullName = user.FullName;
-            updateUser.Birthday = user.Birthday;
-            updateUser.Gender = user.Gender;
-            updateUser.IsActive = user.IsActive;
-            updateUser.LastLoginDate = user.LastLoginDate;
+            if (!string.IsNullOrEmpty(user.UserName))
+                updateUser.UserName = user.UserName;
+
+            if (!string.IsNullOrEmpty(user.FullName))
+                updateUser.FullName = user.FullName;
+
+            if (!string.IsNullOrEmpty(user.FullName))
+                updateUser.FullName = user.FullName;
+
+            if (user.Gender != 0)
+                updateUser.Gender = user.Gender;
+
+            if (!string.IsNullOrEmpty(user.Email))
+            {
+                updateUser.Email = user.Email;
+                updateUser.EmailConfirmed = false;
+            }
+
+            if (!string.IsNullOrEmpty(user.PhoneNumber))
+            {
+                updateUser.PhoneNumber = user.PhoneNumber;
+                updateUser.PhoneNumberConfirmed = false;
+            }
 
             await _userRepository.UpdateAsync(updateUser, cancellationToken);
 

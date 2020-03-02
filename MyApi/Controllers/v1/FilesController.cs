@@ -22,6 +22,7 @@ namespace MyApi.Controllers.v1
         }
 
         [HttpPost]
+        [RequestSizeLimit(900_000)]
         public ApiResult<string> UploadImage(IFormFile file)
         {
             switch (_security.ImageCheck(file))

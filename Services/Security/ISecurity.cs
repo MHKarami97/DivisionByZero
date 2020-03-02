@@ -16,5 +16,7 @@ namespace Services.Security
         int RandomNumber(int min = 0, int max = int.MaxValue);
 
         bool TimeCheck(DateTimeOffset time);
+
+        string EmailChecker(string email);
     }
 }
