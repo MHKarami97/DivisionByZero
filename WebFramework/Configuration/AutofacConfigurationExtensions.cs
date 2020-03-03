@@ -9,6 +9,7 @@ using Entities.Common;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Logging;
 using Repositories.Contracts;
+using Services.CronJob;
 using Services.Recommend;
 using Services.Security;
 
@@ -21,6 +22,10 @@ namespace WebFramework.Configuration
             containerBuilder.RegisterGeneric(typeof(Repository<>))
                 .As(typeof(IRepository<>))
                 .InstancePerLifetimeScope();
+
+            containerBuilder.RegisterGeneric(typeof(ScheduleConfig<>))
+                .As(typeof(IScheduleConfig<>))
+                .SingleInstance();
 
             containerBuilder.RegisterType<MemoryCacheIpPolicyStore>()
                 .As<IIpPolicyStore>()

@@ -20,7 +20,7 @@
     <PackageReference Include="Microsoft.AspNetCore.Mvc.Versioning" Version="4.1.1" />
     <PackageReference Include="Swashbuckle.AspNetCore" Version="5.0.0" />
     <PackageReference Include="Swashbuckle.AspNetCore.Annotations" Version="5.0.0" />
-    <PackageReference Include="Swashbuckle.AspNetCore.Filters" Version="5.0.0" />
+    <PackageReference Include="Swashbuckle.AspNetCore.Filters" Version="5.0.2" />
     <PackageReference Include="Swashbuckle.AspNetCore.ReDoc" Version="5.0.0" />
     <PackageReference Include="OwaspHeaders.Core" Version="4.2.0" />
   </ItemGroup>

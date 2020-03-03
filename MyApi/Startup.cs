@@ -74,6 +74,12 @@ namespace MyApi
             services.Configure<IpRateLimitOptions>(Configuration.GetSection("IpRateLimiting"));
             services.Configure<IpRateLimitPolicies>(Configuration.GetSection("IpRateLimitPolicies"));
 
+            // services.AddCronJob<EmailNotificationCronJob>(c =>
+            // {
+            //     c.TimeZoneInfo = TimeZoneInfo.Local;
+            //     c.CronExpression = @"* * * * *";
+            // });
+
             //services.AddElmah(Configuration, _siteSetting);
         }
         
