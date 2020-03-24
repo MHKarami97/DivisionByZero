@@ -17,6 +17,7 @@ using Entities.User;
 using Models.Base;
 using WebFramework.Api;
 using Microsoft.AspNetCore.Identity;
+using Services;
 using Services.Security;
 using Services.Services;
 using System.Data;
@@ -187,7 +188,7 @@ namespace MyApi.Controllers.v1
 
         [HttpPost]
         [AllowAnonymous]
-        public virtual async Task<ActionResult> TokenByBody([FromBody]TokenRequest tokenBodyRequest, CancellationToken cancellationToken)
+        public virtual async Task<ApiResult<AccessToken>> TokenByBody(TokenRequest tokenBodyRequest, CancellationToken cancellationToken)
         {
             if (!tokenBodyRequest.Grant_type.Equals("password", StringComparison.OrdinalIgnoreCase))
                 throw new DataException("OAuth flow is not password.");
@@ -227,7 +228,7 @@ namespace MyApi.Controllers.v1
 
             var jwt = await _jwtService.GenerateAsync(user);
 
-            return new JsonResult(jwt);
+            return jwt;
         }
 
         [HttpPost]
