@@ -21,6 +21,7 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.AspNetCore.Mvc.Authorization;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Services.Identity;
 
 namespace WebFramework.Configuration
 {
@@ -217,6 +218,30 @@ namespace WebFramework.Configuration
 
                 //options.ApiVersionReader = ApiVersionReader.Combine(new QueryStringApiVersionReader("api-version"), new UrlSegmentApiVersionReader())
                 // combine of [querystring] & [urlsegment]
+            });
+        }
+
+        public static void AddCronJob(this IServiceCollection services)
+        {
+            // services.AddCronJob<EmailNotificationCronJob>(c =>
+            // {
+            //     c.TimeZoneInfo = TimeZoneInfo.Local;
+            //     c.CronExpression = @"* * * * *";
+            // });
+        }
+
+        public static void AddRolePolicy(this IServiceCollection services)
+        {
+            services.AddAuthorization(options =>
+            {
+                options.AddPolicy("SuperAdminPolicy", policy =>
+                    policy.RequireRole(Roles.Admin));
+                options.AddPolicy("WorkerPolicy", policy =>
+                    policy.RequireRole(Roles.Admin, Roles.Worker));
+                options.AddPolicy("WriterPolicy", policy =>
+                    policy.RequireRole(Roles.Admin, Roles.Writer));
+                options.AddPolicy("MemberPolicy", policy =>
+                    policy.RequireRole(Roles.Admin, Roles.Member, Roles.Worker));
             });
         }
     }

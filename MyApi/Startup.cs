@@ -1,17 +1,16 @@
 ﻿using System;
-using AspNetCoreRateLimit;
-using Autofac;
 using Common;
+using Autofac;
+using AspNetCoreRateLimit;
 using WebFramework.Swagger;
 using WebFramework.Middlewares;
+using WebFramework.CustomMapping;
 using WebFramework.Configuration;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
+using OwaspHeaders.Core.Extensions;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
-using OwaspHeaders.Core.Extensions;
-using Services.Identity;
-using WebFramework.CustomMapping;
 
 namespace MyApi
 {
@@ -55,17 +54,7 @@ namespace MyApi
 
             services.AddSwagger();
 
-            services.AddAuthorization(options =>
-            {
-                options.AddPolicy("SuperAdminPolicy", policy =>
-                    policy.RequireRole(Roles.Admin));
-                options.AddPolicy("WorkerPolicy", policy =>
-                    policy.RequireRole(Roles.Admin, Roles.Worker));
-                options.AddPolicy("WriterPolicy", policy =>
-                    policy.RequireRole(Roles.Admin, Roles.Writer));
-                options.AddPolicy("MemberPolicy", policy =>
-                    policy.RequireRole(Roles.Admin, Roles.Member, Roles.Worker));
-            });
+            services.AddRolePolicy();
 
             services.AddMemoryCache();
 
@@ -74,15 +63,11 @@ namespace MyApi
             services.Configure<IpRateLimitOptions>(Configuration.GetSection("IpRateLimiting"));
             services.Configure<IpRateLimitPolicies>(Configuration.GetSection("IpRateLimitPolicies"));
 
-            // services.AddCronJob<EmailNotificationCronJob>(c =>
-            // {
-            //     c.TimeZoneInfo = TimeZoneInfo.Local;
-            //     c.CronExpression = @"* * * * *";
-            // });
+            services.AddCronJob();
 
             //services.AddElmah(Configuration, _siteSetting);
         }
-        
+
         public void ConfigureContainer(ContainerBuilder builder)
         {
             builder.RegisterModule(new AutofacConfigurationExtensions());
