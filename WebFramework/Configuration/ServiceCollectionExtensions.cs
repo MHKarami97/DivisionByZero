@@ -11,6 +11,7 @@ using Common.Exceptions;
 using System.Security.Claims;
 using System.Threading.Tasks;
 using Data.Contracts;
+using EFCoreSecondLevelCacheInterceptor;
 using Entities.User;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
@@ -28,12 +29,20 @@ namespace WebFramework.Configuration
     public static class ServiceCollectionExtensions
     {
         [Obsolete]
-        public static void AddDbContext(this IServiceCollection services, IConfiguration configuration)
+        public static void AddDbContext(this IServiceCollection services, IConfiguration configuration, SiteSettings siteSetting)
         {
             services.AddDbContext<ApplicationDbContext>(options =>
             {
                 options
-                    .UseSqlServer(configuration.GetConnectionString("SqlServer"));
+                    .UseSqlServer(configuration.GetConnectionString("SqlServer"),
+                        sqlServerOptionsBuilder =>
+                        {
+                            sqlServerOptionsBuilder.CommandTimeout((int)TimeSpan.FromMinutes(siteSetting.SecondLevelCache).TotalSeconds);
+                            sqlServerOptionsBuilder.EnableRetryOnFailure();
+                        });
+
+                options.AddInterceptors(new SecondLevelCacheInterceptor());
+
                 //Tips
                 //.ConfigureWarnings(warning => warning.Throw(RelationalEventId.QueryClientEvaluationWarning));
             });
@@ -242,6 +251,15 @@ namespace WebFramework.Configuration
                     policy.RequireRole(Roles.Admin, Roles.Writer));
                 options.AddPolicy("MemberPolicy", policy =>
                     policy.RequireRole(Roles.Admin, Roles.Member, Roles.Worker));
+            });
+        }
+
+        public static void AddSecondLevelCache(this IServiceCollection services, SiteSettings siteSetting)
+        {
+            services.AddEFSecondLevelCache(options =>
+            {
+                options.UseMemoryCacheProvider().DisableLogging(true);
+                options.CacheAllQueries(CacheExpirationMode.Absolute, TimeSpan.FromMinutes(siteSetting.SecondLevelCache));
             });
         }
     }

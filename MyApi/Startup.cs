@@ -40,7 +40,7 @@ namespace MyApi
 
             services.InitializeAutoMapper();
 
-            services.AddDbContext(Configuration);
+            services.AddDbContext(Configuration, _siteSetting);
 
             services.AddCustomIdentity(_siteSetting.IdentitySettings);
 
@@ -60,10 +60,12 @@ namespace MyApi
 
             services.AddOptions();
 
+            services.AddCronJob();
+
+            services.AddSecondLevelCache(_siteSetting);
+
             services.Configure<IpRateLimitOptions>(Configuration.GetSection("IpRateLimiting"));
             services.Configure<IpRateLimitPolicies>(Configuration.GetSection("IpRateLimitPolicies"));
-
-            services.AddCronJob();
 
             //services.AddElmah(Configuration, _siteSetting);
         }
