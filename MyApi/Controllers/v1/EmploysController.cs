@@ -10,7 +10,6 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Models.Base;
 using Repositories.Contracts;
-using System;
 using WebFramework.Api;
 
 namespace MyApi.Controllers.v1
@@ -41,9 +40,10 @@ namespace MyApi.Controllers.v1
         public override Task<ApiResult<EmploySelectDto>> Create(EmployDto dto, CancellationToken cancellationToken)
         {
             dto.UserId = HttpContext.User.Identity.GetUserId<int>();
-            dto.Time = DateTimeOffset.Now;
-            dto.Text = dto.Text.FixPersianChars();
-            dto.Title = dto.Title.FixPersianChars();
+
+            //dto.Time = DateTimeOffset.Now;
+            //dto.Text = dto.Text.FixPersianChars();
+            //dto.Title = dto.Title.FixPersianChars();
 
             return base.Create(dto, cancellationToken);
         }

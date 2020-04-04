@@ -1,9 +1,9 @@
 ﻿using System;
 using AutoMapper;
-using Entities.Post;
-using System.ComponentModel.DataAnnotations;
-using System.Text.Json.Serialization;
 using Models.Base;
+using Entities.Post;
+using System.Text.Json.Serialization;
+using System.ComponentModel.DataAnnotations;
 
 namespace Models.Models
 {
@@ -25,13 +25,6 @@ namespace Models.Models
 
         [JsonIgnore]
         public DateTimeOffset Time { get; set; }
-
-        public override void CustomMappings(IMappingExpression<Comment, CommentDto> mappingExpression)
-        {
-            // mappingExpression.ForMember(
-            //     dest => dest.Time,
-            //     config => config.MapFrom(src => DateTime.Now));
-        }
     }
 
     public class CommentSelectDto : BaseDto<CommentSelectDto, Comment>
@@ -40,6 +33,13 @@ namespace Models.Models
         public int PostId { get; set; }
         public int UserId { get; set; }
         public string UserFullName { get; set; }
-        public DateTime Time { get; set; }
+        public string Time { get; set; }
+
+        public override void CustomMappings(IMappingExpression<Comment, CommentSelectDto> mappingExpression)
+        {
+            mappingExpression.ForMember(
+                dest => dest.Time,
+                config => config.MapFrom(src => src.Time.ToString("d")));
+        }
     }
 }

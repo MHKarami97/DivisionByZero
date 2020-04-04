@@ -41,13 +41,6 @@ namespace Models.Models
 
         [JsonIgnore]
         public int UserId { get; set; }
-
-        public override void CustomMappings(IMappingExpression<Post, PostDto> mappingExpression)
-        {
-            // mappingExpression.ForMember(
-            //     dest => dest.Time,
-            //     config => config.MapFrom(src => DateTime.Now));
-        }
     }
 
     public class PostShortSelectDto : BaseDto<PostShortSelectDto, Post>

@@ -12,7 +12,6 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Models.Base;
 using Repositories.Contracts;
-using System;
 using WebFramework.Api;
 
 namespace MyApi.Controllers.v1
@@ -63,8 +62,10 @@ namespace MyApi.Controllers.v1
             var user = await _userManager.GetUserAsync(HttpContext.User);
 
             dto.ByServer = false;
-            dto.Time = DateTimeOffset.Now;
-            dto.Text = dto.Text.FixPersianChars();
+
+            //dto.Time = DateTimeOffset.Now;
+            //dto.Text = dto.Text.FixPersianChars();
+
             dto.UserId = HttpContext.User.Identity.GetUserId<int>();
 
             if (await _userManager.IsInRoleAsync(user, "Member"))

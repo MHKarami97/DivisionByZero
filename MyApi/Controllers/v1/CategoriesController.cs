@@ -52,10 +52,7 @@ namespace MyApi.Controllers.v1
         [Authorize(Policy = "WorkerPolicy")]
         public override async Task<ApiResult<CategoryDto>> Create(CategoryCreateDto dto, CancellationToken cancellationToken)
         {
-            if (dto.ParentCategoryId == null)
-                dto.ParentCategoryId = 0;
-
-            if (dto.ParentCategoryId == 0)
+            if (dto.ParentCategoryId == 0 || dto.ParentCategoryId == null)
                 return await base.Create(dto, cancellationToken);
 
             var isParentExist = await Repository.TableNoTracking.SingleOrDefaultAsync(a => a.Id.Equals(dto.ParentCategoryId), cancellationToken);
@@ -63,7 +60,7 @@ namespace MyApi.Controllers.v1
             if (isParentExist == null)
                 return BadRequest("دسته مادر موجود نمی باشد");
 
-            if(!isParentExist.ParentCategoryId.Equals(0) || isParentExist.ParentCategoryId!=null)
+            if (!isParentExist.ParentCategoryId.Equals(0) || isParentExist.ParentCategoryId != null)
                 return BadRequest("امکان دسته بندی بیشتر از دو مرحله امکان پذیر نمی باشد");
 
             return await base.Create(dto, cancellationToken);

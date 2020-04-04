@@ -1,9 +1,4 @@
-﻿using Models.Models;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading;
-using System.Threading.Tasks;
-using AutoMapper;
+﻿using AutoMapper;
 using AutoMapper.QueryableExtensions;
 using Common.Utilities;
 using Data.Contracts;
@@ -14,8 +9,12 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Models.Base;
+using Models.Models;
 using Repositories.Contracts;
-using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Threading;
+using System.Threading.Tasks;
 using WebFramework.Api;
 
 namespace MyApi.Controllers.v1
@@ -54,49 +53,53 @@ namespace MyApi.Controllers.v1
         [AllowAnonymous]
         public override async Task<ApiResult<PostSelectDto>> Get(int id, CancellationToken cancellationToken)
         {
-            var result = await base.Get(id, cancellationToken);
+            ApiResult<PostSelectDto> result = await base.Get(id, cancellationToken);
 
             result.Data.IsFollowed = false;
             result.Data.IsLiked = false;
-            var isAuthorize = false;
+            bool isAuthorize = false;
 
             if (UserIsAutheticated)
             {
-                var userId = HttpContext.User.Identity.GetUserId<int>();
+                int userId = HttpContext.User.Identity.GetUserId<int>();
 
-                var isFollowed = await _repositoryFollower.TableNoTracking
+                bool isFollowed = await _repositoryFollower.TableNoTracking
                     .AnyAsync(a => a.VersionStatus.Equals(2) && a.FollowerId.Equals(result.Data.UserId) && a.UserId.Equals(userId), cancellationToken);
 
-                var isLiked = await _repositoryLike.TableNoTracking
+                bool isLiked = await _repositoryLike.TableNoTracking
                     .AnyAsync(a => a.VersionStatus.Equals(2) && a.PostId.Equals(result.Data.Id) && a.UserId.Equals(userId), cancellationToken);
 
                 if (isLiked)
+                {
                     result.Data.IsLiked = true;
+                }
 
                 if (isFollowed)
+                {
                     result.Data.IsFollowed = true;
+                }
 
                 isAuthorize = true;
             }
 
-            var tags = await _repositoryTag.TableNoTracking
+            List<TagDto> tags = await _repositoryTag.TableNoTracking
             .Where(a => !a.VersionStatus.Equals(2) && a.PostId.Equals(result.Data.Id))
             .Include(a => a.Tag)
             .Select(a => a.Tag)
             .ProjectTo<TagDto>(Mapper.ConfigurationProvider)
             .ToListAsync(cancellationToken);
 
-            var likesCount = await _repositoryLike.TableNoTracking
+            int likesCount = await _repositoryLike.TableNoTracking
                 .CountAsync(a => !a.VersionStatus.Equals(2) && a.PostId.Equals(result.Data.Id), cancellationToken);
 
-            var likes = await _repositoryLike.TableNoTracking
+            float likes = await _repositoryLike.TableNoTracking
                 .Where(a => !a.VersionStatus.Equals(2) && a.PostId.Equals(result.Data.Id))
                 .SumAsync(a => a.Rate, cancellationToken);
 
-            var comments = await _repositoryComment.TableNoTracking
+            int comments = await _repositoryComment.TableNoTracking
                 .CountAsync(a => !a.VersionStatus.Equals(2) && a.PostId.Equals(result.Data.Id), cancellationToken);
 
-            var views = await _repositoryView.TableNoTracking
+            int views = await _repositoryView.TableNoTracking
                 .CountAsync(a => !a.VersionStatus.Equals(2) && a.PostId.Equals(result.Data.Id), cancellationToken);
 
             result.Data.Tags = tags;
@@ -111,7 +114,7 @@ namespace MyApi.Controllers.v1
 
         public override async Task<ApiResult<PostSelectDto>> Update(int id, PostDto dto, CancellationToken cancellationToken)
         {
-            var user = await _userManager.GetUserAsync(HttpContext.User);
+            User user = await _userManager.GetUserAsync(HttpContext.User);
 
             if (await _userManager.IsInRoleAsync(user, "Admin"))
             {
@@ -120,10 +123,12 @@ namespace MyApi.Controllers.v1
 
             if (await _userManager.IsInRoleAsync(user, "User"))
             {
-                var item = await Repository.TableNoTracking.SingleAsync(a => a.Id.Equals(id), cancellationToken);
+                Post item = await Repository.TableNoTracking.SingleAsync(a => a.Id.Equals(id), cancellationToken);
 
                 if (!item.UserId.Equals(user.Id))
+                {
                     return BadRequest();
+                }
 
                 return await base.Update(id, dto, cancellationToken);
             }
@@ -140,10 +145,11 @@ namespace MyApi.Controllers.v1
         public override Task<ApiResult<PostSelectDto>> Create(PostDto dto, CancellationToken cancellationToken)
         {
             dto.UserId = HttpContext.User.Identity.GetUserId<int>();
-            dto.Time = DateTimeOffset.Now;
-            dto.Text = dto.Text.FixPersianChars();
-            dto.Title = dto.Title.FixPersianChars();
-            dto.ShortDescription = dto.ShortDescription.FixPersianChars();
+
+            //dto.Time = DateTimeOffset.Now;
+            //dto.Text = dto.Text.FixPersianChars();
+            //dto.Title = dto.Title.FixPersianChars();
+            //dto.ShortDescription = dto.ShortDescription.FixPersianChars();
 
             return base.Create(dto, cancellationToken);
         }
