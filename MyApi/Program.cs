@@ -45,7 +45,8 @@ namespace MyApi
             Host.CreateDefaultBuilder(args)
                 .UseServiceProviderFactory(new AutofacServiceProviderFactory())
                 .ConfigureLogging(options => options.ClearProviders())
-                .ConfigureLogging(logger => {
+                .ConfigureLogging(logger =>
+                {
                     logger.AddFilter(DbLoggerCategory.Database.Command.Name, LogLevel.Information);
                     logger.AddFilter(DbLoggerCategory.Database.Transaction.Name, LogLevel.Information);
                     logger.AddFilter(DbLoggerCategory.Database.Connection.Name, LogLevel.Information);
@@ -59,7 +60,11 @@ namespace MyApi
                     webBuilder.UseContentRoot(Directory.GetCurrentDirectory())
                         .UseIISIntegration()
                         //use in cmd mode, not iis express
-                        //.UseKestrel(c => c.AddServerHeader = false)
+                        .UseKestrel(c =>
+                        {
+                            c.AddServerHeader = false;
+                            c.Limits.MaxResponseBufferSize = 52428800; //50MB
+                        })
                         .UseStartup<Startup>();
                 });
     }
